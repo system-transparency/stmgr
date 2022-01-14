@@ -22,6 +22,7 @@ type HostCfgSimplified struct {
 	ProvisioningURLs []string          `json:"provisioning_urls"`
 	ID               string            `json:"identity"`
 	Auth             string            `json:"authentication"`
+	Timestamp        int64             `json:"timestamp"`
 	Custom           map[string]string `json:"custom,omitempty"`
 }
 

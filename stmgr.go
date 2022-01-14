@@ -48,18 +48,27 @@ func run(args []string) error {
 	case "provision":
 		// Provision tool and subcommands
 		provisionCmd := flag.NewFlagSet("provision", flag.ContinueOnError)
-		efi := provisionCmd.Bool("efi", false, "Store host_configuration.json in the efivarfs")
+		provisionEfi := provisionCmd.Bool("efi", false, "Store host_configuration.json in the efivarfs.")
+		provisionVersion := provisionCmd.Int("version", 1, "Hostconfig version.")
+		provisionAddrMode := provisionCmd.String("addrMode", "", "Hostconfig network_mode.")
+		provisionHostIP := provisionCmd.String("hostIP", "", "Hostconfig host_ip.")
+		provisionGateway := provisionCmd.String("gateway", "", "Hostconfig gateway.")
+		provisionDNS := provisionCmd.String("dns", "", "Hostconfig dns.")
+		provisionInterface := provisionCmd.String("interface", "", "Hostconfig network_interface.")
+		provisionURLs := provisionCmd.String("urls", "", "Hostconfig provisioning_urls.")
+		provisionID := provisionCmd.String("id", "", "Hostconfig identity.")
+		provisionAuth := provisionCmd.String("auth", "", "Hostconfig authentication.")
 
 		provisionCmd.Parse(args[2:])
-		return provision.Run(*efi)
+		return provision.Run(*provisionEfi, *provisionVersion, *provisionAddrMode, *provisionHostIP, *provisionGateway, *provisionDNS, *provisionInterface, *provisionURLs, *provisionID, *provisionAuth)
 	case "keygen":
 		// Keygen tool and subcommands
 		keygenCmd := flag.NewFlagSet("keygen", flag.ContinueOnError)
-		keygenRootCert := keygenCmd.String("rootCert", "", "Root certificate in PEM format to sign the new certificate. Ignored if -isCA is set")
-		keygenRootKey := keygenCmd.String("rootKey", "", "Root key in PEM format to sign the new certificate. Ignored if -isCA is set")
-		keygenIsCA := keygenCmd.Bool("isCA", false, "Generate self signed root certificate")
+		keygenRootCert := keygenCmd.String("rootCert", "", "Root certificate in PEM format to sign the new certificate. Ignored if -isCA is set.")
+		keygenRootKey := keygenCmd.String("rootKey", "", "Root key in PEM format to sign the new certificate. Ignored if -isCA is set.")
+		keygenIsCA := keygenCmd.Bool("isCA", false, "Generate self signed root certificate.")
 		keygenValidFrom := keygenCmd.String("validFrom", "", "Date formatted as RFC822. Defaults to time of creation.")
-		keygenValidUntil := keygenCmd.String("validUntil", "", "Date formatted as RFC822. Defaults to time of creation + 72h")
+		keygenValidUntil := keygenCmd.String("validUntil", "", "Date formatted as RFC822. Defaults to time of creation + 72h.")
 		keygenCertOut := keygenCmd.String("certOut", "", "Output certificate file. Defaults to cert.pem or rootcert.pem is -isCA is set.")
 		keygenKeyOut := keygenCmd.String("keyOut", "", "Output key file. Defaults to key.pem or rootkey.pem if -isCA is set.")
 
