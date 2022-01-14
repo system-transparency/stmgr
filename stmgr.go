@@ -10,6 +10,7 @@ import (
 	"os"
 
 	"github.com/system-transparency/stmgr/keygen"
+	"github.com/system-transparency/stmgr/ospkg"
 	"github.com/system-transparency/stmgr/provision"
 )
 
@@ -23,6 +24,10 @@ Usage: stmgr <COMMAND> [subcommands...]
 	keygen:
 		Generate certificates for signing OS packages
 		using ED25519 keys.
+
+	createOSPKG:
+		Create an OS package from the provided operating
+		system files.
 
 Use stmgr <COMMAND> -help for more info.
 `
@@ -78,6 +83,20 @@ func run(args []string) error {
 			return err
 		}
 		return keygen.Run(*keygenIsCA, *keygenRootCert, *keygenRootKey, *keygenValidFrom, *keygenValidUntil, *keygenCertOut, *keygenKeyOut)
+
+	case "createOSPKG":
+		// CreateOSPKG tool and subcommands
+		createOspkgCmd := flag.NewFlagSet("createOSPKG", flag.ContinueOnError)
+		createOspkgOut := createOspkgCmd.String("out", "", "OS package output path. Two files will be created: the archive ZIP file and the descriptor JSON file. A directory or a filename can be passed. In case of a filename the file extensions will be set properly. Default name is system-transparency-os-package.")
+		createOspkgLabel := createOspkgCmd.String("label", "", "Short description of the boot configuration. Defaults to 'System Transparency OS package <kernel>'.")
+		createOspkgURL := createOspkgCmd.String("url", "", "URL of the OS package zip file in case of network boot mode.")
+		createOspkgKernel := createOspkgCmd.String("kernel", "", "Operating system kernel.")
+		createOspkgInitramfs := createOspkgCmd.String("initramfs", "", "Operating system initramfs.")
+		createOspkgCmdLine := createOspkgCmd.String("cmdline", "", "Kernel command line.")
+
+		createOspkgCmd.Parse(args[2:])
+		return ospkg.Run(*createOspkgOut, *createOspkgLabel, *createOspkgURL, *createOspkgKernel, *createOspkgInitramfs, *createOspkgCmdLine)
+
 	default:
 		// Display helptext on unknown command
 		log.Print(helpText)
