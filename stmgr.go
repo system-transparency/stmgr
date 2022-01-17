@@ -6,7 +6,7 @@ package main
 
 import (
 	"flag"
-	"log"
+	"fmt"
 	"os"
 
 	"github.com/system-transparency/stmgr/keygen"
@@ -14,7 +14,7 @@ import (
 	"github.com/system-transparency/stmgr/provision"
 )
 
-const helpText = `
+const USAGE = `
 Usage: stmgr <COMMAND> [subcommands...]
 	provision:
 		Allows creating host configurations by spawning a TUI in
@@ -33,10 +33,8 @@ Use stmgr <COMMAND> -help for more info.
 `
 
 func main() {
-	log.SetPrefix("stmgr: ")
-	log.SetFlags(log.Ltime | log.Lmsgprefix)
 	if err := run(os.Args); err != nil {
-		log.Printf("ERROR: Runtime error: %v\n", err)
+		fmt.Printf("ERROR: Runtime error: %v\n", err)
 		os.Exit(1)
 	}
 }
@@ -44,7 +42,7 @@ func main() {
 func run(args []string) error {
 	// Display helptext if no arguments are given
 	if len(args) < 2 {
-		log.Print(helpText)
+		fmt.Print(USAGE)
 		return nil
 	}
 
@@ -94,12 +92,14 @@ func run(args []string) error {
 		createOspkgInitramfs := createOspkgCmd.String("initramfs", "", "Operating system initramfs.")
 		createOspkgCmdLine := createOspkgCmd.String("cmdline", "", "Kernel command line.")
 
-		createOspkgCmd.Parse(args[2:])
+		if err := createOspkgCmd.Parse(args[2:]); err != nil {
+			return err
+		}
 		return ospkg.Run(*createOspkgOut, *createOspkgLabel, *createOspkgURL, *createOspkgKernel, *createOspkgInitramfs, *createOspkgCmdLine)
 
 	default:
 		// Display helptext on unknown command
-		log.Print(helpText)
+		fmt.Print(USAGE)
 		return nil
 	}
 }
