@@ -59,7 +59,9 @@ func run(args []string) error {
 		provisionID := provisionCmd.String("id", "", "Hostconfig identity.")
 		provisionAuth := provisionCmd.String("auth", "", "Hostconfig authentication.")
 
-		provisionCmd.Parse(args[2:])
+		if err := provisionCmd.Parse(args[2:]); err != nil {
+			return err
+		}
 		return provision.Run(*provisionEfi, *provisionVersion, *provisionAddrMode, *provisionHostIP, *provisionGateway, *provisionDNS, *provisionInterface, *provisionURLs, *provisionID, *provisionAuth)
 	case "keygen":
 		// Keygen tool and subcommands
@@ -72,7 +74,9 @@ func run(args []string) error {
 		keygenCertOut := keygenCmd.String("certOut", "", "Output certificate file. Defaults to cert.pem or rootcert.pem is -isCA is set.")
 		keygenKeyOut := keygenCmd.String("keyOut", "", "Output key file. Defaults to key.pem or rootkey.pem if -isCA is set.")
 
-		keygenCmd.Parse(args[2:])
+		if err := keygenCmd.Parse(args[2:]); err != nil {
+			return err
+		}
 		return keygen.Run(*keygenIsCA, *keygenRootCert, *keygenRootKey, *keygenValidFrom, *keygenValidUntil, *keygenCertOut, *keygenKeyOut)
 	default:
 		// Display helptext on unknown command
