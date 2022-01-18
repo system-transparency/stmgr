@@ -12,6 +12,7 @@ import (
 	"github.com/system-transparency/stmgr/keygen"
 	"github.com/system-transparency/stmgr/ospkg"
 	"github.com/system-transparency/stmgr/provision"
+	"github.com/system-transparency/stmgr/sign"
 )
 
 const USAGE = `
@@ -28,6 +29,9 @@ Usage: stmgr <COMMAND> [subcommands...]
 	createOSPKG:
 		Create an OS package from the provided operating
 		system files.
+
+	sign:
+		Sign the provided OS package with your private key.
 
 Use stmgr <COMMAND> -help for more info.
 `
@@ -66,6 +70,7 @@ func run(args []string) error {
 			return err
 		}
 		return provision.Run(*provisionEfi, *provisionVersion, *provisionAddrMode, *provisionHostIP, *provisionGateway, *provisionDNS, *provisionInterface, *provisionURLs, *provisionID, *provisionAuth)
+
 	case "keygen":
 		// Keygen tool and subcommands
 		keygenCmd := flag.NewFlagSet("keygen", flag.ContinueOnError)
@@ -96,6 +101,18 @@ func run(args []string) error {
 			return err
 		}
 		return ospkg.Run(*createOspkgOut, *createOspkgLabel, *createOspkgURL, *createOspkgKernel, *createOspkgInitramfs, *createOspkgCmdLine)
+
+	case "sign":
+		// Sign tool and subcommands
+		signCmd := flag.NewFlagSet("sign", flag.ContinueOnError)
+		signKey := signCmd.String("key", "", "Private key for signing.")
+		signCert := signCmd.String("cert", "", "Certificate corresponding to the private key.")
+		signOSPKG := signCmd.String("ospkg", "", "OS package archive or descriptor file. Both need to be present.")
+
+		if err := signCmd.Parse(args[2:]); err != nil {
+			return err
+		}
+		return sign.Run(*signKey, *signCert, *signOSPKG)
 
 	default:
 		// Display helptext on unknown command
