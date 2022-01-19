@@ -15,108 +15,178 @@ import (
 	"github.com/system-transparency/stmgr/sign"
 )
 
-const USAGE = `
-Usage: stmgr <COMMAND> [subcommands...]
+const (
+	usage = `Usage: stmgr <COMMAND> <SUBCOMMAND> [flags...]
+COMMANDS:
+	ospkg:
+		Set of commands related to OS packages. This includes
+		creating, signing and analyzing them.
+
 	provision:
-		Allows creating host configurations by spawning a TUI in
-		which the user can input values into that are converted
-		into a host_configuration.json file.
+		Set of commands to provision a node for system-transparency
+		usage, like creating and writing a host configuration.
 
 	keygen:
-		Generate certificates for signing OS packages
-		using ED25519 keys.
+		Commands to generate different keys and certificates for
+		system-transparency.
 
-	createOSPKG:
+	build:
+		Not yet implemented!
+
+Use 'stmgr <COMMAND> -help' for more info.
+`
+
+	ospkgUsage = `SUBCOMMANDS:
+	create:
 		Create an OS package from the provided operating
 		system files.
 
 	sign:
 		Sign the provided OS package with your private key.
 
-Use stmgr <COMMAND> -help for more info.
+Use 'stmgr ospkg <SUBCOMMAND> -help' for more info.
 `
+
+	provisionUsage = `SUBCOMMANDS:
+	hostconfig:
+		Allows creating host configurations by spawning a TUI in
+		which the user can input values into that are converted
+		into a host_configuration.json file.
+
+Use 'stmgr provision <SUBCOMMAND> -help' for more info.
+`
+
+	keygenUsage = `SUBCOMMANDS:
+	certificate:
+		Generate certificates for signing OS packages
+		using ED25519 keys.
+
+Use 'stmgr keygen <SUBCOMMAND> -help' for more info.
+`
+)
 
 func main() {
 	if err := run(os.Args); err != nil {
-		fmt.Printf("ERROR: Runtime error: %v\n", err)
+		fmt.Printf("ERROR: %v\n", err)
 		os.Exit(1)
 	}
 }
 
 func run(args []string) error {
 	// Display helptext if no arguments are given
-	if len(args) < 2 {
-		fmt.Print(USAGE)
+	if len(args) < 3 {
+		fmt.Print(usage)
 		return nil
 	}
 
-	// Evaluate the cli arguments
+	// Check which command is requested or display usage
 	switch args[1] {
-	case "provision":
-		// Provision tool and subcommands
-		provisionCmd := flag.NewFlagSet("provision", flag.ContinueOnError)
-		provisionEfi := provisionCmd.Bool("efi", false, "Store host_configuration.json in the efivarfs.")
-		provisionVersion := provisionCmd.Int("version", 1, "Hostconfig version.")
-		provisionAddrMode := provisionCmd.String("addrMode", "", "Hostconfig network_mode.")
-		provisionHostIP := provisionCmd.String("hostIP", "", "Hostconfig host_ip.")
-		provisionGateway := provisionCmd.String("gateway", "", "Hostconfig gateway.")
-		provisionDNS := provisionCmd.String("dns", "", "Hostconfig dns.")
-		provisionInterface := provisionCmd.String("interface", "", "Hostconfig network_interface.")
-		provisionURLs := provisionCmd.String("urls", "", "Hostconfig provisioning_urls.")
-		provisionID := provisionCmd.String("id", "", "Hostconfig identity.")
-		provisionAuth := provisionCmd.String("auth", "", "Hostconfig authentication.")
+	case "ospkg":
+		// Check for ospkg subcommands
+		switch args[2] {
+		case "create":
+			// Create tool and flags
+			createCmd := flag.NewFlagSet("createOSPKG", flag.ExitOnError)
+			createOut := createCmd.String("out", "", "OS package output path. Two files will be created: the archive ZIP file and the descriptor JSON file. A directory or a filename can be passed. In case of a filename the file extensions will be set properly. Default name is system-transparency-os-package.")
+			createLabel := createCmd.String("label", "", "Short description of the boot configuration. Defaults to 'System Transparency OS package <kernel>'.")
+			createURL := createCmd.String("url", "", "URL of the OS package zip file in case of network boot mode.")
+			createKernel := createCmd.String("kernel", "", "Operating system kernel.")
+			createInitramfs := createCmd.String("initramfs", "", "Operating system initramfs.")
+			createCmdLine := createCmd.String("cmdline", "", "Kernel command line.")
 
-		if err := provisionCmd.Parse(args[2:]); err != nil {
-			return err
+			if err := createCmd.Parse(args[3:]); err != nil {
+				return err
+			}
+			return ospkg.Run(*createOut, *createLabel, *createURL, *createKernel, *createInitramfs, *createCmdLine)
+
+		case "sign":
+			// Sign tool and flags
+			signCmd := flag.NewFlagSet("sign", flag.ExitOnError)
+			signKey := signCmd.String("key", "", "Private key for signing.")
+			signCert := signCmd.String("cert", "", "Certificate corresponding to the private key.")
+			signOSPKG := signCmd.String("ospkg", "", "OS package archive or descriptor file. Both need to be present.")
+
+			if err := signCmd.Parse(args[3:]); err != nil {
+				return err
+			}
+			return sign.Run(*signKey, *signCert, *signOSPKG)
+
+		case "show":
+			// Show tool and flags
+			fmt.Println("Not implemented yet!")
+			return nil
+
+		default:
+			// Display usage on unknown subcommand
+			fmt.Print(ospkgUsage)
+			return nil
 		}
-		return provision.Run(*provisionEfi, *provisionVersion, *provisionAddrMode, *provisionHostIP, *provisionGateway, *provisionDNS, *provisionInterface, *provisionURLs, *provisionID, *provisionAuth)
+
+	case "provision":
+		// Check for provision subcommands
+		switch args[2] {
+		case "hostconfig":
+			// Host configuration tool and flags
+			hostconfigCmd := flag.NewFlagSet("provision", flag.ExitOnError)
+			hostconfigEfi := hostconfigCmd.Bool("efi", false, "Store host_configuration.json in the efivarfs.")
+			hostconfigVersion := hostconfigCmd.Int("version", 1, "Hostconfig version.")
+			hostconfigAddrMode := hostconfigCmd.String("addrMode", "", "Hostconfig network_mode.")
+			hostconfigHostIP := hostconfigCmd.String("hostIP", "", "Hostconfig host_ip.")
+			hostconfigGateway := hostconfigCmd.String("gateway", "", "Hostconfig gateway.")
+			hostconfigDNS := hostconfigCmd.String("dns", "", "Hostconfig dns.")
+			hostconfigInterface := hostconfigCmd.String("interface", "", "Hostconfig network_interface.")
+			hostconfigURLs := hostconfigCmd.String("urls", "", "Hostconfig provisioning_urls.")
+			hostconfigID := hostconfigCmd.String("id", "", "Hostconfig identity.")
+			hostconfigAuth := hostconfigCmd.String("auth", "", "Hostconfig authentication.")
+
+			if err := hostconfigCmd.Parse(args[3:]); err != nil {
+				return err
+			}
+			return provision.Run(*hostconfigEfi, *hostconfigVersion, *hostconfigAddrMode, *hostconfigHostIP, *hostconfigGateway, *hostconfigDNS, *hostconfigInterface, *hostconfigURLs, *hostconfigID, *hostconfigAuth)
+
+		default:
+			// Display usage on unknown subcommand
+			fmt.Print(provisionUsage)
+			return nil
+		}
 
 	case "keygen":
-		// Keygen tool and subcommands
-		keygenCmd := flag.NewFlagSet("keygen", flag.ContinueOnError)
-		keygenRootCert := keygenCmd.String("rootCert", "", "Root certificate in PEM format to sign the new certificate. Ignored if -isCA is set.")
-		keygenRootKey := keygenCmd.String("rootKey", "", "Root key in PEM format to sign the new certificate. Ignored if -isCA is set.")
-		keygenIsCA := keygenCmd.Bool("isCA", false, "Generate self signed root certificate.")
-		keygenValidFrom := keygenCmd.String("validFrom", "", "Date formatted as RFC822. Defaults to time of creation.")
-		keygenValidUntil := keygenCmd.String("validUntil", "", "Date formatted as RFC822. Defaults to time of creation + 72h.")
-		keygenCertOut := keygenCmd.String("certOut", "", "Output certificate file. Defaults to cert.pem or rootcert.pem is -isCA is set.")
-		keygenKeyOut := keygenCmd.String("keyOut", "", "Output key file. Defaults to key.pem or rootkey.pem if -isCA is set.")
+		// Check for keygen subcommands
+		switch args[2] {
+		case "certificate":
+			// Certificate tool and flags
+			certificateCmd := flag.NewFlagSet("keygen", flag.ExitOnError)
+			certificateRootCert := certificateCmd.String("rootCert", "", "Root certificate in PEM format to sign the new certificate. Ignored if -isCA is set.")
+			certificateRootKey := certificateCmd.String("rootKey", "", "Root key in PEM format to sign the new certificate. Ignored if -isCA is set.")
+			certificateIsCA := certificateCmd.Bool("isCA", false, "Generate self signed root certificate.")
+			certificateValidFrom := certificateCmd.String("validFrom", "", "Date formatted as RFC822. Defaults to time of creation.")
+			certificateValidUntil := certificateCmd.String("validUntil", "", "Date formatted as RFC822. Defaults to time of creation + 72h.")
+			certificateCertOut := certificateCmd.String("certOut", "", "Output certificate file. Defaults to cert.pem or rootcert.pem is -isCA is set.")
+			certificateKeyOut := certificateCmd.String("keyOut", "", "Output key file. Defaults to key.pem or rootkey.pem if -isCA is set.")
 
-		if err := keygenCmd.Parse(args[2:]); err != nil {
-			return err
+			if err := certificateCmd.Parse(args[3:]); err != nil {
+				return err
+			}
+			return keygen.Run(*certificateIsCA, *certificateRootCert, *certificateRootKey, *certificateValidFrom, *certificateValidUntil, *certificateCertOut, *certificateKeyOut)
+
+		default:
+			// Display usage on unknown subcommand
+			fmt.Print(keygenUsage)
+			return nil
 		}
-		return keygen.Run(*keygenIsCA, *keygenRootCert, *keygenRootKey, *keygenValidFrom, *keygenValidUntil, *keygenCertOut, *keygenKeyOut)
 
-	case "createOSPKG":
-		// CreateOSPKG tool and subcommands
-		createOspkgCmd := flag.NewFlagSet("createOSPKG", flag.ContinueOnError)
-		createOspkgOut := createOspkgCmd.String("out", "", "OS package output path. Two files will be created: the archive ZIP file and the descriptor JSON file. A directory or a filename can be passed. In case of a filename the file extensions will be set properly. Default name is system-transparency-os-package.")
-		createOspkgLabel := createOspkgCmd.String("label", "", "Short description of the boot configuration. Defaults to 'System Transparency OS package <kernel>'.")
-		createOspkgURL := createOspkgCmd.String("url", "", "URL of the OS package zip file in case of network boot mode.")
-		createOspkgKernel := createOspkgCmd.String("kernel", "", "Operating system kernel.")
-		createOspkgInitramfs := createOspkgCmd.String("initramfs", "", "Operating system initramfs.")
-		createOspkgCmdLine := createOspkgCmd.String("cmdline", "", "Kernel command line.")
-
-		if err := createOspkgCmd.Parse(args[2:]); err != nil {
-			return err
+	case "build":
+		// Check for build subcommands
+		switch args[2] {
+		default:
+			// Display usage on unknown subcommand
+			fmt.Println("Not implemented yet!")
+			return nil
 		}
-		return ospkg.Run(*createOspkgOut, *createOspkgLabel, *createOspkgURL, *createOspkgKernel, *createOspkgInitramfs, *createOspkgCmdLine)
-
-	case "sign":
-		// Sign tool and subcommands
-		signCmd := flag.NewFlagSet("sign", flag.ContinueOnError)
-		signKey := signCmd.String("key", "", "Private key for signing.")
-		signCert := signCmd.String("cert", "", "Certificate corresponding to the private key.")
-		signOSPKG := signCmd.String("ospkg", "", "OS package archive or descriptor file. Both need to be present.")
-
-		if err := signCmd.Parse(args[2:]); err != nil {
-			return err
-		}
-		return sign.Run(*signKey, *signCert, *signOSPKG)
 
 	default:
-		// Display helptext on unknown command
-		fmt.Print(USAGE)
+		// Display usage on unknown command
+		fmt.Print(usage)
 		return nil
 	}
 }
