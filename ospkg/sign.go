@@ -2,46 +2,45 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package sign
+package ospkg
 
 import (
-	"encoding/pem"
-	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
 
-	"github.com/system-transparency/stboot/ospkg"
+	ospkgs "github.com/system-transparency/stboot/ospkg"
+	"github.com/system-transparency/stmgr/keygen"
 )
 
 const (
 	DefaultOutName = "system-transparency-os-package"
 )
 
-func Run(keyPath, certPath, pkgPath string) error {
+func Sign(keyPath, certPath, pkgPath string) error {
 	pkgPath, err := parsePkgPath(pkgPath)
 	if err != nil {
 		return err
 	}
-	archive, err := os.ReadFile(pkgPath + ospkg.OSPackageExt)
+	archive, err := os.ReadFile(pkgPath + ospkgs.OSPackageExt)
 	if err != nil {
 		return err
 	}
-	descriptor, err := os.ReadFile(pkgPath + ospkg.DescriptorExt)
+	descriptor, err := os.ReadFile(pkgPath + ospkgs.DescriptorExt)
 	if err != nil {
 		return err
 	}
-	osp, err := ospkg.NewOSPackage(archive, descriptor)
+	osp, err := ospkgs.NewOSPackage(archive, descriptor)
 	if err != nil {
 		return err
 	}
 
-	key, err := loadPEM(keyPath)
+	key, err := keygen.LoadPEM(keyPath)
 	if err != nil {
 		return err
 	}
-	cert, err := loadPEM(certPath)
+	cert, err := keygen.LoadPEM(certPath)
 	if err != nil {
 		return err
 	}
@@ -55,7 +54,7 @@ func Run(keyPath, certPath, pkgPath string) error {
 		return err
 	}
 
-	return os.WriteFile(pkgPath+ospkg.DescriptorExt, signedDescriptor, 0666)
+	return os.WriteFile(pkgPath+ospkgs.DescriptorExt, signedDescriptor, 0666)
 }
 
 func parsePkgPath(path string) (string, error) {
@@ -78,26 +77,9 @@ func parsePkgPath(path string) (string, error) {
 	switch ext {
 	case "":
 		return path, nil
-	case ospkg.OSPackageExt, ospkg.DescriptorExt:
+	case ospkgs.OSPackageExt, ospkgs.DescriptorExt:
 		return strings.TrimSuffix(path, ext), nil
 	default:
 		return "", fmt.Errorf("invalid file extension %q", ext)
 	}
-}
-
-func loadPEM(path string) (*pem.Block, error) {
-	bytes, err := os.ReadFile(path)
-	if err != nil {
-		return nil, err
-	}
-
-	block, rest := pem.Decode(bytes)
-	if block == nil {
-		return nil, errors.New("no PEM block found")
-	}
-	if len(rest) != 0 {
-		return nil, errors.New("unexpected trailing data after PEM block")
-	}
-
-	return block, nil
 }

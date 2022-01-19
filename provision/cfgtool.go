@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-func Run(efi bool, version int, addrMode, hostIP, gateway, dns, interfaces, urls, id, auth string) error {
+func Cfgtool(efi bool, version int, addrMode, hostIP, gateway, dns, interfaces, urls, id, auth string) error {
 	if isDefined(addrMode, hostIP, gateway, dns, interfaces, urls, id, auth) {
 		cfg := &HostCfgSimplified{
 			Version:          version,

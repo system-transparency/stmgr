@@ -10,7 +10,7 @@ import (
 	ospkgs "github.com/system-transparency/stboot/ospkg"
 )
 
-func Run(out, label, url, kernel, initramfs, cmdline string) error {
+func Create(out, label, url, kernel, initramfs, cmdline string) error {
 	osp, err := ospkgs.CreateOSPackage(label, url, kernel, initramfs, cmdline)
 	if err != nil {
 		return err
