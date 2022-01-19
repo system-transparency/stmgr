@@ -9,7 +9,6 @@ import (
 	"crypto/rand"
 	"crypto/x509"
 	"encoding/pem"
-	"errors"
 	"math/big"
 	"os"
 	"path/filepath"
@@ -23,7 +22,7 @@ const (
 	DefaultRootKeyName  = "rootkey.pem"
 )
 
-func Run(isCa bool, rootCertPath, rootKeyPath, validFrom, validUntil, certOut, keyOut string) error {
+func Certificate(isCa bool, rootCertPath, rootKeyPath, validFrom, validUntil, certOut, keyOut string) error {
 	keyOut, err := parseKeyPath(isCa, keyOut)
 	if err != nil {
 		return err
@@ -52,7 +51,7 @@ func Run(isCa bool, rootCertPath, rootKeyPath, validFrom, validUntil, certOut, k
 			return err
 		}
 	} else {
-		rootCertBlock, err := loadPEM(rootKeyPath)
+		rootCertBlock, err := LoadPEM(rootKeyPath)
 		if err != nil {
 			return err
 		}
@@ -61,7 +60,7 @@ func Run(isCa bool, rootCertPath, rootKeyPath, validFrom, validUntil, certOut, k
 			return err
 		}
 
-		rootKeyBlock, err := loadPEM(rootKeyPath)
+		rootKeyBlock, err := LoadPEM(rootKeyPath)
 		if err != nil {
 			return err
 		}
@@ -85,7 +84,7 @@ func Run(isCa bool, rootCertPath, rootKeyPath, validFrom, validUntil, certOut, k
 		Type:  "CERTIFICATE",
 		Bytes: newCert.Raw,
 	}
-	if err := writePEM(&certBlock, certOut); err != nil {
+	if err := WritePEM(&certBlock, certOut); err != nil {
 		return err
 	}
 
@@ -93,7 +92,7 @@ func Run(isCa bool, rootCertPath, rootKeyPath, validFrom, validUntil, certOut, k
 		Type:  "PRIVATE KEY",
 		Bytes: key,
 	}
-	if err := writePEM(&keyBlock, keyOut); err != nil {
+	if err := WritePEM(&keyBlock, keyOut); err != nil {
 		return err
 	}
 
@@ -183,26 +182,4 @@ func newCertWithED25519Key(rootCert *x509.Certificate, rootKey *interface{}, not
 	}
 
 	return newCert, newPriv, nil
-}
-
-func loadPEM(path string) (*pem.Block, error) {
-	bytes, err := os.ReadFile(path)
-	if err != nil {
-		return nil, err
-	}
-
-	block, rest := pem.Decode(bytes)
-	if block == nil {
-		return nil, errors.New("no PEM block found")
-	}
-	if len(rest) != 0 {
-		return nil, errors.New("unexpected trailing data after PEM block")
-	}
-
-	return block, nil
-}
-
-func writePEM(block *pem.Block, path string) error {
-	pemBytes := pem.EncodeToMemory(block)
-	return os.WriteFile(path, pemBytes, 0666)
 }

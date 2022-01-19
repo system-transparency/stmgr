@@ -12,7 +12,6 @@ import (
 	"github.com/system-transparency/stmgr/keygen"
 	"github.com/system-transparency/stmgr/ospkg"
 	"github.com/system-transparency/stmgr/provision"
-	"github.com/system-transparency/stmgr/sign"
 )
 
 const (
@@ -97,7 +96,7 @@ func run(args []string) error {
 			if err := createCmd.Parse(args[3:]); err != nil {
 				return err
 			}
-			return ospkg.Run(*createOut, *createLabel, *createURL, *createKernel, *createInitramfs, *createCmdLine)
+			return ospkg.Create(*createOut, *createLabel, *createURL, *createKernel, *createInitramfs, *createCmdLine)
 
 		case "sign":
 			// Sign tool and flags
@@ -109,7 +108,7 @@ func run(args []string) error {
 			if err := signCmd.Parse(args[3:]); err != nil {
 				return err
 			}
-			return sign.Run(*signKey, *signCert, *signOSPKG)
+			return ospkg.Sign(*signKey, *signCert, *signOSPKG)
 
 		case "show":
 			// Show tool and flags
@@ -142,7 +141,7 @@ func run(args []string) error {
 			if err := hostconfigCmd.Parse(args[3:]); err != nil {
 				return err
 			}
-			return provision.Run(*hostconfigEfi, *hostconfigVersion, *hostconfigAddrMode, *hostconfigHostIP, *hostconfigGateway, *hostconfigDNS, *hostconfigInterface, *hostconfigURLs, *hostconfigID, *hostconfigAuth)
+			return provision.Cfgtool(*hostconfigEfi, *hostconfigVersion, *hostconfigAddrMode, *hostconfigHostIP, *hostconfigGateway, *hostconfigDNS, *hostconfigInterface, *hostconfigURLs, *hostconfigID, *hostconfigAuth)
 
 		default:
 			// Display usage on unknown subcommand
@@ -167,7 +166,7 @@ func run(args []string) error {
 			if err := certificateCmd.Parse(args[3:]); err != nil {
 				return err
 			}
-			return keygen.Run(*certificateIsCA, *certificateRootCert, *certificateRootKey, *certificateValidFrom, *certificateValidUntil, *certificateCertOut, *certificateKeyOut)
+			return keygen.Certificate(*certificateIsCA, *certificateRootCert, *certificateRootKey, *certificateValidFrom, *certificateValidUntil, *certificateCertOut, *certificateKeyOut)
 
 		default:
 			// Display usage on unknown subcommand
