@@ -1,0 +1,7 @@
+linters:
+  enable-all: true
+  disable:
+    - exhaustivestruct
+    - wrapcheck
+    - tagliatelle
+    - paralleltest
