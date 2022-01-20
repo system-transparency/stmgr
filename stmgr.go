@@ -6,12 +6,19 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"os"
 
 	"github.com/system-transparency/stmgr/keygen"
+	"github.com/system-transparency/stmgr/logging"
 	"github.com/system-transparency/stmgr/ospkg"
 	"github.com/system-transparency/stmgr/provision"
+)
+
+const (
+	_ = iota
+	commandCallPosition
+	subcommandCallPosition
+	flagsCallPosition
 )
 
 const (
@@ -65,24 +72,26 @@ Use 'stmgr keygen <SUBCOMMAND> -help' for more info.
 )
 
 func main() {
-	if err := run(os.Args); err != nil {
-		fmt.Printf("ERROR: %v\n", err)
+	log := logging.NewLogger(logging.ErrorLevel)
+	if err := run(os.Args, log); err != nil {
+		log.Error(err)
 		os.Exit(1)
 	}
 }
 
-func run(args []string) error {
+func run(args []string, log *logging.Logger) error {
 	// Display helptext if no arguments are given
-	if len(args) < 3 {
-		fmt.Print(usage)
+	if len(args) < flagsCallPosition {
+		log.Print(usage)
+
 		return nil
 	}
 
 	// Check which command is requested or display usage
-	switch args[1] {
+	switch args[commandCallPosition] {
 	case "ospkg":
 		// Check for ospkg subcommands
-		switch args[2] {
+		switch args[subcommandCallPosition] {
 		case "create":
 			// Create tool and flags
 			createCmd := flag.NewFlagSet("createOSPKG", flag.ExitOnError)
@@ -93,9 +102,10 @@ func run(args []string) error {
 			createInitramfs := createCmd.String("initramfs", "", "Operating system initramfs.")
 			createCmdLine := createCmd.String("cmdline", "", "Kernel command line.")
 
-			if err := createCmd.Parse(args[3:]); err != nil {
+			if err := createCmd.Parse(args[flagsCallPosition:]); err != nil {
 				return err
 			}
+
 			return ospkg.Create(*createOut, *createLabel, *createURL, *createKernel, *createInitramfs, *createCmdLine)
 
 		case "sign":
@@ -105,25 +115,28 @@ func run(args []string) error {
 			signCert := signCmd.String("cert", "", "Certificate corresponding to the private key.")
 			signOSPKG := signCmd.String("ospkg", "", "OS package archive or descriptor file. Both need to be present.")
 
-			if err := signCmd.Parse(args[3:]); err != nil {
+			if err := signCmd.Parse(args[flagsCallPosition:]); err != nil {
 				return err
 			}
+
 			return ospkg.Sign(*signKey, *signCert, *signOSPKG)
 
 		case "show":
 			// Show tool and flags
-			fmt.Println("Not implemented yet!")
+			log.Print("Not implemented yet!")
+
 			return nil
 
 		default:
 			// Display usage on unknown subcommand
-			fmt.Print(ospkgUsage)
+			log.Print(ospkgUsage)
+
 			return nil
 		}
 
 	case "provision":
 		// Check for provision subcommands
-		switch args[2] {
+		switch args[subcommandCallPosition] {
 		case "hostconfig":
 			// Host configuration tool and flags
 			hostconfigCmd := flag.NewFlagSet("provision", flag.ExitOnError)
@@ -138,20 +151,22 @@ func run(args []string) error {
 			hostconfigID := hostconfigCmd.String("id", "", "Hostconfig identity.")
 			hostconfigAuth := hostconfigCmd.String("auth", "", "Hostconfig authentication.")
 
-			if err := hostconfigCmd.Parse(args[3:]); err != nil {
+			if err := hostconfigCmd.Parse(args[flagsCallPosition:]); err != nil {
 				return err
 			}
+
 			return provision.Cfgtool(*hostconfigEfi, *hostconfigVersion, *hostconfigAddrMode, *hostconfigHostIP, *hostconfigGateway, *hostconfigDNS, *hostconfigInterface, *hostconfigURLs, *hostconfigID, *hostconfigAuth)
 
 		default:
 			// Display usage on unknown subcommand
-			fmt.Print(provisionUsage)
+			log.Print(provisionUsage)
+
 			return nil
 		}
 
 	case "keygen":
 		// Check for keygen subcommands
-		switch args[2] {
+		switch args[subcommandCallPosition] {
 		case "certificate":
 			// Certificate tool and flags
 			certificateCmd := flag.NewFlagSet("keygen", flag.ExitOnError)
@@ -163,29 +178,23 @@ func run(args []string) error {
 			certificateCertOut := certificateCmd.String("certOut", "", "Output certificate file. Defaults to cert.pem or rootcert.pem is -isCA is set.")
 			certificateKeyOut := certificateCmd.String("keyOut", "", "Output key file. Defaults to key.pem or rootkey.pem if -isCA is set.")
 
-			if err := certificateCmd.Parse(args[3:]); err != nil {
+			if err := certificateCmd.Parse(args[flagsCallPosition:]); err != nil {
 				return err
 			}
+
 			return keygen.Certificate(*certificateIsCA, *certificateRootCert, *certificateRootKey, *certificateValidFrom, *certificateValidUntil, *certificateCertOut, *certificateKeyOut)
 
 		default:
 			// Display usage on unknown subcommand
-			fmt.Print(keygenUsage)
-			return nil
-		}
+			log.Print(keygenUsage)
 
-	case "build":
-		// Check for build subcommands
-		switch args[2] {
-		default:
-			// Display usage on unknown subcommand
-			fmt.Println("Not implemented yet!")
 			return nil
 		}
 
 	default:
 		// Display usage on unknown command
-		fmt.Print(usage)
+		log.Print(usage)
+
 		return nil
 	}
 }
