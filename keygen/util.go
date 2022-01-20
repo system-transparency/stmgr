@@ -1,7 +1,3 @@
-// Copyright 2022 the System Transparency Authors. All rights reserved
-// Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE file.
-
 package keygen
 
 import (
@@ -20,6 +16,7 @@ func LoadPEM(path string) (*pem.Block, error) {
 	if block == nil {
 		return nil, errors.New("no PEM block found")
 	}
+
 	if len(rest) != 0 {
 		return nil, errors.New("unexpected trailing data after PEM block")
 	}
@@ -29,5 +26,6 @@ func LoadPEM(path string) (*pem.Block, error) {
 
 func WritePEM(block *pem.Block, path string) error {
 	pemBytes := pem.EncodeToMemory(block)
-	return os.WriteFile(path, pemBytes, 0666)
+
+	return os.WriteFile(path, pemBytes, 0o600)
 }
