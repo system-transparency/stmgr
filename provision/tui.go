@@ -12,6 +12,12 @@ import (
 	"github.com/rivo/tview"
 )
 
+const (
+	maxIdAndAuthLength      = 64
+	maxIdAndAuthLengthBytes = maxIdAndAuthLength / 2
+	minimumElementCount     = 9
+)
+
 var (
 	app              = tview.NewApplication()
 	mainForm         = tview.NewForm()
@@ -193,6 +199,7 @@ func evalVersion(version string) (int, bool) {
 	if err != nil {
 		return 1, false
 	}
+
 	return v, true
 }
 
@@ -200,6 +207,7 @@ func evalIP(ip string) bool {
 	if result := net.ParseIP(ip); result != nil {
 		return true
 	}
+
 	return false
 }
 
@@ -215,6 +223,7 @@ func evalMAC(mac string) bool {
 	if _, err := net.ParseMAC(mac); err != nil {
 		return false
 	}
+
 	return true
 }
 
@@ -224,18 +233,20 @@ func evalURLs(urls string) bool {
 			return false
 		}
 	}
+
 	return true
 }
 
 func evalRand(s string) bool {
-	return len(s) <= 64
+	return len(s) <= maxIdAndAuthLength
 }
 
 func getRandomHex() string {
-	b := make([]byte, 32)
+	b := make([]byte, maxIdAndAuthLengthBytes)
 	if _, err := rand.Reader.Read(b); err != nil {
 		return ""
 	}
+
 	return hex.EncodeToString(b)
 }
 
@@ -244,6 +255,7 @@ func guessGateway(s string) string {
 	i, _ := strconv.Atoi(segments[3])
 	i++
 	segments[3] = strconv.Itoa(i)
+
 	return strings.Join(segments, ".")
 }
 
@@ -252,8 +264,10 @@ func toggleMAC(state bool, mac string) {
 	if state {
 		if text == "" {
 			interfaceField.SetText(mac)
+
 			return
 		}
+
 		interfaceField.SetText(text + " " + mac)
 	} else {
 		interfaceField.SetText(text + " ")
@@ -275,9 +289,11 @@ func addCustomField() {
 }
 
 func appendCustomData(cfg *HostCfgSimplified) *HostCfgSimplified {
-	if mainForm.GetFormItemCount() < 10 {
+	if mainForm.GetFormItemCount() <= minimumElementCount {
 		return cfg
 	}
+
 	cfg.Custom = extension
+
 	return cfg
 }

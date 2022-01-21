@@ -5,20 +5,17 @@ import (
 	"time"
 )
 
-func Cfgtool(efi bool, version int, addrMode, hostIP, gateway, dns, interfaces, urls, id, auth string) error {
-	if isDefined(addrMode, hostIP, gateway, dns, interfaces, urls, id, auth) {
-		cfg := &HostCfgSimplified{
-			Version:          version,
-			IPAddrMode:       addrMode,
-			HostIP:           hostIP,
-			DefaultGateway:   gateway,
-			DNSServer:        dns,
-			NetworkInterface: interfaces,
-			ProvisioningURLs: strings.Split(urls, " "),
-			ID:               id,
-			Auth:             auth,
-			Timestamp:        time.Now().Unix(),
-		}
+func Cfgtool(efi bool, cfg *HostCfgSimplified) error {
+	if isDefined(
+		cfg.IPAddrMode,
+		cfg.HostIP,
+		cfg.DefaultGateway,
+		cfg.DNSServer,
+		cfg.NetworkInterface,
+		cfg.ID,
+		cfg.Auth,
+	) {
+		cfg.Timestamp = time.Now().Unix()
 
 		return MarshalCfg(cfg, efi)
 	}
@@ -27,5 +24,5 @@ func Cfgtool(efi bool, version int, addrMode, hostIP, gateway, dns, interfaces, 
 }
 
 func isDefined(s ...string) bool {
-	return strings.Join(s, "") != ""
+	return len(strings.Join(s, "")) != 0
 }
