@@ -86,110 +86,149 @@ func run(args []string, log *logging.Logger) error {
 	// Check which command is requested or display usage
 	switch args[commandCallPosition] {
 	case "ospkg":
-		// Check for ospkg subcommands
-		switch args[subcommandCallPosition] {
-		case "create":
-			// Create tool and flags
-			createCmd := flag.NewFlagSet("createOSPKG", flag.ExitOnError)
-			createOut := createCmd.String("out", "", "OS package output path. Two files will be created: the archive ZIP file and the descriptor JSON file. A directory or a filename can be passed. In case of a filename the file extensions will be set properly. Default name is system-transparency-os-package.")
-			createLabel := createCmd.String("label", "", "Short description of the boot configuration. Defaults to 'System Transparency OS package <kernel>'.")
-			createURL := createCmd.String("url", "", "URL of the OS package zip file in case of network boot mode.")
-			createKernel := createCmd.String("kernel", "", "Operating system kernel.")
-			createInitramfs := createCmd.String("initramfs", "", "Operating system initramfs.")
-			createCmdLine := createCmd.String("cmdline", "", "Kernel command line.")
-
-			if err := createCmd.Parse(args[flagsCallPosition:]); err != nil {
-				return err
-			}
-
-			return ospkg.Create(*createOut, *createLabel, *createURL, *createKernel, *createInitramfs, *createCmdLine)
-
-		case "sign":
-			// Sign tool and flags
-			signCmd := flag.NewFlagSet("sign", flag.ExitOnError)
-			signKey := signCmd.String("key", "", "Private key for signing.")
-			signCert := signCmd.String("cert", "", "Certificate corresponding to the private key.")
-			signOSPKG := signCmd.String("ospkg", "", "OS package archive or descriptor file. Both need to be present.")
-
-			if err := signCmd.Parse(args[flagsCallPosition:]); err != nil {
-				return err
-			}
-
-			return ospkg.Sign(*signKey, *signCert, *signOSPKG)
-
-		case "show":
-			// Show tool and flags
-			log.Print("Not implemented yet!")
-
-			return nil
-
-		default:
-			// Display usage on unknown subcommand
-			log.Print(ospkgUsage)
-
-			return nil
-		}
-
+		return ospkgArg(args, log)
 	case "provision":
-		// Check for provision subcommands
-		switch args[subcommandCallPosition] {
-		case "hostconfig":
-			// Host configuration tool and flags
-			hostconfigCmd := flag.NewFlagSet("provision", flag.ExitOnError)
-			hostconfigEfi := hostconfigCmd.Bool("efi", false, "Store host_configuration.json in the efivarfs.")
-			hostconfigVersion := hostconfigCmd.Int("version", 1, "Hostconfig version.")
-			hostconfigAddrMode := hostconfigCmd.String("addrMode", "", "Hostconfig network_mode.")
-			hostconfigHostIP := hostconfigCmd.String("hostIP", "", "Hostconfig host_ip.")
-			hostconfigGateway := hostconfigCmd.String("gateway", "", "Hostconfig gateway.")
-			hostconfigDNS := hostconfigCmd.String("dns", "", "Hostconfig dns.")
-			hostconfigInterface := hostconfigCmd.String("interface", "", "Hostconfig network_interface.")
-			hostconfigURLs := hostconfigCmd.String("urls", "", "Hostconfig provisioning_urls.")
-			hostconfigID := hostconfigCmd.String("id", "", "Hostconfig identity.")
-			hostconfigAuth := hostconfigCmd.String("auth", "", "Hostconfig authentication.")
-
-			if err := hostconfigCmd.Parse(args[flagsCallPosition:]); err != nil {
-				return err
-			}
-
-			return provision.Cfgtool(*hostconfigEfi, *hostconfigVersion, *hostconfigAddrMode, *hostconfigHostIP, *hostconfigGateway, *hostconfigDNS, *hostconfigInterface, *hostconfigURLs, *hostconfigID, *hostconfigAuth)
-
-		default:
-			// Display usage on unknown subcommand
-			log.Print(provisionUsage)
-
-			return nil
-		}
-
+		return provisionArg(args, log)
 	case "keygen":
-		// Check for keygen subcommands
-		switch args[subcommandCallPosition] {
-		case "certificate":
-			// Certificate tool and flags
-			certificateCmd := flag.NewFlagSet("keygen", flag.ExitOnError)
-			certificateRootCert := certificateCmd.String("rootCert", "", "Root certificate in PEM format to sign the new certificate. Ignored if -isCA is set.")
-			certificateRootKey := certificateCmd.String("rootKey", "", "Root key in PEM format to sign the new certificate. Ignored if -isCA is set.")
-			certificateIsCA := certificateCmd.Bool("isCA", false, "Generate self signed root certificate.")
-			certificateValidFrom := certificateCmd.String("validFrom", "", "Date formatted as RFC822. Defaults to time of creation.")
-			certificateValidUntil := certificateCmd.String("validUntil", "", "Date formatted as RFC822. Defaults to time of creation + 72h.")
-			certificateCertOut := certificateCmd.String("certOut", "", "Output certificate file. Defaults to cert.pem or rootcert.pem is -isCA is set.")
-			certificateKeyOut := certificateCmd.String("keyOut", "", "Output key file. Defaults to key.pem or rootkey.pem if -isCA is set.")
-
-			if err := certificateCmd.Parse(args[flagsCallPosition:]); err != nil {
-				return err
-			}
-
-			return keygen.Certificate(*certificateIsCA, *certificateRootCert, *certificateRootKey, *certificateValidFrom, *certificateValidUntil, *certificateCertOut, *certificateKeyOut)
-
-		default:
-			// Display usage on unknown subcommand
-			log.Print(keygenUsage)
-
-			return nil
-		}
-
+		return keygenArg(args, log)
 	default:
 		// Display usage on unknown command
 		log.Print(usage)
+
+		return nil
+	}
+}
+
+// Check for ospkg subcommands.
+func ospkgArg(args []string, log *logging.Logger) error {
+	switch args[subcommandCallPosition] {
+	case "create":
+		// Create tool and flags
+		createCmd := flag.NewFlagSet("createOSPKG", flag.ExitOnError)
+		createOut := createCmd.String("out", "", "OS package output path."+
+			" Two files will be created: the archive ZIP file and the descriptor JSON file."+
+			" A directory or a filename can be passed."+
+			" In case of a filename the file extensions will be set properly."+
+			" Default name is system-transparency-os-package.")
+		createLabel := createCmd.String("label", "", "Short description of the boot configuration."+
+			" Defaults to 'System Transparency OS package <kernel>'.")
+		createURL := createCmd.String("url", "", "URL of the OS package zip file in case of network boot mode.")
+		createKernel := createCmd.String("kernel", "", "Operating system kernel.")
+		createInitramfs := createCmd.String("initramfs", "", "Operating system initramfs.")
+		createCmdLine := createCmd.String("cmdline", "", "Kernel command line.")
+
+		if err := createCmd.Parse(args[flagsCallPosition:]); err != nil {
+			return err
+		}
+
+		return ospkg.Create(*createOut, *createLabel, *createURL, *createKernel, *createInitramfs, *createCmdLine)
+
+	case "sign":
+		// Sign tool and flags
+		signCmd := flag.NewFlagSet("sign", flag.ExitOnError)
+		signKey := signCmd.String("key", "", "Private key for signing.")
+		signCert := signCmd.String("cert", "", "Certificate corresponding to the private key.")
+		signOSPKG := signCmd.String("ospkg", "", "OS package archive or descriptor file. Both need to be present.")
+
+		if err := signCmd.Parse(args[flagsCallPosition:]); err != nil {
+			return err
+		}
+
+		return ospkg.Sign(*signKey, *signCert, *signOSPKG)
+
+	case "show":
+		// Show tool and flags
+		log.Print("Not implemented yet!")
+
+		return nil
+
+	default:
+		// Display usage on unknown subcommand
+		log.Print(ospkgUsage)
+
+		return nil
+	}
+}
+
+// Check for provision subcommands.
+func provisionArg(args []string, log *logging.Logger) error {
+	switch args[subcommandCallPosition] {
+	case "hostconfig":
+		// Host configuration tool and flags
+		hostconfigCmd := flag.NewFlagSet("provision", flag.ExitOnError)
+		hostconfigEfi := hostconfigCmd.Bool("efi", false, "Store host_configuration.json in the efivarfs.")
+		hostconfigVersion := hostconfigCmd.Int("version", 1, "Hostconfig version.")
+		hostconfigAddrMode := hostconfigCmd.String("addrMode", "", "Hostconfig network_mode.")
+		hostconfigHostIP := hostconfigCmd.String("hostIP", "", "Hostconfig host_ip.")
+		hostconfigGateway := hostconfigCmd.String("gateway", "", "Hostconfig gateway.")
+		hostconfigDNS := hostconfigCmd.String("dns", "", "Hostconfig dns.")
+		hostconfigInterface := hostconfigCmd.String("interface", "", "Hostconfig network_interface.")
+		hostconfigURLs := hostconfigCmd.String("urls", "", "Hostconfig provisioning_urls.")
+		hostconfigID := hostconfigCmd.String("id", "", "Hostconfig identity.")
+		hostconfigAuth := hostconfigCmd.String("auth", "", "Hostconfig authentication.")
+
+		if err := hostconfigCmd.Parse(args[flagsCallPosition:]); err != nil {
+			return err
+		}
+
+		return provision.Cfgtool(
+			*hostconfigEfi,
+			*hostconfigVersion,
+			*hostconfigAddrMode,
+			*hostconfigHostIP,
+			*hostconfigGateway,
+			*hostconfigDNS,
+			*hostconfigInterface,
+			*hostconfigURLs,
+			*hostconfigID,
+			*hostconfigAuth,
+		)
+
+	default:
+		// Display usage on unknown subcommand
+		log.Print(provisionUsage)
+
+		return nil
+	}
+}
+
+// Check for keygen subcommands.
+func keygenArg(args []string, log *logging.Logger) error {
+	switch args[subcommandCallPosition] {
+	case "certificate":
+		// Certificate tool and flags
+		certificateCmd := flag.NewFlagSet("keygen", flag.ExitOnError)
+		certificateRootCert := certificateCmd.String("rootCert", "", "Root cert in PEM format to sign the new certificate."+
+			" Ignored if -isCA is set.")
+		certificateRootKey := certificateCmd.String("rootKey", "", "Root key in PEM format to sign the new certificate."+
+			" Ignored if -isCA is set.")
+		certificateIsCA := certificateCmd.Bool("isCA", false, "Generate self signed root certificate.")
+		certificateValidFrom := certificateCmd.String("validFrom", "", "Date formatted as RFC822."+
+			" Defaults to time of creation.")
+		certificateValidUntil := certificateCmd.String("validUntil", "", "Date formatted as RFC822."+
+			" Defaults to time of creation + 72h.")
+		certificateCertOut := certificateCmd.String("certOut", "", "Output certificate file."+
+			" Defaults to cert.pem or rootcert.pem is -isCA is set.")
+		certificateKeyOut := certificateCmd.String("keyOut", "", "Output key file."+
+			" Defaults to key.pem or rootkey.pem if -isCA is set.")
+
+		if err := certificateCmd.Parse(args[flagsCallPosition:]); err != nil {
+			return err
+		}
+
+		return keygen.Certificate(
+			*certificateIsCA,
+			*certificateRootCert,
+			*certificateRootKey,
+			*certificateValidFrom,
+			*certificateValidUntil,
+			*certificateCertOut,
+			*certificateKeyOut,
+		)
+
+	default:
+		// Display usage on unknown subcommand
+		log.Print(keygenUsage)
 
 		return nil
 	}
