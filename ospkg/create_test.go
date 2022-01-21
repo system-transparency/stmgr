@@ -1,9 +1,13 @@
-package ospkg
+package ospkg_test
 
 import (
 	"testing"
 )
 
-func Test(t *testing.T) {
+func TestCreate(t *testing.T) {
+	// TODO
+}
+
+func TestCheckArgs(t *testing.T) {
 	// TODO
 }
