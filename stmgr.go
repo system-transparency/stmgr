@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"os"
+	"strings"
 
 	"github.com/system-transparency/stmgr/keygen"
 	"github.com/system-transparency/stmgr/logging"
@@ -182,15 +183,17 @@ func provisionArg(args []string, log *logging.Logger) error {
 
 		return provision.Cfgtool(
 			*hostconfigEfi,
-			*hostconfigVersion,
-			*hostconfigAddrMode,
-			*hostconfigHostIP,
-			*hostconfigGateway,
-			*hostconfigDNS,
-			*hostconfigInterface,
-			*hostconfigURLs,
-			*hostconfigID,
-			*hostconfigAuth,
+			&provision.HostCfgSimplified{
+				Version:          *hostconfigVersion,
+				IPAddrMode:       *hostconfigAddrMode,
+				HostIP:           *hostconfigHostIP,
+				DefaultGateway:   *hostconfigGateway,
+				DNSServer:        *hostconfigDNS,
+				NetworkInterface: *hostconfigInterface,
+				ProvisioningURLs: strings.Split(*hostconfigURLs, " "),
+				ID:               *hostconfigID,
+				Auth:             *hostconfigAuth,
+			},
 		)
 
 	default:
