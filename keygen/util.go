@@ -3,8 +3,11 @@ package keygen
 import (
 	"encoding/pem"
 	"errors"
+	"io/fs"
 	"os"
 )
+
+const defaultFilePerm fs.FileMode = 0o600
 
 func LoadPEM(path string) (*pem.Block, error) {
 	bytes, err := os.ReadFile(path)
@@ -25,7 +28,5 @@ func LoadPEM(path string) (*pem.Block, error) {
 }
 
 func WritePEM(block *pem.Block, path string) error {
-	pemBytes := pem.EncodeToMemory(block)
-
-	return os.WriteFile(path, pemBytes, 0o600)
+	return os.WriteFile(path, pem.EncodeToMemory(block), defaultFilePerm)
 }

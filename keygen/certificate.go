@@ -5,6 +5,7 @@ import (
 	"crypto/rand"
 	"crypto/x509"
 	"encoding/pem"
+	"errors"
 	"math/big"
 	"os"
 	"path/filepath"
@@ -16,69 +17,90 @@ const (
 	DefaultRootCertName = "rootcert.pem"
 	DefaultKeyName      = "key.pem"
 	DefaultRootKeyName  = "rootkey.pem"
+	DefaultDuration     = 72 * time.Hour
 )
 
-func Certificate(isCa bool, rootCertPath, rootKeyPath, validFrom, validUntil, certOut, keyOut string) error {
-	keyOut, err := parseKeyPath(isCa, keyOut)
+type Args struct {
+	IsCa         bool
+	RootCertPath string
+	RootKeyPath  string
+	NotBefore    string
+	NotAfter     string
+	CertOut      string
+	KeyOut       string
+}
+
+func Certificate(args *Args) error {
+	if err := checkArgs(args); err != nil {
+		return err
+	}
+
+	keyOut, err := parseKeyPath(args.IsCa, args.KeyOut)
 	if err != nil {
 		return err
 	}
 
-	certOut, err = parseCertPath(isCa, certOut)
+	args.CertOut, err = parseCertPath(args.IsCa, args.CertOut)
 	if err != nil {
 		return err
 	}
 
-	notBefore, err := parseValidFrom(validFrom)
+	notBefore, err := parseValidFrom(args.NotBefore)
 	if err != nil {
 		return err
 	}
 
-	notAfter, err := parseValidUntil(validUntil)
+	notAfter, err := parseValidUntil(args.NotAfter)
 	if err != nil {
 		return err
 	}
 
-	var newCert *x509.Certificate
-	var newKey ed25519.PrivateKey
-	if rootCertPath == "" || rootKeyPath == "" {
-		newCert, newKey, err = newCertWithED25519Key(nil, nil, notBefore, notAfter)
+	var (
+		newCert *x509.Certificate
+		newKey  ed25519.PrivateKey
+	)
+
+	if len(args.RootCertPath) == 0 {
+		newCert, newKey, err = newCertWithKey(nil, nil, notBefore, notAfter)
 		if err != nil {
 			return err
 		}
 	} else {
-		rootCertBlock, err := LoadPEM(rootKeyPath)
-		if err != nil {
-			return err
-		}
-		rootCert, err := x509.ParseCertificate(rootCertBlock.Bytes)
+		rootCert, rootKey, err := parseCaFiles(args.RootKeyPath, args.RootCertPath)
 		if err != nil {
 			return err
 		}
 
-		rootKeyBlock, err := LoadPEM(rootKeyPath)
-		if err != nil {
-			return err
-		}
-		rootKey, err := x509.ParsePKCS8PrivateKey(rootKeyBlock.Bytes)
-		if err != nil {
-			return err
-		}
-
-		newCert, newKey, err = newCertWithED25519Key(rootCert, &rootKey, notBefore, notAfter)
+		newCert, newKey, err = newCertWithKey(rootCert, rootKey, notBefore, notAfter)
 		if err != nil {
 			return err
 		}
 	}
 
-	key, err := x509.MarshalPKCS8PrivateKey(newKey)
+	return writeToDisk(newCert, newKey, keyOut, args.CertOut)
+}
+
+func checkArgs(args *Args) error {
+	if args.IsCa && (len(args.RootCertPath) != 0 || len(args.RootKeyPath) != 0) {
+		return errors.New("isCa specified, will ignore rootKey and rootCert")
+	} else if len(args.RootCertPath) == 0 && len(args.RootKeyPath) != 0 {
+		return errors.New("missing rootCert")
+	} else if len(args.RootKeyPath) == 0 && len(args.RootCertPath) != 0 {
+		return errors.New("missing rootKey")
+	}
+
+	return nil
+}
+
+func writeToDisk(cert *x509.Certificate, key ed25519.PrivateKey, certOut, keyOut string) error {
+	marshaledKey, err := x509.MarshalPKCS8PrivateKey(key)
 	if err != nil {
 		return err
 	}
 
 	certBlock := pem.Block{
 		Type:  "CERTIFICATE",
-		Bytes: newCert.Raw,
+		Bytes: cert.Raw,
 	}
 	if err := WritePEM(&certBlock, certOut); err != nil {
 		return err
@@ -86,7 +108,7 @@ func Certificate(isCa bool, rootCertPath, rootKeyPath, validFrom, validUntil, ce
 
 	keyBlock := pem.Block{
 		Type:  "PRIVATE KEY",
-		Bytes: key,
+		Bytes: marshaledKey,
 	}
 	if err := WritePEM(&keyBlock, keyOut); err != nil {
 		return err
@@ -95,31 +117,59 @@ func Certificate(isCa bool, rootCertPath, rootKeyPath, validFrom, validUntil, ce
 	return nil
 }
 
+func parseCaFiles(rootKeyPath, rootCertPath string) (*x509.Certificate, *interface{}, error) {
+	rootCertBlock, err := LoadPEM(rootKeyPath)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	rootCert, err := x509.ParseCertificate(rootCertBlock.Bytes)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	rootKeyBlock, err := LoadPEM(rootCertPath)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	rootKey, err := x509.ParsePKCS8PrivateKey(rootKeyBlock.Bytes)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return rootCert, &rootKey, nil
+}
+
 func parseKeyPath(isCA bool, path string) (string, error) {
-	if path == "" {
+	if len(path) == 0 {
 		if isCA {
 			return DefaultRootKeyName, nil
 		}
+
 		return DefaultKeyName, nil
 	}
-	dir := filepath.Dir(path)
-	if _, err := os.Stat(dir); err != nil {
+
+	if _, err := os.Stat(filepath.Dir(path)); err != nil {
 		return "", err
 	}
+
 	return path, nil
 }
 
 func parseCertPath(isCA bool, path string) (string, error) {
-	if path == "" {
+	if len(path) == 0 {
 		if isCA {
 			return DefaultRootCertName, nil
 		}
+
 		return DefaultCertName, nil
 	}
-	dir := filepath.Dir(path)
-	if _, err := os.Stat(dir); err != nil {
+
+	if _, err := os.Stat(filepath.Dir(path)); err != nil {
 		return "", err
 	}
+
 	return path, nil
 }
 
@@ -127,18 +177,21 @@ func parseValidFrom(date string) (time.Time, error) {
 	if len(date) == 0 {
 		return time.Now(), nil
 	}
+
 	return time.Parse(time.RFC822, date)
 }
 
 func parseValidUntil(date string) (time.Time, error) {
 	if len(date) == 0 {
-		return time.Now().Add(72 * time.Hour), nil
+		return time.Now().Add(DefaultDuration), nil
 	}
+
 	return time.Parse(time.RFC822, date)
 }
 
-func newCertWithED25519Key(rootCert *x509.Certificate, rootKey *interface{}, notBefore, notAfter time.Time) (*x509.Certificate, ed25519.PrivateKey, error) {
+func newCertWithKey(rootCert *x509.Certificate, rootKey *interface{}, notBefore, notAfter time.Time) (*x509.Certificate, ed25519.PrivateKey, error) {
 	serialNumberLimit := new(big.Int).Lsh(big.NewInt(1), 128)
+
 	serialNumber, err := rand.Int(rand.Reader, serialNumberLimit)
 	if err != nil {
 		return nil, nil, err
@@ -157,10 +210,12 @@ func newCertWithED25519Key(rootCert *x509.Certificate, rootKey *interface{}, not
 	}
 
 	var certBytes []byte
+
 	if rootCert == nil || rootKey == nil {
 		template.KeyUsage |= x509.KeyUsageCertSign
 		template.BasicConstraintsValid = true
 		template.IsCA = true
+
 		certBytes, err = x509.CreateCertificate(rand.Reader, &template, &template, newPub, newPriv)
 		if err != nil {
 			return nil, nil, err
