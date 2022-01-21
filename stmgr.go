@@ -217,13 +217,15 @@ func keygenArg(args []string, log *logging.Logger) error {
 		}
 
 		return keygen.Certificate(
-			*certificateIsCA,
-			*certificateRootCert,
-			*certificateRootKey,
-			*certificateValidFrom,
-			*certificateValidUntil,
-			*certificateCertOut,
-			*certificateKeyOut,
+			&keygen.Args{
+				IsCa:         *certificateIsCA,
+				RootCertPath: *certificateRootCert,
+				RootKeyPath:  *certificateRootKey,
+				NotBefore:    *certificateValidFrom,
+				NotAfter:     *certificateValidUntil,
+				CertOut:      *certificateCertOut,
+				KeyOut:       *certificateKeyOut,
+			},
 		)
 
 	default:
