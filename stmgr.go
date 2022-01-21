@@ -121,7 +121,16 @@ func ospkgArg(args []string, log *logging.Logger) error {
 			return err
 		}
 
-		return ospkg.Create(*createOut, *createLabel, *createURL, *createKernel, *createInitramfs, *createCmdLine)
+		return ospkg.Create(
+			&ospkg.Args{
+				OutPath:   *createOut,
+				Label:     *createLabel,
+				URL:       *createURL,
+				Kernel:    *createKernel,
+				Initramfs: *createInitramfs,
+				Cmdline:   *createCmdLine,
+			},
+		)
 
 	case "sign":
 		// Sign tool and flags

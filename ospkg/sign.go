@@ -10,23 +10,24 @@ import (
 	"github.com/system-transparency/stmgr/keygen"
 )
 
-const (
-	DefaultOutName = "system-transparency-os-package"
-)
+const DefaultOutName = "system-transparency-os-package"
 
 func Sign(keyPath, certPath, pkgPath string) error {
 	pkgPath, err := parsePkgPath(pkgPath)
 	if err != nil {
 		return err
 	}
+
 	archive, err := os.ReadFile(pkgPath + ospkgs.OSPackageExt)
 	if err != nil {
 		return err
 	}
+
 	descriptor, err := os.ReadFile(pkgPath + ospkgs.DescriptorExt)
 	if err != nil {
 		return err
 	}
+
 	osp, err := ospkgs.NewOSPackage(archive, descriptor)
 	if err != nil {
 		return err
@@ -36,6 +37,7 @@ func Sign(keyPath, certPath, pkgPath string) error {
 	if err != nil {
 		return err
 	}
+
 	cert, err := keygen.LoadPEM(certPath)
 	if err != nil {
 		return err
@@ -50,13 +52,14 @@ func Sign(keyPath, certPath, pkgPath string) error {
 		return err
 	}
 
-	return os.WriteFile(pkgPath+ospkgs.DescriptorExt, signedDescriptor, 0666)
+	return os.WriteFile(pkgPath+ospkgs.DescriptorExt, signedDescriptor, defaultFilePerm)
 }
 
 func parsePkgPath(path string) (string, error) {
-	if path == "" {
+	if len(path) == 0 {
 		return DefaultOutName, nil
 	}
+
 	if stat, err := os.Stat(path); err != nil {
 		if dir := filepath.Dir(path); dir != "." {
 			if _, err := os.Stat(dir); err != nil {

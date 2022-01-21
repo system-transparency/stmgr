@@ -1,13 +1,36 @@
 package ospkg
 
 import (
+	"io/fs"
 	"os"
 
 	ospkgs "github.com/system-transparency/stboot/ospkg"
 )
 
-func Create(out, label, url, kernel, initramfs, cmdline string) error {
-	osp, err := ospkgs.CreateOSPackage(label, url, kernel, initramfs, cmdline)
+const defaultFilePerm fs.FileMode = 0o600
+
+type Args struct {
+	OutPath   string
+	Label     string
+	URL       string
+	Kernel    string
+	Initramfs string
+	Cmdline   string
+}
+
+func Create(args *Args) error {
+	args, err := checkArgs(args)
+	if err != nil {
+		return err
+	}
+
+	osp, err := ospkgs.CreateOSPackage(
+		args.Label,
+		args.URL,
+		args.Kernel,
+		args.Initramfs,
+		args.Cmdline,
+	)
 	if err != nil {
 		return err
 	}
@@ -16,7 +39,8 @@ func Create(out, label, url, kernel, initramfs, cmdline string) error {
 	if err != nil {
 		return err
 	}
-	if err := os.WriteFile(out+ospkgs.OSPackageExt, archive, 0666); err != nil {
+
+	if err := os.WriteFile(args.OutPath+ospkgs.OSPackageExt, archive, defaultFilePerm); err != nil {
 		return err
 	}
 
@@ -24,9 +48,21 @@ func Create(out, label, url, kernel, initramfs, cmdline string) error {
 	if err != nil {
 		return err
 	}
-	if err := os.WriteFile(out+ospkgs.DescriptorExt, descriptor, 0666); err != nil {
+
+	if err := os.WriteFile(args.OutPath+ospkgs.DescriptorExt, descriptor, defaultFilePerm); err != nil {
 		return err
 	}
 
 	return nil
+}
+
+func checkArgs(args *Args) (*Args, error) {
+	var err error
+
+	args.OutPath, err = parsePkgPath(args.OutPath)
+	if err != nil {
+		return nil, err
+	}
+
+	return args, nil
 }
