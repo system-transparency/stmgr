@@ -74,7 +74,7 @@ func Certificate(args *Args, log *logging.Logger) error {
 			return err
 		}
 	} else {
-		rootCert, rootKey, err := parseCaFiles(args.RootKeyPath, args.RootCertPath)
+		rootCert, rootKey, err := parseCaFiles(args.RootCertPath, args.RootKeyPath)
 		if err != nil {
 			return err
 		}
@@ -85,7 +85,7 @@ func Certificate(args *Args, log *logging.Logger) error {
 		}
 	}
 
-	return writeToDisk(newCert, newKey, keyOut, args.CertOut)
+	return writeToDisk(newCert, newKey, args.CertOut, keyOut)
 }
 
 func checkArgs(args *Args, log *logging.Logger) error {
@@ -131,8 +131,13 @@ func writeToDisk(cert *x509.Certificate, key ed25519.PrivateKey, certOut, keyOut
 	return nil
 }
 
-func parseCaFiles(rootKeyPath, rootCertPath string) (*x509.Certificate, *interface{}, error) {
-	rootCertBlock, err := LoadPEM(rootKeyPath)
+func parseCaFiles(rootCertPath, rootKeyPath string) (*x509.Certificate, *interface{}, error) {
+	rootCertPath, err := filepath.Abs(rootCertPath)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	rootCertBlock, err := LoadPEM(rootCertPath)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -142,7 +147,12 @@ func parseCaFiles(rootKeyPath, rootCertPath string) (*x509.Certificate, *interfa
 		return nil, nil, err
 	}
 
-	rootKeyBlock, err := LoadPEM(rootCertPath)
+	rootKeyPath, err = filepath.Abs(rootKeyPath)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	rootKeyBlock, err := LoadPEM(rootKeyPath)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -168,6 +178,11 @@ func parseKeyPath(isCA bool, path string) (string, error) {
 		return "", err
 	}
 
+	path, err := filepath.Abs(path)
+	if err != nil {
+		return "", err
+	}
+
 	return path, nil
 }
 
@@ -181,6 +196,11 @@ func parseCertPath(isCA bool, path string) (string, error) {
 	}
 
 	if _, err := os.Stat(filepath.Dir(path)); err != nil {
+		return "", err
+	}
+
+	path, err := filepath.Abs(path)
+	if err != nil {
 		return "", err
 	}
 
@@ -235,7 +255,7 @@ func newCertWithKey(rootCert *x509.Certificate, rootKey *interface{}, notBefore,
 			return nil, nil, err
 		}
 	} else {
-		certBytes, err = x509.CreateCertificate(rand.Reader, &template, rootCert, newPub, newPriv)
+		certBytes, err = x509.CreateCertificate(rand.Reader, &template, rootCert, newPub, *rootKey)
 		if err != nil {
 			return nil, nil, err
 		}
