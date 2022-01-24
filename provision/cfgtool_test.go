@@ -1,4 +1,4 @@
-package provision_test
+package provision
 
 import (
 	"testing"

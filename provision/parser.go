@@ -26,21 +26,21 @@ type HostCfgSimplified struct {
 }
 
 func MarshalCfg(cfg *HostCfgSimplified, efi bool) error {
-	j, err := json.Marshal(cfg)
+	jsonBytes, err := json.Marshal(cfg)
 	if err != nil {
 		return err
 	}
 
 	if efi {
-		g, err := guid.Parse("f401f2c1-b005-4be0-8cee-f2e5945bcbe7")
+		varID, err := guid.Parse("f401f2c1-b005-4be0-8cee-f2e5945bcbe7")
 		if err != nil {
 			return err
 		}
 
 		attrs := efivarfs.AttributeBootserviceAccess | efivarfs.AttributeRuntimeAccess | efivarfs.AttributeNonVolatile
 
-		return efivarfs.WriteVariable("STHostConfig", &g, attrs, j)
+		return efivarfs.WriteVariable("STHostConfig", &varID, attrs, jsonBytes)
 	}
 
-	return os.WriteFile("host_configuration.json", j, defaultFilePerm)
+	return os.WriteFile("host_configuration.json", jsonBytes, defaultFilePerm)
 }

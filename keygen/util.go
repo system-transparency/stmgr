@@ -7,6 +7,11 @@ import (
 	"os"
 )
 
+var (
+	ErrNoPEMBlock = errors.New("no PEM block found")
+	ErrTrailing   = errors.New("unexpected trailing data after PEM block")
+)
+
 const defaultFilePerm fs.FileMode = 0o600
 
 func LoadPEM(path string) (*pem.Block, error) {
@@ -17,11 +22,11 @@ func LoadPEM(path string) (*pem.Block, error) {
 
 	block, rest := pem.Decode(bytes)
 	if block == nil {
-		return nil, errors.New("no PEM block found")
+		return nil, ErrNoPEMBlock
 	}
 
 	if len(rest) != 0 {
-		return nil, errors.New("unexpected trailing data after PEM block")
+		return nil, ErrTrailing
 	}
 
 	return block, nil

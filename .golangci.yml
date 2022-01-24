@@ -1,7 +1,12 @@
 linters:
   enable-all: true
   disable:
-    - exhaustivestruct
-    - wrapcheck
-    - tagliatelle
-    - paralleltest
+    - exhaustivestruct # would complain about the x509 standard library
+    - wrapcheck # it's fine to just return some errors
+    - tagliatelle # would complain about JSON definitions that we rely on
+    - paralleltest # not necessary to do parallel tests for now
+    - testpackage # we don't enforce white box testing
+
+linters-settings:
+  lll:
+    line-length: 150 # default was 120 but some functions especially x509 can't be shortened

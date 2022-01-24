@@ -10,6 +10,13 @@ import (
 	"os"
 	"path/filepath"
 	"time"
+
+	"github.com/system-transparency/stmgr/logging"
+)
+
+var (
+	ErrNoRootCert = errors.New("missing rootCert")
+	ErrNoRootKey  = errors.New("missing rootKey")
 )
 
 const (
@@ -31,8 +38,8 @@ type Args struct {
 	KeyOut       string
 }
 
-func Certificate(args *Args) error {
-	if err := checkArgs(args); err != nil {
+func Certificate(args *Args, log *logging.Logger) error {
+	if err := checkArgs(args, log); err != nil {
 		return err
 	}
 
@@ -81,16 +88,22 @@ func Certificate(args *Args) error {
 	return writeToDisk(newCert, newKey, keyOut, args.CertOut)
 }
 
-func checkArgs(args *Args) error {
-	if args.IsCa && (len(args.RootCertPath) != 0 || len(args.RootKeyPath) != 0) {
-		return errors.New("isCa specified, will ignore rootKey and rootCert")
-	} else if len(args.RootCertPath) == 0 && len(args.RootKeyPath) != 0 {
-		return errors.New("missing rootCert")
-	} else if len(args.RootKeyPath) == 0 && len(args.RootCertPath) != 0 {
-		return errors.New("missing rootKey")
-	}
+func checkArgs(args *Args, log *logging.Logger) error {
+	switch {
+	case args.IsCa && (len(args.RootCertPath) != 0 || len(args.RootKeyPath) != 0):
+		log.Warn("isCa specified, will ignore rootKey and rootCert")
 
-	return nil
+		return nil
+
+	case len(args.RootCertPath) == 0 && len(args.RootKeyPath) != 0:
+		return ErrNoRootCert
+
+	case len(args.RootKeyPath) == 0 && len(args.RootCertPath) != 0:
+		return ErrNoRootKey
+
+	default:
+		return nil
+	}
 }
 
 func writeToDisk(cert *x509.Certificate, key ed25519.PrivateKey, certOut, keyOut string) error {

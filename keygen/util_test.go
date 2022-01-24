@@ -1,4 +1,4 @@
-package keygen_test
+package keygen
 
 import "testing"
 
