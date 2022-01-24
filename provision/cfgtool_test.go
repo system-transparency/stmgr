@@ -5,9 +5,7 @@ import (
 )
 
 func TestCfgtool(t *testing.T) {
-	// TODO
 }
 
 func TestIsDefined(t *testing.T) {
-	// TODO
 }

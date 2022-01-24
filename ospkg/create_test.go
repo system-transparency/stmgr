@@ -5,9 +5,7 @@ import (
 )
 
 func TestCreate(t *testing.T) {
-	// TODO
 }
 
 func TestCheckArgs(t *testing.T) {
-	// TODO
 }

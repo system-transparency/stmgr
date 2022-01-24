@@ -13,11 +13,12 @@ import (
 )
 
 const (
-	DefaultCertName     = "cert.pem"
-	DefaultRootCertName = "rootcert.pem"
-	DefaultKeyName      = "key.pem"
-	DefaultRootKeyName  = "rootkey.pem"
-	DefaultDuration     = 72 * time.Hour
+	DefaultCertName      = "cert.pem"
+	DefaultRootCertName  = "rootcert.pem"
+	DefaultKeyName       = "key.pem"
+	DefaultRootKeyName   = "rootkey.pem"
+	defaultValidDuration = 72 * time.Hour
+	serialNumberRange    = 128
 )
 
 type Args struct {
@@ -183,14 +184,14 @@ func parseValidFrom(date string) (time.Time, error) {
 
 func parseValidUntil(date string) (time.Time, error) {
 	if len(date) == 0 {
-		return time.Now().Add(DefaultDuration), nil
+		return time.Now().Add(defaultValidDuration), nil
 	}
 
 	return time.Parse(time.RFC822, date)
 }
 
 func newCertWithKey(rootCert *x509.Certificate, rootKey *interface{}, notBefore, notAfter time.Time) (*x509.Certificate, ed25519.PrivateKey, error) {
-	serialNumberLimit := new(big.Int).Lsh(big.NewInt(1), 128)
+	serialNumberLimit := new(big.Int).Lsh(big.NewInt(1), serialNumberRange)
 
 	serialNumber, err := rand.Int(rand.Reader, serialNumberLimit)
 	if err != nil {
