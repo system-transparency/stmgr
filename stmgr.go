@@ -238,6 +238,7 @@ func keygenArg(args []string, log *logging.Logger) error {
 				CertOut:      *certificateCertOut,
 				KeyOut:       *certificateKeyOut,
 			},
+			log,
 		)
 
 	default:

@@ -12,33 +12,38 @@ import (
 	"github.com/rivo/tview"
 )
 
+// The nature of tview does not really allow me to write this
+// code in a linter friendly way. Maybe I'll get to it when we
+// really need to enforce those rules but for now it should
+// be sufficient to just mark problematic statements with nolint
+
 const (
-	maxIdAndAuthLength      = 64
-	maxIdAndAuthLengthBytes = maxIdAndAuthLength / 2
+	maxIDAndAuthLength      = 64
+	maxIDAndAuthLengthBytes = maxIDAndAuthLength / 2
 	minimumElementCount     = 9
 )
 
 var (
-	app              = tview.NewApplication()
-	mainForm         = tview.NewForm()
-	interfacesForm   = tview.NewForm()
-	customForm       = tview.NewForm()
-	pages            = tview.NewPages()
-	addrMode         = tview.NewDropDown()
-	versionField     = tview.NewInputField()
-	hostIPField      = tview.NewInputField()
-	gatewayIPField   = tview.NewInputField()
-	dnsField         = tview.NewInputField()
-	interfaceField   = tview.NewInputField()
-	provURLField     = tview.NewInputField()
-	idField          = tview.NewInputField()
-	authField        = tview.NewInputField()
-	customLabelField = tview.NewInputField()
+	app              = tview.NewApplication() //nolint:gochecknoglobals
+	mainForm         = tview.NewForm()        //nolint:gochecknoglobals
+	interfacesForm   = tview.NewForm()        //nolint:gochecknoglobals
+	customForm       = tview.NewForm()        //nolint:gochecknoglobals
+	pages            = tview.NewPages()       //nolint:gochecknoglobals
+	addrMode         = tview.NewDropDown()    //nolint:gochecknoglobals
+	versionField     = tview.NewInputField()  //nolint:gochecknoglobals
+	hostIPField      = tview.NewInputField()  //nolint:gochecknoglobals
+	gatewayIPField   = tview.NewInputField()  //nolint:gochecknoglobals
+	dnsField         = tview.NewInputField()  //nolint:gochecknoglobals
+	interfaceField   = tview.NewInputField()  //nolint:gochecknoglobals
+	provURLField     = tview.NewInputField()  //nolint:gochecknoglobals
+	idField          = tview.NewInputField()  //nolint:gochecknoglobals
+	authField        = tview.NewInputField()  //nolint:gochecknoglobals
+	customLabelField = tview.NewInputField()  //nolint:gochecknoglobals
 
-	extension = make(map[string]string)
+	extension = make(map[string]string) //nolint:gochecknoglobals
 )
 
-func runInteractive(efi bool) error {
+func runInteractive(efi bool) error { //nolint:funlen,cyclop
 	cfg := &HostCfgSimplified{}
 
 	versionField.
@@ -55,7 +60,6 @@ func runInteractive(efi bool) error {
 		SetLabel("Network Mode").
 		AddOption("dhcp", func() {
 			cfg.IPAddrMode = "dhcp"
-
 		}).
 		AddOption("static", func() {
 			cfg.IPAddrMode = "static"
@@ -212,11 +216,12 @@ func evalIP(ip string) bool {
 }
 
 func evalCIDR(cidr string) (string, string, bool) {
-	if ip, network, err := net.ParseCIDR(cidr); err != nil {
+	ip, network, err := net.ParseCIDR(cidr)
+	if err != nil {
 		return "", "", false
-	} else {
-		return ip.String(), network.String(), true
 	}
+
+	return ip.String(), network.String(), true
 }
 
 func evalMAC(mac string) bool {
@@ -238,11 +243,11 @@ func evalURLs(urls string) bool {
 }
 
 func evalRand(s string) bool {
-	return len(s) <= maxIdAndAuthLength
+	return len(s) <= maxIDAndAuthLength
 }
 
 func getRandomHex() string {
-	b := make([]byte, maxIdAndAuthLengthBytes)
+	b := make([]byte, maxIDAndAuthLengthBytes)
 	if _, err := rand.Reader.Read(b); err != nil {
 		return ""
 	}

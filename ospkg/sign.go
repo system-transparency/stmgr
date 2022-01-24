@@ -1,6 +1,7 @@
 package ospkg
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -9,6 +10,8 @@ import (
 	ospkgs "github.com/system-transparency/stboot/ospkg"
 	"github.com/system-transparency/stmgr/keygen"
 )
+
+var ErrInvalidSuffix = errors.New("invalid file extension")
 
 const DefaultOutName = "system-transparency-os-package"
 
@@ -60,7 +63,7 @@ func parsePkgPath(path string) (string, error) {
 		return DefaultOutName, nil
 	}
 
-	if stat, err := os.Stat(path); err != nil {
+	if stat, err := os.Stat(path); err != nil { //nolint:nestif
 		if dir := filepath.Dir(path); dir != "." {
 			if _, err := os.Stat(dir); err != nil {
 				return "", err
@@ -79,6 +82,6 @@ func parsePkgPath(path string) (string, error) {
 	case ospkgs.OSPackageExt, ospkgs.DescriptorExt:
 		return strings.TrimSuffix(path, ext), nil
 	default:
-		return "", fmt.Errorf("invalid file extension %q", ext)
+		return "", fmt.Errorf("%w %q", ErrInvalidSuffix, ext)
 	}
 }
