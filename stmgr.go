@@ -33,9 +33,6 @@ COMMANDS:
 		Commands to generate different keys and certificates for
 		system-transparency.
 
-	build:
-		Not yet implemented!
-
 Use 'stmgr <COMMAND> -help' for more info.
 `
 
@@ -244,5 +241,20 @@ func keygenArg(args []string) error {
 		log.Print(keygenUsage)
 
 		return nil
+	}
+}
+
+func setLoglevel(level string) { //nolint:deadcode,unused
+	switch level {
+	case "debug":
+		log.SetLoglevel(log.DebugLevel)
+	case "info":
+		log.SetLoglevel(log.InfoLevel)
+	case "warn":
+		log.SetLoglevel(log.WarnLevel)
+	case "panic":
+		log.SetLoglevel(log.PanicLevel)
+	default:
+		log.SetLoglevel(log.ErrorLevel)
 	}
 }
