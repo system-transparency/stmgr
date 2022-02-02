@@ -1,11 +1,12 @@
 linters:
   enable-all: true
   disable:
-    - exhaustivestruct # would complain about the x509 standard library
-    - wrapcheck # it's fine to just return some errors
+    - exhaustivestruct # would complain about the x509 standard library...
+    - wrapcheck # it's fine to just return some foreign errors
     - tagliatelle # would complain about JSON definitions that we rely on
-    - paralleltest # not necessary to do parallel tests for now
+    - paralleltest # not necessary to do parallel tests for now, might enable later again
     - testpackage # we don't enforce white box testing
+    - scopelint # interfers with table tests, might need to investigate
 
 linters-settings:
   lll:
