@@ -11,7 +11,7 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/system-transparency/stmgr/logging"
+	"github.com/system-transparency/stmgr/log"
 )
 
 var (
@@ -38,8 +38,8 @@ type Args struct {
 	KeyOut       string
 }
 
-func Certificate(args *Args, log *logging.Logger) error {
-	if err := checkArgs(args, log); err != nil {
+func Certificate(args *Args) error {
+	if err := checkArgs(args); err != nil {
 		return err
 	}
 
@@ -88,7 +88,7 @@ func Certificate(args *Args, log *logging.Logger) error {
 	return writeToDisk(newCert, newKey, args.CertOut, keyOut)
 }
 
-func checkArgs(args *Args, log *logging.Logger) error {
+func checkArgs(args *Args) error {
 	switch {
 	case args.IsCa && (len(args.RootCertPath) != 0 || len(args.RootKeyPath) != 0):
 		log.Warn("isCa specified, will ignore rootKey and rootCert")

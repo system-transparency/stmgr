@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/system-transparency/stmgr/keygen"
-	"github.com/system-transparency/stmgr/logging"
+	"github.com/system-transparency/stmgr/log"
 	"github.com/system-transparency/stmgr/ospkg"
 	"github.com/system-transparency/stmgr/provision"
 )
@@ -69,15 +69,14 @@ Use 'stmgr keygen <SUBCOMMAND> -help' for more info.
 )
 
 func main() {
-	log := logging.NewLogger(logging.ErrorLevel)
-	if err := run(os.Args, log); err != nil {
+	if err := run(os.Args); err != nil {
 		log.Error(err)
 		os.Exit(1)
 	}
 }
 
-func run(args []string, log *logging.Logger) error {
-	// Display helptext if no arguments are given
+func run(args []string) error {
+	// Display helptext if not enough arguments are given
 	if len(args) < flagsCallPosition {
 		log.Print(usage)
 
@@ -87,11 +86,11 @@ func run(args []string, log *logging.Logger) error {
 	// Check which command is requested or display usage
 	switch args[commandCallPosition] {
 	case "ospkg":
-		return ospkgArg(args, log)
+		return ospkgArg(args)
 	case "provision":
-		return provisionArg(args, log)
+		return provisionArg(args)
 	case "keygen":
-		return keygenArg(args, log)
+		return keygenArg(args)
 	default:
 		// Display usage on unknown command
 		log.Print(usage)
@@ -101,7 +100,7 @@ func run(args []string, log *logging.Logger) error {
 }
 
 // Check for ospkg subcommands.
-func ospkgArg(args []string, log *logging.Logger) error {
+func ospkgArg(args []string) error {
 	switch args[subcommandCallPosition] {
 	case "create":
 		// Create tool and flags
@@ -161,7 +160,7 @@ func ospkgArg(args []string, log *logging.Logger) error {
 }
 
 // Check for provision subcommands.
-func provisionArg(args []string, log *logging.Logger) error {
+func provisionArg(args []string) error {
 	switch args[subcommandCallPosition] {
 	case "hostconfig":
 		// Host configuration tool and flags
@@ -205,7 +204,7 @@ func provisionArg(args []string, log *logging.Logger) error {
 }
 
 // Check for keygen subcommands.
-func keygenArg(args []string, log *logging.Logger) error {
+func keygenArg(args []string) error {
 	switch args[subcommandCallPosition] {
 	case "certificate":
 		// Certificate tool and flags
@@ -238,7 +237,6 @@ func keygenArg(args []string, log *logging.Logger) error {
 				CertOut:      *certificateCertOut,
 				KeyOut:       *certificateKeyOut,
 			},
-			log,
 		)
 
 	default:
