@@ -9,7 +9,7 @@ import (
 
 const defaultFilePerm fs.FileMode = 0o600
 
-type Args struct {
+type CreateArgs struct {
 	OutPath   string
 	Label     string
 	URL       string
@@ -18,7 +18,7 @@ type Args struct {
 	Cmdline   string
 }
 
-func Create(args *Args) error {
+func Create(args *CreateArgs) error {
 	args, err := checkArgs(args)
 	if err != nil {
 		return err
@@ -56,7 +56,7 @@ func Create(args *Args) error {
 	return nil
 }
 
-func checkArgs(args *Args) (*Args, error) {
+func checkArgs(args *CreateArgs) (*CreateArgs, error) {
 	var err error
 
 	args.OutPath, err = parsePkgPath(args.OutPath)

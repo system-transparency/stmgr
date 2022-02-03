@@ -28,7 +28,7 @@ const (
 	serialNumberRange    = 128
 )
 
-type Args struct {
+type CertificateArgs struct {
 	IsCa         bool
 	RootCertPath string
 	RootKeyPath  string
@@ -38,7 +38,7 @@ type Args struct {
 	KeyOut       string
 }
 
-func Certificate(args *Args) error {
+func Certificate(args *CertificateArgs) error {
 	if err := checkArgs(args); err != nil {
 		return err
 	}
@@ -88,7 +88,7 @@ func Certificate(args *Args) error {
 	return writeToDisk(newCert, newKey, args.CertOut, keyOut)
 }
 
-func checkArgs(args *Args) error {
+func checkArgs(args *CertificateArgs) error {
 	switch {
 	case args.IsCa && (len(args.RootCertPath) != 0 || len(args.RootKeyPath) != 0):
 		log.Warn("isCa specified, will ignore rootKey and rootCert")
