@@ -33,5 +33,9 @@ func LoadPEM(path string) (*pem.Block, error) {
 }
 
 func WritePEM(block *pem.Block, path string) error {
+	if block == nil {
+		return ErrNoPEMBlock
+	}
+
 	return os.WriteFile(path, pem.EncodeToMemory(block), defaultFilePerm)
 }
