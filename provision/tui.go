@@ -43,6 +43,10 @@ var (
 	extension = make(map[string]string) //nolint:gochecknoglobals
 )
 
+// This function constructs the and manages the terminal UI application.
+// It uses tview for that, as it abstracts tcell functions and makes building
+// simple UIs easier. The downside is, that this UI is stateful and needs
+// a few linter breaking code idioms, which you can find in as nolint stanzas.
 func runInteractive(efi bool) error { //nolint:funlen,cyclop
 	cfg := &HostCfgSimplified{}
 

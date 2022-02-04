@@ -18,6 +18,10 @@ type CreateArgs struct {
 	Cmdline   string
 }
 
+// Create will create a new OS package using the
+// stboot/ospkg package. If no errors occur, it will
+// be written to disk using the provided path or
+// default values.
 func Create(args *CreateArgs) error {
 	args, err := checkArgs(args)
 	if err != nil {

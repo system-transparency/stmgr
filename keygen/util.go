@@ -14,6 +14,8 @@ var (
 
 const defaultFilePerm fs.FileMode = 0o600
 
+// LoadPEM reads a PEM formatted file from disk
+// and returns a pointer to the pem.Block data.
 func LoadPEM(path string) (*pem.Block, error) {
 	bytes, err := os.ReadFile(path)
 	if err != nil {
@@ -32,6 +34,8 @@ func LoadPEM(path string) (*pem.Block, error) {
 	return block, nil
 }
 
+// WritePEM writes the pem.Block data to a PEM formatted
+// file to the specified path.
 func WritePEM(block *pem.Block, path string) error {
 	if block == nil {
 		return ErrNoPEMBlock

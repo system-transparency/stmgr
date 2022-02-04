@@ -21,6 +21,8 @@ func main() {
 	}
 }
 
+// We move the main program logic away into run()
+// so that our code is easier to write tests for.
 func run(args []string) error {
 	const usage = `Usage: stmgr <COMMAND> <SUBCOMMAND> [flags...]
 COMMANDS:
@@ -69,8 +71,6 @@ func ospkgArg(args []string) error {
 		return eval.OspkgCreate(args[flagsCallPosition:])
 	case "sign":
 		return eval.OspkgSign(args[flagsCallPosition:])
-	case "show":
-		return eval.OspkgShow(args[flagsCallPosition:])
 
 	default:
 		// Display usage on unknown subcommand

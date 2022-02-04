@@ -11,6 +11,11 @@ import (
 
 const defaultFilePerm fs.FileMode = 0o600
 
+// HostCfgSimplified mirrors what stboots host configuration
+// looks like, but does not implement their custom types and
+// the extensive parsing options. It's enough for the cfgtool
+// to create a configuration, but might get streamlined with stboot
+// after the final layout is set.
 type HostCfgSimplified struct {
 	Version          int               `json:"version"`
 	IPAddrMode       string            `json:"network_mode"`
@@ -25,6 +30,9 @@ type HostCfgSimplified struct {
 	Custom           map[string]string `json:"custom,omitempty"`
 }
 
+// MarshalCfg takes a HostCfgSimplified struct and depending
+// on the efi bool either writes it to disk as "host_configuration.json"
+// in the current directory or into the efivarfs.
 func MarshalCfg(cfg *HostCfgSimplified, efi bool) error {
 	jsonBytes, err := json.Marshal(cfg)
 	if err != nil {

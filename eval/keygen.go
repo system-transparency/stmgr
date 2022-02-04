@@ -7,8 +7,12 @@ import (
 	"github.com/system-transparency/stmgr/log"
 )
 
+// KeygenCertificate takes arguments like os.Args as a string array
+// and maps them to their corresponding flags using the std flag
+// package. It then calls keygen.Certificate after they are parsed.
 func KeygenCertificate(args []string) error {
-	certificateCmd := flag.NewFlagSet("keygen", flag.ExitOnError)
+	// Create a custom flag set and register flags
+	certificateCmd := flag.NewFlagSet("certificate", flag.ExitOnError)
 	certificateRootCert := certificateCmd.String("rootCert", "", "Root cert in PEM format to sign the new certificate."+
 		" Ignored if -isCA is set.")
 	certificateRootKey := certificateCmd.String("rootKey", "", "Root key in PEM format to sign the new certificate."+
@@ -24,16 +28,20 @@ func KeygenCertificate(args []string) error {
 		" Defaults to key.pem or rootkey.pem if -isCA is set.")
 	certificateLogLevel := certificateCmd.String("loglevel", "", "Set loglevel to any of debug, info, warn, error (default) and panic.")
 
+	// Parse which flags are provided to the function
 	if err := certificateCmd.Parse(args); err != nil {
 		return err
 	}
 
+	// Adjust loglevel
 	setLoglevel(*certificateLogLevel)
 
+	// Print the successfully parsed flags in debug level
 	certificateCmd.Visit(func(f *flag.Flag) {
 		log.Debugf("Registered flag %q", f)
 	})
 
+	// Call function with parsed flags
 	return keygen.Certificate(
 		&keygen.CertificateArgs{
 			IsCa:         *certificateIsCA,

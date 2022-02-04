@@ -15,6 +15,8 @@ var ErrInvalidSuffix = errors.New("invalid file extension")
 
 const DefaultOutName = "system-transparency-os-package"
 
+// Sign will sign an OS package using the provided path
+// of the private ed25519 key and corresponding certificate.
 func Sign(keyPath, certPath, pkgPath string) error {
 	pkgPath, err := parsePkgPath(pkgPath)
 	if err != nil {
