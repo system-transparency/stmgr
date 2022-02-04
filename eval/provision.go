@@ -8,7 +8,11 @@ import (
 	"github.com/system-transparency/stmgr/provision"
 )
 
+// ProvisionHostconfig takes arguments like os.Args as a string array
+// and maps them to their corresponding flags using the std flag
+// package. It then calls provision.Cfgtool after they are parsed.
 func ProvisionHostconfig(args []string) error {
+	// Create a custom flag set and register flags
 	hostconfigCmd := flag.NewFlagSet("provision", flag.ExitOnError)
 	hostconfigEfi := hostconfigCmd.Bool("efi", false, "Store host_configuration.json in the efivarfs.")
 	hostconfigVersion := hostconfigCmd.Int("version", 1, "Hostconfig version.")
@@ -22,16 +26,20 @@ func ProvisionHostconfig(args []string) error {
 	hostconfigAuth := hostconfigCmd.String("auth", "", "Hostconfig authentication.")
 	hostconfigLogLevel := hostconfigCmd.String("loglevel", "", "Set loglevel to any of debug, info, warn, error (default) and panic.")
 
+	// Parse which flags are provided to the function
 	if err := hostconfigCmd.Parse(args); err != nil {
 		return err
 	}
 
+	// Adjust loglevel
 	setLoglevel(*hostconfigLogLevel)
 
+	// Print the successfully parsed flags in debug level
 	hostconfigCmd.Visit(func(f *flag.Flag) {
 		log.Debugf("Registered flag %q", f)
 	})
 
+	// Call function with parsed flags
 	return provision.Cfgtool(
 		*hostconfigEfi,
 		&provision.HostCfgSimplified{

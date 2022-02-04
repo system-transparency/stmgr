@@ -2,6 +2,7 @@ package eval
 
 import "github.com/system-transparency/stmgr/log"
 
+// Helper function to map strings to log.logLevel.
 func setLoglevel(level string) {
 	switch level {
 	case "debug":

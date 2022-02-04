@@ -7,7 +7,11 @@ import (
 	"github.com/system-transparency/stmgr/ospkg"
 )
 
+// OspkgCreate takes arguments like os.Args as a string array
+// and maps them to their corresponding flags using the std flag
+// package. It then calls ospkg.Create after they are parsed.
 func OspkgCreate(args []string) error {
+	// Create a custom flag set and register flags
 	createCmd := flag.NewFlagSet("create", flag.ExitOnError)
 	createOut := createCmd.String("out", "", "OS package output path."+
 		" Two files will be created: the archive ZIP file and the descriptor JSON file."+
@@ -22,16 +26,20 @@ func OspkgCreate(args []string) error {
 	createCmdLine := createCmd.String("cmdline", "", "Kernel command line.")
 	createLogLevel := createCmd.String("loglevel", "", "Set loglevel to any of debug, info, warn, error (default) and panic.")
 
+	// Parse which flags are provided to the function
 	if err := createCmd.Parse(args); err != nil {
 		return err
 	}
 
+	// Adjust loglevel
 	setLoglevel(*createLogLevel)
 
+	// Print the successfully parsed flags in debug level
 	createCmd.Visit(func(f *flag.Flag) {
 		log.Debugf("Registered flag %q", f)
 	})
 
+	// Call function with parsed flags
 	return ospkg.Create(
 		&ospkg.CreateArgs{
 			OutPath:   *createOut,
@@ -44,28 +52,30 @@ func OspkgCreate(args []string) error {
 	)
 }
 
+// OspkgSign takes arguments like os.Args as a string array
+// and maps them to their corresponding flags using the std flag
+// package. It then calls ospkg.Sign after they are parsed.
 func OspkgSign(args []string) error {
+	// Create a custom flag set and register flags
 	signCmd := flag.NewFlagSet("sign", flag.ExitOnError)
 	signKey := signCmd.String("key", "", "Private key for signing.")
 	signCert := signCmd.String("cert", "", "Certificate corresponding to the private key.")
 	signOSPKG := signCmd.String("ospkg", "", "OS package archive or descriptor file. Both need to be present.")
 	signLogLevel := signCmd.String("loglevel", "", "Set loglevel to any of debug, info, warn, error (default) and panic.")
 
+	// Parse which flags are provided to the function
 	if err := signCmd.Parse(args); err != nil {
 		return err
 	}
 
+	// Adjust loglevel
 	setLoglevel(*signLogLevel)
 
+	// Print the successfully parsed flags in debug level
 	signCmd.Visit(func(f *flag.Flag) {
 		log.Debugf("Registered flag %q", f)
 	})
 
+	// Call function with parsed flags
 	return ospkg.Sign(*signKey, *signCert, *signOSPKG)
-}
-
-func OspkgShow(args []string) error {
-	log.Print("Not implemented yet!")
-
-	return nil
 }

@@ -28,6 +28,8 @@ const (
 	serialNumberRange    = 128
 )
 
+// CertificateArgs is a list of arguments
+// that's passed to Certificate().
 type CertificateArgs struct {
 	IsCa         bool
 	RootCertPath string
@@ -38,26 +40,33 @@ type CertificateArgs struct {
 	KeyOut       string
 }
 
+// Certificate is used to create a new certificate and private
+// key to sign OS packages with.
 func Certificate(args *CertificateArgs) error {
+	// Check if the provided args are sane
 	if err := checkArgs(args); err != nil {
 		return err
 	}
 
+	// Evaluate the path for the private key.
 	keyOut, err := parseKeyPath(args.IsCa, args.KeyOut)
 	if err != nil {
 		return err
 	}
 
+	// Evaluate the path for the certificate.
 	args.CertOut, err = parseCertPath(args.IsCa, args.CertOut)
 	if err != nil {
 		return err
 	}
 
+	// Evaluate the certificate validity date.
 	notBefore, err := parseValidFrom(args.NotBefore)
 	if err != nil {
 		return err
 	}
 
+	// Evaluate the certificate expiration date.
 	notAfter, err := parseValidUntil(args.NotAfter)
 	if err != nil {
 		return err
@@ -69,6 +78,7 @@ func Certificate(args *CertificateArgs) error {
 	)
 
 	if len(args.RootCertPath) == 0 {
+		// Create a self-signed certificate.
 		newCert, newKey, err = newCertWithKey(nil, nil, notBefore, notAfter)
 		if err != nil {
 			return err
@@ -79,6 +89,7 @@ func Certificate(args *CertificateArgs) error {
 			return err
 		}
 
+		// Create a certificate signed by a root certificate.
 		newCert, newKey, err = newCertWithKey(rootCert, rootKey, notBefore, notAfter)
 		if err != nil {
 			return err
@@ -106,6 +117,7 @@ func checkArgs(args *CertificateArgs) error {
 	}
 }
 
+// This function makes sure the on-disk format of the key and certificate are correct.
 func writeToDisk(cert *x509.Certificate, key ed25519.PrivateKey, certOut, keyOut string) error {
 	marshaledKey, err := x509.MarshalPKCS8PrivateKey(key)
 	if err != nil {
@@ -223,6 +235,9 @@ func parseValidUntil(date string) (time.Time, error) {
 	return time.Parse(time.RFC822, date)
 }
 
+// This is the core function to create a certificate and the corresponding ed25519 key.
+// It uses Golangs std crypto package and uses a cryptographically secure (enough) source
+// of entropy, namely /dev/urandom on Linux.
 func newCertWithKey(rootCert *x509.Certificate, rootKey *interface{}, notBefore, notAfter time.Time) (*x509.Certificate, ed25519.PrivateKey, error) {
 	serialNumberLimit := new(big.Int).Lsh(big.NewInt(1), serialNumberRange)
 
