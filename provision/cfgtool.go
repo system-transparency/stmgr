@@ -3,6 +3,8 @@ package provision
 import (
 	"strings"
 	"time"
+
+	"github.com/rivo/tview"
 )
 
 // Cfgtool is used to provision a stboot node by creating a
@@ -28,7 +30,26 @@ func Cfgtool(efi bool, cfg *HostCfgSimplified) error {
 		return MarshalCfg(cfg, efi)
 	}
 
-	return runInteractive(efi)
+	hostCfgUI := &tui{
+		app:              tview.NewApplication(),
+		mainForm:         tview.NewForm(),
+		customForm:       tview.NewForm(),
+		pages:            tview.NewPages(),
+		addrModeMenu:     tview.NewDropDown(),
+		versionField:     tview.NewInputField(),
+		hostIPField:      tview.NewInputField(),
+		gatewayIPField:   tview.NewInputField(),
+		dnsField:         tview.NewInputField(),
+		interfaceMenu:    tview.NewDropDown(),
+		provURLField:     tview.NewInputField(),
+		idField:          tview.NewInputField(),
+		authField:        tview.NewInputField(),
+		customLabelField: tview.NewInputField(),
+
+		extension: make(map[string]string),
+	}
+
+	return hostCfgUI.runInteractive(efi)
 }
 
 func isDefined(s ...string) bool {

@@ -23,44 +23,60 @@ const (
 	minimumElementCount     = 9
 )
 
-var (
-	app              = tview.NewApplication() //nolint:gochecknoglobals
-	mainForm         = tview.NewForm()        //nolint:gochecknoglobals
-	interfacesForm   = tview.NewForm()        //nolint:gochecknoglobals
-	customForm       = tview.NewForm()        //nolint:gochecknoglobals
-	pages            = tview.NewPages()       //nolint:gochecknoglobals
-	addrMode         = tview.NewDropDown()    //nolint:gochecknoglobals
-	versionField     = tview.NewInputField()  //nolint:gochecknoglobals
-	hostIPField      = tview.NewInputField()  //nolint:gochecknoglobals
-	gatewayIPField   = tview.NewInputField()  //nolint:gochecknoglobals
-	dnsField         = tview.NewInputField()  //nolint:gochecknoglobals
-	interfaceField   = tview.NewInputField()  //nolint:gochecknoglobals
-	provURLField     = tview.NewInputField()  //nolint:gochecknoglobals
-	idField          = tview.NewInputField()  //nolint:gochecknoglobals
-	authField        = tview.NewInputField()  //nolint:gochecknoglobals
-	customLabelField = tview.NewInputField()  //nolint:gochecknoglobals
-
-	extension = make(map[string]string) //nolint:gochecknoglobals
-)
+type tui struct {
+	app              *tview.Application
+	mainForm         *tview.Form
+	customForm       *tview.Form
+	pages            *tview.Pages
+	addrModeMenu     *tview.DropDown
+	interfaceMenu    *tview.DropDown
+	versionField     *tview.InputField
+	hostIPField      *tview.InputField
+	gatewayIPField   *tview.InputField
+	dnsField         *tview.InputField
+	provURLField     *tview.InputField
+	idField          *tview.InputField
+	authField        *tview.InputField
+	customLabelField *tview.InputField
+	extension        map[string]string
+}
 
 // This function constructs the and manages the terminal UI application.
 // It uses tview for that, as it abstracts tcell functions and makes building
-// simple UIs easier. The downside is, that this UI is stateful and needs
-// a few linter breaking code idioms, which you can find in as nolint stanzas.
-func runInteractive(efi bool) error { //nolint:funlen,cyclop
+// simple UIs easier.
+func (t *tui) runInteractive(efi bool) error {
 	cfg := &HostCfgSimplified{}
 
-	versionField.
+	t.setVersionField(cfg)
+	t.setAddrModeMenu(cfg)
+	t.setHostIPField(cfg)
+	t.setGatewayIPField(cfg)
+	t.setDNSField(cfg)
+	t.setInterfaceMenu(cfg)
+	t.setProvURLField(cfg)
+	t.setIDField(cfg)
+	t.setAuthField(cfg)
+	t.setMainForm(cfg, efi)
+	t.setCustomForm()
+	t.setPages()
+
+	return t.app.SetRoot(t.pages, true).SetFocus(t.pages).Run()
+}
+
+func (t *tui) setVersionField(cfg *HostCfgSimplified) {
+	t.versionField.
 		SetLabel("Version").
 		SetDoneFunc(func(key tcell.Key) {
-			if v, ok := evalVersion(versionField.GetText()); ok {
+			if v, ok := evalVersion(t.versionField.GetText()); ok {
 				cfg.Version = v
 			} else {
-				versionField.SetText("1")
+				t.versionField.SetText("1")
 			}
 		})
+}
 
-	addrMode.
+func (t *tui) setAddrModeMenu(cfg *HostCfgSimplified) {
+	t.addrModeMenu.
 		SetLabel("Network Mode").
 		AddOption("dhcp", func() {
 			cfg.IPAddrMode = "dhcp"
@@ -68,138 +84,167 @@ func runInteractive(efi bool) error { //nolint:funlen,cyclop
 		AddOption("static", func() {
 			cfg.IPAddrMode = "static"
 		})
+}
 
-	hostIPField.
+func (t *tui) setHostIPField(cfg *HostCfgSimplified) {
+	t.hostIPField.
 		SetLabel("Host IP").
 		SetDoneFunc(func(key tcell.Key) {
-			_, network, ok := evalCIDR(hostIPField.GetText())
+			_, network, ok := evalCIDR(t.hostIPField.GetText())
 			if ok {
-				cfg.HostIP = hostIPField.GetText()
-				gatewayIPField.SetText(guessGateway(network))
+				cfg.HostIP = t.hostIPField.GetText()
+				t.gatewayIPField.SetText(guessGateway(network))
 			}
 		})
+}
 
-	gatewayIPField.
+func (t *tui) setGatewayIPField(cfg *HostCfgSimplified) {
+	t.gatewayIPField.
 		SetLabel("Gateway IP").
 		SetDoneFunc(func(key tcell.Key) {
-			if evalIP(gatewayIPField.GetText()) {
-				cfg.DefaultGateway = gatewayIPField.GetText()
+			if evalIP(t.gatewayIPField.GetText()) {
+				cfg.DefaultGateway = t.gatewayIPField.GetText()
 			}
 		})
+}
 
-	dnsField.
+func (t *tui) setDNSField(cfg *HostCfgSimplified) {
+	t.dnsField.
 		SetLabel("DNS IP").
 		SetDoneFunc(func(key tcell.Key) {
-			if evalIP(dnsField.GetText()) {
-				cfg.DNSServer = dnsField.GetText()
+			if evalIP(t.dnsField.GetText()) {
+				cfg.DNSServer = t.dnsField.GetText()
 			}
 		})
+}
 
-	interfaceField.
-		SetLabel("Network Interfaces").
-		SetDoneFunc(func(key tcell.Key) {
-			if evalMAC(interfaceField.GetText()) {
-				cfg.NetworkInterface = interfaceField.GetText()
-			}
-		})
+func (t *tui) setInterfaceMenu(cfg *HostCfgSimplified) {
+	t.interfaceMenu.SetLabel("Network Interfaces")
 
-	provURLField.
-		SetLabel("Provisioning URLs").
-		SetDoneFunc(func(key tcell.Key) {
-			if evalURLs(provURLField.GetText()) {
-				cfg.ProvisioningURLs = strings.Split(provURLField.GetText(), " ")
-			}
-		})
-
-	idField.
-		SetLabel("ID").
-		SetDoneFunc(func(key tcell.Key) {
-			if idField.GetText() == "" {
-				idField.SetText(getRandomHex())
-				cfg.ID = idField.GetText()
-			}
-			if evalRand(idField.GetText()) {
-				cfg.ID = idField.GetText()
-			}
-		})
-
-	authField.
-		SetLabel("Authentication").
-		SetDoneFunc(func(key tcell.Key) {
-			if authField.GetText() == "" {
-				authField.SetText(getRandomHex())
-				cfg.Auth = authField.GetText()
-			}
-			if evalRand(authField.GetText()) {
-				cfg.Auth = authField.GetText()
-			}
-		})
-
-	mainForm.
-		AddFormItem(versionField).
-		AddFormItem(addrMode).
-		AddFormItem(hostIPField).
-		AddFormItem(gatewayIPField).
-		AddFormItem(dnsField).
-		AddFormItem(interfaceField).
-		AddFormItem(provURLField).
-		AddFormItem(idField).
-		AddFormItem(authField).
-		AddButton("Save", func() {
-			cfg.Timestamp = time.Now().Unix()
-			cfg = appendCustomData(cfg)
-			if err := MarshalCfg(cfg, efi); err != nil {
-				app.QueueEvent(tcell.NewEventError(err))
-			}
-			app.Stop()
-		}).
-		AddButton("Interfaces", func() {
-			pages.SwitchToPage("interfaces")
-		}).
-		AddButton("Add Field", func() {
-			pages.SwitchToPage("custom")
-		}).
-		AddButton("Exit", func() { app.Stop() }).
-		SetBorder(true).
-		SetTitle("CFGTOOL").
-		SetTitleAlign(tview.AlignLeft)
-
-	if ifaces, err := net.Interfaces(); err == nil {
+	if ifaces, err := net.Interfaces(); err != nil {
+		t.interfaceMenu.
+			AddOption("NONE", func() {
+				cfg.NetworkInterface = ""
+			})
+	} else {
 		for _, iface := range ifaces {
-			mac := iface.HardwareAddr.String()
 			if !strings.Contains(iface.Flags.String(), net.FlagLoopback.String()) {
-				interfacesForm.AddCheckbox(iface.Name+" ["+mac+"]", false, func(checked bool) {
-					toggleMAC(checked, mac)
-				})
+				mac := iface.HardwareAddr.String()
+				t.interfaceMenu.
+					AddOption(mac, func() {
+						cfg.NetworkInterface = mac
+					})
 			}
 		}
 	}
+}
 
-	interfacesForm.
-		AddButton("Back", func() {
-			pages.SwitchToPage("main")
+func (t *tui) setProvURLField(cfg *HostCfgSimplified) {
+	t.provURLField.
+		SetLabel("Provisioning URLs").
+		SetDoneFunc(func(key tcell.Key) {
+			if evalURLs(t.provURLField.GetText()) {
+				cfg.ProvisioningURLs = strings.Split(t.provURLField.GetText(), " ")
+			}
+		})
+}
+
+func (t *tui) setIDField(cfg *HostCfgSimplified) {
+	t.idField.
+		SetLabel("ID").
+		SetDoneFunc(func(key tcell.Key) {
+			if t.idField.GetText() == "" {
+				t.idField.SetText(getRandomHex())
+				cfg.ID = t.idField.GetText()
+			}
+			if evalRand(t.idField.GetText()) {
+				cfg.ID = t.idField.GetText()
+			}
+		})
+}
+
+func (t *tui) setAuthField(cfg *HostCfgSimplified) {
+	t.authField.
+		SetLabel("Authentication").
+		SetDoneFunc(func(key tcell.Key) {
+			if t.authField.GetText() == "" {
+				t.authField.SetText(getRandomHex())
+				cfg.Auth = t.authField.GetText()
+			}
+			if evalRand(t.authField.GetText()) {
+				cfg.Auth = t.authField.GetText()
+			}
+		})
+}
+
+func (t *tui) setMainForm(cfg *HostCfgSimplified, efi bool) {
+	t.mainForm.
+		AddFormItem(t.versionField).
+		AddFormItem(t.addrModeMenu).
+		AddFormItem(t.hostIPField).
+		AddFormItem(t.gatewayIPField).
+		AddFormItem(t.dnsField).
+		AddFormItem(t.interfaceMenu).
+		AddFormItem(t.provURLField).
+		AddFormItem(t.idField).
+		AddFormItem(t.authField).
+		AddButton("Save", func() {
+			cfg.Timestamp = time.Now().Unix()
+			cfg = t.appendCustomData(cfg)
+			if err := MarshalCfg(cfg, efi); err != nil {
+				t.app.QueueEvent(tcell.NewEventError(err))
+			}
+			t.app.Stop()
 		}).
-		AddButton("Exit", func() { app.Stop() })
+		AddButton("Add Field", func() {
+			t.pages.SwitchToPage("custom")
+		}).
+		AddButton("Exit", func() { t.app.Stop() }).
+		SetBorder(true).
+		SetTitle("CFGTOOL").
+		SetTitleAlign(tview.AlignLeft)
+}
 
-	customLabelField.SetLabel("Custom field key")
+func (t *tui) setCustomForm() {
+	t.customLabelField.SetLabel("Custom field key")
 
-	customForm.
-		AddFormItem(customLabelField).
+	t.customForm.
+		AddFormItem(t.customLabelField).
 		AddButton("Add", func() {
-			addCustomField()
-			pages.SwitchToPage("main")
+			t.addCustomField()
+			t.pages.SwitchToPage("main")
 		}).
 		AddButton("Back", func() {
-			pages.SwitchToPage("main")
+			t.pages.SwitchToPage("main")
 		}).
-		AddButton("Exit", func() { app.Stop() })
+		AddButton("Exit", func() { t.app.Stop() })
+}
 
-	pages.
-		AddPage("main", mainForm, true, true).
-		AddPage("interfaces", interfacesForm, true, false).
-		AddPage("custom", customForm, true, false)
+func (t *tui) addCustomField() {
+	customField := tview.NewInputField()
+	customField.
+		SetLabel(t.customLabelField.GetText()).
+		SetDoneFunc(func(key tcell.Key) {
+			t.extension[customField.GetLabel()] = customField.GetText()
+		})
+	t.customLabelField.SetText("")
+	t.mainForm.AddFormItem(customField)
+}
 
-	return app.SetRoot(pages, true).SetFocus(pages).Run()
+func (t *tui) appendCustomData(cfg *HostCfgSimplified) *HostCfgSimplified {
+	if t.mainForm.GetFormItemCount() <= minimumElementCount {
+		return cfg
+	}
+
+	cfg.Custom = t.extension
+
+	return cfg
+}
+
+func (t *tui) setPages() {
+	t.pages.
+		AddPage("main", t.mainForm, true, true).
+		AddPage("custom", t.customForm, true, false)
 }
 
 func evalVersion(version string) (int, bool) {
@@ -226,14 +271,6 @@ func evalCIDR(cidr string) (string, string, bool) {
 	}
 
 	return ip.String(), network.String(), true
-}
-
-func evalMAC(mac string) bool {
-	if _, err := net.ParseMAC(mac); err != nil {
-		return false
-	}
-
-	return true
 }
 
 func evalURLs(urls string) bool {
@@ -266,43 +303,4 @@ func guessGateway(s string) string {
 	segments[3] = strconv.Itoa(i)
 
 	return strings.Join(segments, ".")
-}
-
-func toggleMAC(state bool, mac string) {
-	text := interfaceField.GetText()
-	if state {
-		if text == "" {
-			interfaceField.SetText(mac)
-
-			return
-		}
-
-		interfaceField.SetText(text + " " + mac)
-	} else {
-		interfaceField.SetText(text + " ")
-		interfaceField.SetText(strings.ReplaceAll(text, mac+" ", ""))
-		text = interfaceField.GetText()
-		interfaceField.SetText(strings.TrimSpace(text))
-	}
-}
-
-func addCustomField() {
-	customField := tview.NewInputField()
-	customField.
-		SetLabel(customLabelField.GetText()).
-		SetDoneFunc(func(key tcell.Key) {
-			extension[customField.GetLabel()] = customField.GetText()
-		})
-	customLabelField.SetText("")
-	mainForm.AddFormItem(customField)
-}
-
-func appendCustomData(cfg *HostCfgSimplified) *HostCfgSimplified {
-	if mainForm.GetFormItemCount() <= minimumElementCount {
-		return cfg
-	}
-
-	cfg.Custom = extension
-
-	return cfg
 }
