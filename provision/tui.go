@@ -3,6 +3,7 @@ package provision
 import (
 	"crypto/rand"
 	"encoding/hex"
+	"fmt"
 	"net"
 	"strconv"
 	"strings"
@@ -11,11 +12,6 @@ import (
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 )
-
-// The nature of tview does not really allow me to write this
-// code in a linter friendly way. Maybe I'll get to it when we
-// really need to enforce those rules but for now it should
-// be sufficient to just mark problematic statements with nolint
 
 const (
 	maxIDAndAuthLength      = 64
@@ -129,10 +125,10 @@ func (t *tui) setInterfaceMenu(cfg *HostCfgSimplified) {
 	} else {
 		for _, iface := range ifaces {
 			if !strings.Contains(iface.Flags.String(), net.FlagLoopback.String()) {
-				mac := iface.HardwareAddr.String()
+				name := fmt.Sprintf("%s (%s)", iface.HardwareAddr.String(), iface.Name)
 				t.interfaceMenu.
-					AddOption(mac, func() {
-						cfg.NetworkInterface = mac
+					AddOption(name, func() {
+						cfg.NetworkInterface = strings.Split(name, " ")[0]
 					})
 			}
 		}
