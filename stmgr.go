@@ -5,6 +5,7 @@ import (
 
 	"github.com/system-transparency/stmgr/eval"
 	"github.com/system-transparency/stmgr/log"
+	"github.com/system-transparency/stmgr/mkiso"
 )
 
 const (
@@ -52,6 +53,8 @@ Use 'stmgr <COMMAND> -help' for more info.
 	switch args[commandCallPosition] {
 	case "ospkg":
 		return ospkgArg(args)
+	case "mkiso":
+		return mkisoArg(args)
 	case "provision":
 		return provisionArg(args)
 	case "keygen":
@@ -107,6 +110,20 @@ Use 'stmgr provision <SUBCOMMAND> -help' for more info.
 
 		return nil
 	}
+}
+
+func mkisoArg(args []string) error {
+	switch args[subcommandCallPosition] {
+	case "create":
+		return mkiso.MkisoCreate(args[flagsCallPosition:])
+	default:
+		log.Print(`SUBCOMMANDS:
+	create:
+		create an ISO image with an optional host configuration and EFI binary 
+Use 'stmgr mkiso <SUBCOMMAND> -help' for more info.
+`)
+	}
+	return nil
 }
 
 // Check for keygen subcommands.
