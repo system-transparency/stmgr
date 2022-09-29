@@ -37,9 +37,20 @@ func writeDiskFs(fs filesystem.FileSystem, file, diskPath string) error {
 }
 
 func mkvfat(out, binary, config string) error {
+	var espSize int64
+	for _, file := range []string{binary, config} {
+		if file != "" {
+			fi, err := os.Stat(file)
+			if err != nil {
+				return err
+			}
+			espSize += fi.Size()
+		}
+	}
+
 	var (
-		espSize          int64 = 100 * 1024 * 1024     // 100 MB
-		diskSize         int64 = espSize + 4*1024*1024 // 104 MB
+		// espSizeNew       int64 = 500 * 1024 * 1024
+		diskSize         int64 = espSize + 5*1024*1024 // pad size by 2 MiB
 		blkSize          int64 = 512
 		partitionStart   int64 = 2048
 		partitionSectors int64 = espSize / blkSize
@@ -81,7 +92,12 @@ func mkvfat(out, binary, config string) error {
 }
 
 func mkiso(out, vfat string) error {
-	var size int64 = 8712192
+	fi, err := os.Stat(vfat)
+	if err != nil {
+		return err
+	}
+	size := fi.Size()
+	size = size + 5*1024*1024 // disk padding
 	iso, err := diskfs.Create(out, size, diskfs.Raw)
 	if err != nil {
 		return err
