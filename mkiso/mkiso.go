@@ -84,7 +84,7 @@ func mkvfat(out, binary, config string) error {
 	}
 
 	if config != "" {
-		if err := writeDiskFs(fs, "host_config.json", "/host_config.json"); err != nil {
+		if err := writeDiskFs(fs, config, "/host_config.json"); err != nil {
 			return fmt.Errorf("failed to write host config: %w", err)
 		}
 	}
@@ -111,7 +111,8 @@ func mkiso(out, vfat string) error {
 	if err != nil {
 		return err
 	}
-	vfatName := filepath.Base(vfat)
+	// This avoids an issue where path.Base in go-diskfs gives us a sigsegv
+	vfatName := filepath.Join("vfat", filepath.Base(vfat))
 	if err := writeDiskFs(fs, vfat, vfatName); err != nil {
 		return fmt.Errorf("failed to write file %s to ISO: %w", vfat, err)
 	}
@@ -122,6 +123,7 @@ func mkiso(out, vfat string) error {
 	options := iso9660.FinalizeOptions{
 		VolumeIdentifier: "stboot",
 		ElTorito: &iso9660.ElTorito{
+			BootCatalog: "/BOOT.CAT",
 			Entries: []*iso9660.ElToritoEntry{
 				{
 					Platform:  iso9660.EFI,
@@ -142,7 +144,7 @@ func MkisoCreate(args []string) error {
 	mkosiOut := stbootCmd.String("out", "", "ISO output path (default: stmgr.iso)")
 	mkosiKernel := stbootCmd.String("kernel", "", "kernel or EFI binary to boot")
 	mkosiConfig := stbootCmd.String("config", "host_config.json", "stboot host_configuration (optional)")
-	mkosiForce := stbootCmd.Bool("force", false, "rm existing files (default: false)")
+	mkosiForce := stbootCmd.Bool("force", false, "remove existing files (default: false)")
 
 	if err := stbootCmd.Parse(args); err != nil {
 		return err
