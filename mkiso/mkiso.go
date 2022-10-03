@@ -49,12 +49,13 @@ func mkvfat(out, binary, config string) error {
 	}
 
 	var (
-		// espSizeNew       int64 = 500 * 1024 * 1024
-		diskSize         int64 = espSize + 5*1024*1024 // pad size by 2 MiB
-		blkSize          int64 = 512
-		partitionStart   int64 = 2048
-		partitionSectors int64 = espSize / blkSize
-		partitionEnd     int64 = partitionSectors - partitionStart + 1
+		align1MiBMask    uint64 = (1<<44 - 1) << 20
+		partSize         int64  = int64(uint64(espSize) & align1MiBMask)
+		diskSize         int64  = partSize + 5*1024*1024
+		blkSize          int64  = 512
+		partitionStart   int64  = 2048
+		partitionSectors int64  = partSize / blkSize
+		partitionEnd     int64  = partitionSectors - partitionStart + 1
 	)
 
 	disk, err := diskfs.Create(out, diskSize, diskfs.Raw)
@@ -64,13 +65,17 @@ func mkvfat(out, binary, config string) error {
 
 	table := &gpt.Table{
 		Partitions: []*gpt.Partition{
-			{Start: uint64(partitionStart), End: uint64(partitionEnd), Type: gpt.EFISystemPartition, Name: "EFI System"},
+			{
+				Start: uint64(partitionStart),
+				End:   uint64(partitionEnd),
+				Type:  gpt.EFISystemPartition,
+				Name:  "EFI System"},
 		},
 	}
 
 	err = disk.Partition(table)
 	if err != nil {
-		return fmt.Errorf("failed to create partitiont table")
+		return fmt.Errorf("failed to create partitiont table: %w", err)
 	}
 
 	spec := diskpkg.FilesystemSpec{Partition: 0, FSType: filesystem.TypeFat32}
