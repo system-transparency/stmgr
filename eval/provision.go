@@ -26,6 +26,10 @@ func ProvisionHostconfig(args []string) error {
 	hostconfigAuth := hostconfigCmd.String("auth", "", "Hostconfig authentication.")
 	hostconfigLogLevel := hostconfigCmd.String("loglevel", "", "Set loglevel to any of debug, info, warn, error (default) and panic.")
 
+	hostconfigBondingMode := hostconfigCmd.String("bondingmode", "", "Set default bonding mode (optional)")
+	hostconfigBondName := hostconfigCmd.String("bondname", "", "Set bonding interface name (optional)")
+	hostconfigNetwokInterfaces := hostconfigCmd.String("network-interfaces", "", "Space seperated list of network interfaces (optional, requires with bonding)")
+
 	// Parse which flags are provided to the function
 	if err := hostconfigCmd.Parse(args); err != nil {
 		return err
@@ -43,15 +47,18 @@ func ProvisionHostconfig(args []string) error {
 	return provision.Cfgtool(
 		*hostconfigEfi,
 		&provision.HostCfgSimplified{
-			Version:          *hostconfigVersion,
-			IPAddrMode:       *hostconfigAddrMode,
-			HostIP:           *hostconfigHostIP,
-			DefaultGateway:   *hostconfigGateway,
-			DNSServer:        *hostconfigDNS,
-			NetworkInterface: *hostconfigInterface,
-			ProvisioningURLs: strings.Split(*hostconfigURLs, " "),
-			ID:               *hostconfigID,
-			Auth:             *hostconfigAuth,
+			Version:           *hostconfigVersion,
+			IPAddrMode:        *hostconfigAddrMode,
+			HostIP:            *hostconfigHostIP,
+			DefaultGateway:    *hostconfigGateway,
+			DNSServer:         *hostconfigDNS,
+			NetworkInterface:  *hostconfigInterface,
+			ProvisioningURLs:  strings.Split(*hostconfigURLs, " "),
+			ID:                *hostconfigID,
+			Auth:              *hostconfigAuth,
+			NetworkInterfaces: strings.Split(*hostconfigNetwokInterfaces, " "),
+			BondingMode:       *hostconfigBondingMode,
+			BondName:          *hostconfigBondName,
 		},
 	)
 }
