@@ -2,6 +2,7 @@ linters:
   enable-all: true
   disable:
     - exhaustivestruct # would complain about the x509 standard library...
+    - exhaustruct # s.o.
     - wrapcheck # it's fine to just return some foreign errors
     - tagliatelle # would complain about JSON definitions that we rely on
     - paralleltest # not necessary to do parallel tests for now, might enable later again
@@ -10,4 +11,4 @@ linters:
 
 linters-settings:
   lll:
-    line-length: 150 # default was 120 but some functions especially x509 can't be shortened
+    line-length: 160 # default was 120 but some functions especially x509 can't be shortened

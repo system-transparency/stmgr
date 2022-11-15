@@ -28,7 +28,7 @@ func ProvisionHostconfig(args []string) error {
 
 	hostconfigBondingMode := hostconfigCmd.String("bondingmode", "", "Set default bonding mode (optional)")
 	hostconfigBondName := hostconfigCmd.String("bondname", "", "Set bonding interface name (optional)")
-	hostconfigNetwokInterfaces := hostconfigCmd.String("network-interfaces", "", "Space seperated list of network interfaces (optional, requires with bonding)")
+	hostconfigNetwokInterfaces := hostconfigCmd.String("network-interfaces", "", "Space separated list of network interfaces (optional, requires with bonding)")
 
 	// Parse which flags are provided to the function
 	if err := hostconfigCmd.Parse(args); err != nil {
