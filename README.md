@@ -1,7 +1,7 @@
 # STMGR
 
-Next generation of stmanager in a standalone repo instead of being closely tied into [stboot](https://github.com/system-transparency/stboot).
-This tool is used to create or sign [OS Packages](https://github.com/system-transparency/system-transparency#OS-Package), provision nodes for usage with stboot and has several other features to ease the usage of [system-transparency](https://github.com/system-transparency/system-transparency)
+Next generation of stmanager in a standalone repo instead of being closely tied into [stboot](https://git.glasklar.is/system-transparency/core/stboot).
+This tool is used to create or sign [OS Packages](https://git.glasklar.is/system-transparency/core/system-transparency#os-package), provision nodes for usage with stboot and has several other features to ease the usage of [system-transparency](https://git.glasklar.is/system-transparency/core/system-transparency)
 
 ---
 
@@ -13,7 +13,7 @@ Go version 1.17 or higher.
 
 ## Installation instructions
 
-Either run `go install github.com/system-transparency/stmgr@latest` or clone the repo and run `go build`.
+Either run `go install git.glasklar.is/system-transparency/core/stmgr@latest` or clone the repo and run `go build`.
 
 ---
 
