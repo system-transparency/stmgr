@@ -11,7 +11,7 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/system-transparency/stmgr/log"
+	"git.glasklar.is/system-transparency/core/stmgr/log"
 )
 
 var (

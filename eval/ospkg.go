@@ -3,8 +3,8 @@ package eval
 import (
 	"flag"
 
-	"github.com/system-transparency/stmgr/log"
-	"github.com/system-transparency/stmgr/ospkg"
+	"git.glasklar.is/system-transparency/core/stmgr/log"
+	"git.glasklar.is/system-transparency/core/stmgr/ospkg"
 )
 
 // OspkgCreate takes arguments like os.Args as a string array

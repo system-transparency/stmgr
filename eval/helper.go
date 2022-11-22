@@ -1,6 +1,6 @@
 package eval
 
-import "github.com/system-transparency/stmgr/log"
+import "git.glasklar.is/system-transparency/core/stmgr/log"
 
 // Helper function to map strings to log.logLevel.
 func setLoglevel(level string) {

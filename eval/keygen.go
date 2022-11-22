@@ -3,8 +3,8 @@ package eval
 import (
 	"flag"
 
-	"github.com/system-transparency/stmgr/keygen"
-	"github.com/system-transparency/stmgr/log"
+	"git.glasklar.is/system-transparency/core/stmgr/keygen"
+	"git.glasklar.is/system-transparency/core/stmgr/log"
 )
 
 // KeygenCertificate takes arguments like os.Args as a string array

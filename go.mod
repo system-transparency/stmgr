@@ -1,4 +1,4 @@
-module github.com/system-transparency/stmgr
+module git.glasklar.is/system-transparency/core/stmgr
 
 go 1.17
 
