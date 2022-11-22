@@ -7,8 +7,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	ospkgs "git.glasklar.is/system-transparency/core/stboot/ospkg"
 	"git.glasklar.is/system-transparency/core/stmgr/keygen"
-	ospkgs "github.com/system-transparency/stboot/ospkg"
 )
 
 var ErrInvalidSuffix = errors.New("invalid file extension")

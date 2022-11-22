@@ -4,7 +4,7 @@ import (
 	"io/fs"
 	"os"
 
-	ospkgs "github.com/system-transparency/stboot/ospkg"
+	ospkgs "git.glasklar.is/system-transparency/core/stboot/ospkg"
 )
 
 const defaultFilePerm fs.FileMode = 0o600
