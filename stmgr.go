@@ -115,7 +115,7 @@ Use 'stmgr provision <SUBCOMMAND> -help' for more info.
 func mkisoArg(args []string) error {
 	switch args[subcommandCallPosition] {
 	case "create":
-		return mkiso.MkisoCreate(args[flagsCallPosition:])
+		return mkiso.Create(args[flagsCallPosition:])
 	default:
 		log.Print(`SUBCOMMANDS:
 	create:

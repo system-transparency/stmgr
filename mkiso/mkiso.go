@@ -144,23 +144,23 @@ func mkiso(out, vfat string) error {
 	return nil
 }
 
-func MkisoCreate(args []string) error {
-	stbootCmd := flag.NewFlagSet("mkiso", flag.ExitOnError)
-	mkosiOut := stbootCmd.String("out", "", "ISO output path (default: stmgr.iso)")
-	mkosiKernel := stbootCmd.String("kernel", "", "kernel or EFI binary to boot")
-	mkosiConfig := stbootCmd.String("config", "host_config.json", "stboot host_configuration (optional)")
-	mkosiForce := stbootCmd.Bool("force", false, "remove existing files (default: false)")
+func Create(args []string) error {
+	mkisoCmd := flag.NewFlagSet("mkiso", flag.ExitOnError)
+	mkosiOut := mkisoCmd.String("out", "stmgr.iso", "ISO output path (default: stmgr.iso)")
+	mkosiKernel := mkisoCmd.String("kernel", "", "kernel or EFI binary to boot")
+	mkosiConfig := mkisoCmd.String("config", "host_config.json", "stboot host_configuration (optional)")
+	mkosiForce := mkisoCmd.Bool("force", false, "remove existing files (default: false)")
 
-	if err := stbootCmd.Parse(args); err != nil {
+	if err := mkisoCmd.Parse(args); err != nil {
 		return err
-	}
-
-	if *mkosiOut == "" {
-		*mkosiOut = "stmgr.iso"
 	}
 
 	if *mkosiForce {
 		os.Remove(*mkosiOut)
+	}
+
+	if *mkosiKernel == "" {
+		return fmt.Errorf("no kernel specified")
 	}
 
 	// We care about the name, not the file. Create the file, delete it and use it's name
