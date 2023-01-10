@@ -39,6 +39,9 @@ COMMANDS:
 		Commands to generate different keys and certificates for
 		system-transparency.
 
+	mkiso:
+		Create ISO images for booting stboot and provisioning tools.
+
 Use 'stmgr <COMMAND> -help' for more info.
 `
 
