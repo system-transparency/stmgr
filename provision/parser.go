@@ -1,12 +1,12 @@
 package provision
 
 import (
+	"bytes"
 	"encoding/json"
 	"io/fs"
 	"os"
 
-	guid "github.com/google/uuid"
-	"github.com/system-transparency/efivar/efivarfs"
+	"github.com/u-root/u-root/pkg/efivarfs"
 )
 
 const defaultFilePerm fs.FileMode = 0o600
@@ -43,14 +43,15 @@ func MarshalCfg(cfg *HostCfgSimplified, efi bool) error {
 	}
 
 	if efi {
-		varID, err := guid.Parse("f401f2c1-b005-4be0-8cee-f2e5945bcbe7")
+		name := "STHostConfig-f401f2c1-b005-4be0-8cee-f2e5945bcbe7"
+		attrs := efivarfs.AttributeBootserviceAccess | efivarfs.AttributeRuntimeAccess | efivarfs.AttributeNonVolatile
+
+		e, err := efivarfs.New()
 		if err != nil {
 			return err
 		}
 
-		attrs := efivarfs.AttributeBootserviceAccess | efivarfs.AttributeRuntimeAccess | efivarfs.AttributeNonVolatile
-
-		return efivarfs.WriteVariable("STHostConfig", &varID, attrs, jsonBytes)
+		return efivarfs.SimpleWriteVariable(e, name, attrs, bytes.NewBuffer(jsonBytes))
 	}
 
 	return os.WriteFile("host_configuration.json", jsonBytes, defaultFilePerm)

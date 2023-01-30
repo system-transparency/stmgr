@@ -1,24 +1,30 @@
-module git.glasklar.is/system-transparency/core/stmgr
+module system-transparency.org/stmgr
 
-go 1.17
+// We don't want to depend on golang version later than is available
+// in debian's stable or backports repos.
+go 1.19
 
 require (
-	git.glasklar.is/system-transparency/core/stboot v0.0.0-20221122073532-a465fab2076d
-	github.com/gdamore/tcell/v2 v2.4.1-0.20210905002822-f057f0a857a1
-	github.com/google/uuid v1.3.0
-	github.com/rivo/tview v0.0.0-20220106183741-90d72bc664f5
-	github.com/system-transparency/efivar v0.0.0-20220111100652-764e4b0b0389
+	github.com/gdamore/tcell/v2 v2.5.4
+	github.com/rivo/tview v0.0.0-20230130130022-4a1b7a76c01c
+	github.com/u-root/u-root v0.10.0
+	system-transparency.org/stboot v0.0.0-20230130142012-033e4de02012
 )
 
 require (
 	github.com/dustin/go-humanize v1.0.0 // indirect
 	github.com/gdamore/encoding v1.0.0 // indirect
+	github.com/golang/protobuf v1.4.1 // indirect
+	github.com/google/uuid v1.3.0 // indirect
+	github.com/klauspost/compress v1.10.6 // indirect
 	github.com/lucasb-eyer/go-colorful v1.2.0 // indirect
-	github.com/mattn/go-runewidth v0.0.13 // indirect
-	github.com/pierrec/lz4/v4 v4.1.11 // indirect
-	github.com/rivo/uniseg v0.2.0 // indirect
-	github.com/u-root/u-root v0.8.1-0.20220512174536-db15641d3c71 // indirect
-	golang.org/x/sys v0.0.0-20211205182925-97ca703d548d // indirect
-	golang.org/x/term v0.0.0-20210916214954-140adaaadfaf // indirect
-	golang.org/x/text v0.3.7 // indirect
+	github.com/mattn/go-runewidth v0.0.14 // indirect
+	github.com/pierrec/lz4/v4 v4.1.14 // indirect
+	github.com/rivo/uniseg v0.4.2 // indirect
+	github.com/ulikunitz/xz v0.5.8 // indirect
+	golang.org/x/sys v0.0.0-20220722155257-8c9f86f7a55f // indirect
+	golang.org/x/term v0.0.0-20210927222741-03fcf44c2211 // indirect
+	golang.org/x/text v0.5.0 // indirect
+	google.golang.org/genproto v0.0.0-20200526211855-cb27e3aa2013 // indirect
+	google.golang.org/protobuf v1.25.0 // indirect
 )

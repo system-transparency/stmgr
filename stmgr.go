@@ -3,8 +3,8 @@ package main
 import (
 	"os"
 
-	"git.glasklar.is/system-transparency/core/stmgr/eval"
-	"git.glasklar.is/system-transparency/core/stmgr/log"
+	"system-transparency.org/stmgr/eval"
+	"system-transparency.org/stmgr/log"
 )
 
 const (

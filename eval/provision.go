@@ -4,8 +4,8 @@ import (
 	"flag"
 	"strings"
 
-	"git.glasklar.is/system-transparency/core/stmgr/log"
-	"git.glasklar.is/system-transparency/core/stmgr/provision"
+	"system-transparency.org/stmgr/log"
+	"system-transparency.org/stmgr/provision"
 )
 
 // ProvisionHostconfig takes arguments like os.Args as a string array
