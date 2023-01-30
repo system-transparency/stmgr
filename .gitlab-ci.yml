@@ -1,44 +1,43 @@
-
 stages:
   - check
   - build
   - test
 
-golangci-lint v1.46.2:
+golangci-lint v1.50.1:
   stage: check
-  image: golangci/golangci-lint:v1.46.2
+  image: golangci/golangci-lint:v1.50.1
   script:
     - golangci-lint --version
     - golangci-lint run -v
 
 staticcheck v0.3.3:
   stage: check
-  image: golang:1.17
+  image: golang:1.19
   script:
     - go install honnef.co/go/tools/cmd/staticcheck@v0.3.3
     - staticcheck ./...
 
-compile go 1.17:
+compile go 1.19:
   stage: build
-  image: golang:1.17
+  image: golang:1.19
   script:
     - go build -v ./...
 
 race detector:
   stage: test
-  image: golang:1.17
+  image: golang:1.19
   script:
     - go build -race ./...
 
 unittests:
   stage: test
-  image: golang:1.17
+  image: golang:1.19
   script:
     - go test -v ./...
 
 coverage:
   stage: test
-  image: golang:1.17
+  image: golang:1.19
   script:
     - go test ./... -coverprofile=coverage.txt -covermode count
     - go install github.com/boumenot/gocover-cobertura@latest
