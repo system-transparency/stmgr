@@ -75,10 +75,10 @@ func (t *tui) setAddrModeMenu(cfg *HostCfgSimplified) {
 	t.addrModeMenu.
 		SetLabel("Network Mode").
 		AddOption("dhcp", func() {
-			cfg.IPAddrMode = "dhcp"
+			*cfg.IPAddrMode = "dhcp"
 		}).
 		AddOption("static", func() {
-			cfg.IPAddrMode = "static"
+			*cfg.IPAddrMode = "static"
 		})
 }
 
@@ -88,7 +88,7 @@ func (t *tui) setHostIPField(cfg *HostCfgSimplified) {
 		SetDoneFunc(func(key tcell.Key) {
 			_, network, ok := evalCIDR(t.hostIPField.GetText())
 			if ok {
-				cfg.HostIP = t.hostIPField.GetText()
+				*cfg.HostIP = t.hostIPField.GetText()
 				t.gatewayIPField.SetText(guessGateway(network))
 			}
 		})
@@ -99,7 +99,7 @@ func (t *tui) setGatewayIPField(cfg *HostCfgSimplified) {
 		SetLabel("Gateway IP").
 		SetDoneFunc(func(key tcell.Key) {
 			if evalIP(t.gatewayIPField.GetText()) {
-				cfg.DefaultGateway = t.gatewayIPField.GetText()
+				*cfg.DefaultGateway = t.gatewayIPField.GetText()
 			}
 		})
 }
@@ -109,7 +109,7 @@ func (t *tui) setDNSField(cfg *HostCfgSimplified) {
 		SetLabel("DNS IP").
 		SetDoneFunc(func(key tcell.Key) {
 			if evalIP(t.dnsField.GetText()) {
-				cfg.DNSServer = t.dnsField.GetText()
+				*cfg.DNSServer = t.dnsField.GetText()
 			}
 		})
 }
@@ -120,7 +120,7 @@ func (t *tui) setInterfaceMenu(cfg *HostCfgSimplified) {
 	if ifaces, err := net.Interfaces(); err != nil {
 		t.interfaceMenu.
 			AddOption("NONE", func() {
-				cfg.NetworkInterface = ""
+				*cfg.NetworkInterface = ""
 			})
 	} else {
 		for _, iface := range ifaces {
@@ -128,7 +128,7 @@ func (t *tui) setInterfaceMenu(cfg *HostCfgSimplified) {
 				name := fmt.Sprintf("%s (%s)", iface.HardwareAddr.String(), iface.Name)
 				t.interfaceMenu.
 					AddOption(name, func() {
-						cfg.NetworkInterface = strings.Split(name, " ")[0]
+						*cfg.NetworkInterface = strings.Split(name, " ")[0]
 					})
 			}
 		}
@@ -151,10 +151,10 @@ func (t *tui) setIDField(cfg *HostCfgSimplified) {
 		SetDoneFunc(func(key tcell.Key) {
 			if t.idField.GetText() == "" {
 				t.idField.SetText(getRandomHex())
-				cfg.ID = t.idField.GetText()
+				*cfg.ID = t.idField.GetText()
 			}
 			if evalRand(t.idField.GetText()) {
-				cfg.ID = t.idField.GetText()
+				*cfg.ID = t.idField.GetText()
 			}
 		})
 }
@@ -165,10 +165,10 @@ func (t *tui) setAuthField(cfg *HostCfgSimplified) {
 		SetDoneFunc(func(key tcell.Key) {
 			if t.authField.GetText() == "" {
 				t.authField.SetText(getRandomHex())
-				cfg.Auth = t.authField.GetText()
+				*cfg.Auth = t.authField.GetText()
 			}
 			if evalRand(t.authField.GetText()) {
-				cfg.Auth = t.authField.GetText()
+				*cfg.Auth = t.authField.GetText()
 			}
 		})
 }
@@ -185,7 +185,7 @@ func (t *tui) setMainForm(cfg *HostCfgSimplified, efi bool) {
 		AddFormItem(t.idField).
 		AddFormItem(t.authField).
 		AddButton("Save", func() {
-			cfg.Timestamp = time.Now().Unix()
+			*cfg.Timestamp = time.Now().Unix()
 			cfg = t.appendCustomData(cfg)
 			if err := MarshalCfg(cfg, efi); err != nil {
 				t.app.QueueEvent(tcell.NewEventError(err))

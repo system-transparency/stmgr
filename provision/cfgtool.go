@@ -17,15 +17,15 @@ import (
 // the values using a terminal UI.
 func Cfgtool(efi bool, cfg *HostCfgSimplified) error {
 	if isDefined(
-		cfg.IPAddrMode,
-		cfg.HostIP,
-		cfg.DefaultGateway,
-		cfg.DNSServer,
-		cfg.NetworkInterface,
-		cfg.ID,
-		cfg.Auth,
+		*cfg.IPAddrMode,
+		*cfg.HostIP,
+		*cfg.DefaultGateway,
+		*cfg.DNSServer,
+		*cfg.NetworkInterface,
+		*cfg.ID,
+		*cfg.Auth,
 	) {
-		cfg.Timestamp = time.Now().Unix()
+		*cfg.Timestamp = time.Now().Unix()
 
 		return MarshalCfg(cfg, efi)
 	}

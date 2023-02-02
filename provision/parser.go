@@ -18,18 +18,18 @@ const defaultFilePerm fs.FileMode = 0o600
 // after the final layout is set.
 type HostCfgSimplified struct {
 	Version           int               `json:"version"`
-	IPAddrMode        string            `json:"network_mode"`
-	HostIP            string            `json:"host_ip"`
-	DefaultGateway    string            `json:"gateway"`
-	DNSServer         string            `json:"dns"`
-	NetworkInterface  string            `json:"network_interface"`
+	IPAddrMode        *string           `json:"network_mode"`
+	HostIP            *string           `json:"host_ip"`
+	DefaultGateway    *string           `json:"gateway"`
+	DNSServer         *string           `json:"dns"`
+	NetworkInterface  *string           `json:"network_interface"`
 	ProvisioningURLs  []string          `json:"provisioning_urls"`
-	ID                string            `json:"identity"`
-	Auth              string            `json:"authentication"`
-	Timestamp         int64             `json:"timestamp"`
+	ID                *string           `json:"identity"`
+	Auth              *string           `json:"authentication"`
+	Timestamp         *int64            `json:"timestamp"`
 	NetworkInterfaces []string          `json:"network_interfaces"`
-	BondingMode       string            `json:"bonding_mode"`
-	BondName          string            `json:"bond_name"`
+	BondingMode       *string           `json:"bonding_mode"`
+	BondName          *string           `json:"bond_name"`
 	Custom            map[string]string `json:"custom,omitempty"`
 }
 
