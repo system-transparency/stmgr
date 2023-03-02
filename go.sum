@@ -128,3 +128,4 @@ honnef.co/go/tools v0.0.0-20190523083050-ea95bdfd59fc/go.mod h1:rf3lG4BRIbNafJWh
 pack.ag/tftp v1.0.1-0.20181129014014-07909dfbde3c h1:4DHuGX0VtxRIyjXlVpcjSGEmZ7OnIK7Hvo+INnxI8yk=
 system-transparency.org/stboot v0.0.0-20230130142012-033e4de02012 h1:0ZzkKI0hqZAsvwBEaecuIAzJcHke4YvaVxTS9yayTt8=
 system-transparency.org/stboot v0.0.0-20230130142012-033e4de02012/go.mod h1:quimmCmuu3htZfQu1P87qgs6njz2B+F21Xcio91fdJc=
+
