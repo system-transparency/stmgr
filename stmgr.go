@@ -128,6 +128,7 @@ func ukiArg(args []string) error {
 Use 'stmgr uki <SUBCOMMAND> -help' for more info.
 `)
 	}
+
 	return nil
 }
 

@@ -12,26 +12,29 @@ import (
 	"github.com/diskfs/go-diskfs/partition/gpt"
 )
 
+//nolint:funlen
 func mkvfat(out, binary, config string) error {
 	var espSize int64
+
 	for _, file := range []string{binary, config} {
 		if file != "" {
 			fi, err := os.Stat(file)
 			if err != nil {
 				return err
 			}
+
 			espSize += fi.Size()
 		}
 	}
 
 	var (
 		align1MiBMask    uint64 = (1<<44 - 1) << 20
-		partSize         int64  = int64(uint64(espSize) & align1MiBMask)
-		diskSize         int64  = partSize + 5*1024*1024
 		blkSize          int64  = 512
 		partitionStart   int64  = 2048
-		partitionSectors int64  = partSize / blkSize
-		partitionEnd     int64  = partitionSectors - partitionStart + 1
+		partSize                = int64(uint64(espSize) & align1MiBMask)
+		diskSize                = partSize + 5*1024*1024
+		partitionSectors        = partSize / blkSize
+		partitionEnd            = partitionSectors - partitionStart + 1
 	)
 
 	disk, err := diskfs.Create(out, diskSize, diskfs.Raw)
@@ -55,6 +58,8 @@ func mkvfat(out, binary, config string) error {
 	}
 
 	spec := diskpkg.FilesystemSpec{Partition: 0, FSType: filesystem.TypeFat32}
+
+	//nolint:varnamelen
 	fs, err := disk.CreateFilesystem(spec)
 	if err != nil {
 		return fmt.Errorf("failed to create filesystem")
@@ -69,6 +74,7 @@ func mkvfat(out, binary, config string) error {
 			return fmt.Errorf("failed to write host config: %w", err)
 		}
 	}
+
 	return nil
 }
 
@@ -77,13 +83,19 @@ func mkiso(out, vfat string) error {
 	if err != nil {
 		return err
 	}
+
 	size := fi.Size()
-	size = size + 5*1024*1024 // disk padding
+	//nolint:gomnd
+	size += 5 * 1024 * 1024 // disk padding
+
 	iso, err := diskfs.Create(out, size, diskfs.Raw)
 	if err != nil {
 		return err
 	}
+
 	iso.LogicalBlocksize = 2048
+
+	//nolint:varnamelen
 	fs, err := iso.CreateFilesystem(diskpkg.FilesystemSpec{
 		Partition:   0,
 		FSType:      filesystem.TypeISO9660,
@@ -97,10 +109,12 @@ func mkiso(out, vfat string) error {
 	if err := writeDiskFs(fs, vfat, vfatName); err != nil {
 		return fmt.Errorf("failed to write file %s to ISO: %w", vfat, err)
 	}
+
 	diskImage, ok := fs.(*iso9660.FileSystem)
 	if !ok {
 		return fmt.Errorf("not an iso9660 filesystem")
 	}
+
 	options := iso9660.FinalizeOptions{
 		VolumeIdentifier: "stboot",
 		ElTorito: &iso9660.ElTorito{
@@ -114,8 +128,10 @@ func mkiso(out, vfat string) error {
 			},
 		},
 	}
+
 	if err = diskImage.Finalize(options); err != nil {
 		return err
 	}
+
 	return nil
 }

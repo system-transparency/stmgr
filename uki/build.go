@@ -9,29 +9,34 @@ import (
 	"github.com/diskfs/go-diskfs/filesystem"
 )
 
+//nolint:varnamelen
 func writeDiskFs(fs filesystem.FileSystem, file, diskPath string) error {
-
 	if path := filepath.Dir(diskPath); path != "/" {
 		if err := fs.Mkdir(path); err != nil {
 			return err
 		}
 	}
 
+	//nolint:nosnakecase
 	rw, err := fs.OpenFile(diskPath, os.O_CREATE|os.O_RDWR)
 	if err != nil {
 		return fmt.Errorf("failed to make %s on the disk image", diskPath)
 	}
+
 	content, err := os.ReadFile(file)
 	if err != nil {
 		return fmt.Errorf("failed to read %s", filepath.Base(file))
 	}
+
 	_, err = rw.Write(content)
 	if err != nil {
 		return fmt.Errorf("failed to write %s", filepath.Base(file))
 	}
+
 	return nil
 }
 
+//nolint:varnamelen
 func createTempFilename() (string, error) {
 	// Go only allows us to create templated filenames if we make one then delete
 	// it.
@@ -39,11 +44,14 @@ func createTempFilename() (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("failed to create temporary vfat file: %w", err)
 	}
+
 	f.Close()
 	os.RemoveAll(f.Name())
+
 	return f.Name(), nil
 }
 
+//nolint:funlen,cyclop
 func Create(args []string) error {
 	ukiCmd := flag.NewFlagSet("uki", flag.ExitOnError)
 	out := ukiCmd.String("out", "stmgr", "output path with format as suffix (default: stmgr)")
@@ -60,6 +68,7 @@ func Create(args []string) error {
 		return err
 	}
 
+	//nolint:godox
 	// TODO: Use slice.Contains when we want generics
 	if *format != "iso" && *format != "uki" {
 		return fmt.Errorf("format needs to be one of 'iso' or 'uki'")
@@ -94,6 +103,7 @@ func Create(args []string) error {
 	if err != nil {
 		return fmt.Errorf("failed to make temporary file for stub")
 	}
+
 	defer os.Remove(stubTmpfile.Name())
 
 	if err := writeStub(stubTmpfile, *stub); err != nil {
@@ -116,6 +126,7 @@ func Create(args []string) error {
 		return fmt.Errorf("failed to write UKI: %w", err)
 	}
 
+	//nolint:godox
 	// TODO: More output formats
 	if *format == "iso" {
 		// We care about the name, not the file. Create the file, delete it and use it's name
@@ -132,5 +143,6 @@ func Create(args []string) error {
 			return fmt.Errorf("failed to make iso: %w", err)
 		}
 	}
+
 	return nil
 }
