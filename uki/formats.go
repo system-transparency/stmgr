@@ -1,7 +1,6 @@
-package mkiso
+package uki
 
 import (
-	"flag"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -12,29 +11,6 @@ import (
 	"github.com/diskfs/go-diskfs/filesystem/iso9660"
 	"github.com/diskfs/go-diskfs/partition/gpt"
 )
-
-func writeDiskFs(fs filesystem.FileSystem, file, diskPath string) error {
-
-	if path := filepath.Dir(diskPath); path != "/" {
-		if err := fs.Mkdir(path); err != nil {
-			return err
-		}
-	}
-
-	rw, err := fs.OpenFile(diskPath, os.O_CREATE|os.O_RDWR)
-	if err != nil {
-		return fmt.Errorf("failed to make %s on the disk image", diskPath)
-	}
-	content, err := os.ReadFile(file)
-	if err != nil {
-		return fmt.Errorf("failed to read %s", filepath.Base(file))
-	}
-	_, err = rw.Write(content)
-	if err != nil {
-		return fmt.Errorf("failed to write %s", filepath.Base(file))
-	}
-	return nil
-}
 
 func mkvfat(out, binary, config string) error {
 	var espSize int64
@@ -140,43 +116,6 @@ func mkiso(out, vfat string) error {
 	}
 	if err = diskImage.Finalize(options); err != nil {
 		return err
-	}
-	return nil
-}
-
-func Create(args []string) error {
-	mkisoCmd := flag.NewFlagSet("mkiso", flag.ExitOnError)
-	mkosiOut := mkisoCmd.String("out", "stmgr.iso", "ISO output path (default: stmgr.iso)")
-	mkosiKernel := mkisoCmd.String("kernel", "", "kernel or EFI binary to boot")
-	mkosiConfig := mkisoCmd.String("config", "host_config.json", "stboot host_configuration (optional)")
-	mkosiForce := mkisoCmd.Bool("force", false, "remove existing files (default: false)")
-
-	if err := mkisoCmd.Parse(args); err != nil {
-		return err
-	}
-
-	if *mkosiForce {
-		os.Remove(*mkosiOut)
-	}
-
-	if *mkosiKernel == "" {
-		return fmt.Errorf("no kernel specified")
-	}
-
-	// We care about the name, not the file. Create the file, delete it and use it's name
-	f, err := os.CreateTemp("/var/tmp", "stmgr.*.vfat")
-	if err != nil {
-		return fmt.Errorf("failed to create temporary vfat file: %w", err)
-	}
-	f.Close()
-	os.RemoveAll(f.Name())
-
-	if err := mkvfat(f.Name(), *mkosiKernel, *mkosiConfig); err != nil {
-		return fmt.Errorf("failed to make vfat partition: %w", err)
-	}
-
-	if err := mkiso(*mkosiOut, f.Name()); err != nil {
-		return fmt.Errorf("failed to make iso: %w", err)
 	}
 	return nil
 }
