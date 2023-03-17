@@ -5,6 +5,7 @@ import (
 
 	"system-transparency.org/stmgr/eval"
 	"system-transparency.org/stmgr/log"
+	"system-transparency.org/stmgr/uki"
 )
 
 const (
@@ -38,6 +39,11 @@ COMMANDS:
 		Commands to generate different keys and certificates for
 		system-transparency.
 
+	uki:
+		Create an Unified Kernel Image (UKI) for booting stboot and provisioning tools.
+		Output formats:
+			* ISO
+
 Use 'stmgr <COMMAND> -help' for more info.
 `
 
@@ -52,6 +58,8 @@ Use 'stmgr <COMMAND> -help' for more info.
 	switch args[commandCallPosition] {
 	case "ospkg":
 		return ospkgArg(args)
+	case "uki":
+		return ukiArg(args)
 	case "provision":
 		return provisionArg(args)
 	case "keygen":
@@ -107,6 +115,21 @@ Use 'stmgr provision <SUBCOMMAND> -help' for more info.
 
 		return nil
 	}
+}
+
+func ukiArg(args []string) error {
+	switch args[subcommandCallPosition] {
+	case "create":
+		return uki.Create(args[flagsCallPosition:])
+	default:
+		log.Print(`SUBCOMMANDS:
+	create:
+		create an unified kernel image with an optional host configuration.
+Use 'stmgr uki <SUBCOMMAND> -help' for more info.
+`)
+	}
+
+	return nil
 }
 
 // Check for keygen subcommands.
