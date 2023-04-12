@@ -63,6 +63,8 @@ func Create(args []string) error {
 	force := ukiCmd.Bool("force", false, "remove existing files (default: false)")
 	format := ukiCmd.String("format", "iso", "output format iso or uki (default: iso)")
 	stub := ukiCmd.String("stub", "", "UKI stub location (defaults to an embedded stub)")
+	sbat := ukiCmd.String("sbat", "", "SBAT metadata")
+	appendSbat := ukiCmd.Bool("append-sbat", false, "Append SBAT metadata to the existing section (default: false)")
 
 	if err := ukiCmd.Parse(args); err != nil {
 		return err
@@ -97,6 +99,9 @@ func Create(args []string) error {
 	if err := uki.SetInitramfs(*initramfs); err != nil {
 		return fmt.Errorf("failed setting initramfs")
 	}
+
+	// SBAT section is optional
+	uki.SetSBAT(*sbat, *appendSbat)
 
 	// Write the stub file to a temporary file
 	stubTmpfile, err := os.CreateTemp("", "stub.*.efi")

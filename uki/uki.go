@@ -1,6 +1,7 @@
 package uki
 
 import (
+	"bytes"
 	"debug/pe"
 	"embed"
 	"errors"
@@ -15,10 +16,12 @@ import (
 // Adapted from https://github.com/Foxboron/sbctl/blob/master/bundles.go
 
 type UKI struct {
-	kernel    string
-	initramfs string
-	cmdline   string
-	osRelease string
+	kernel     string
+	initramfs  string
+	cmdline    string
+	osRelease  string
+	sbat       string
+	appendSbat bool
 }
 
 func (u *UKI) SetKernel(kernel string) error {
@@ -77,6 +80,11 @@ func (u *UKI) SetOSRelease(osrelease string) error {
 	return nil
 }
 
+func (u *UKI) SetSBAT(sbat string, appendSBAT bool) {
+	u.sbat = sbat
+	u.appendSbat = appendSBAT
+}
+
 func (u *UKI) Cleanup() {
 	os.Remove(u.cmdline)
 	os.Remove(u.osRelease)
@@ -116,6 +124,26 @@ func writeStub(f io.Writer, stub string) error {
 	return nil
 }
 
+// Check if binary has an existing SBAT section.
+func hasSBAT(stub string) bool {
+	out, err := exec.Command("objdump", "-h", stub).Output()
+	if errors.Is(err, exec.ErrNotFound) {
+		return false
+	}
+
+	return bytes.Contains(out, []byte(".sbat"))
+}
+
+// Fet the SBAT section from the binary.
+func getSBAT(stub string) []byte {
+	out, err := exec.Command("objcopy", "--dump-section", ".sbat=/dev/stdout", stub).Output()
+	if errors.Is(err, exec.ErrNotFound) {
+		return []byte{}
+	}
+
+	return out
+}
+
 //nolint:varnamelen
 func writeOsrelease(f io.Writer) error {
 	osrelease := []byte(`NAME="stboot"
@@ -153,18 +181,56 @@ func getVMA(stub string) (uint64, error) {
 	return vma, nil
 }
 
-//nolint:cyclop,funlen
+//nolint:cyclop,funlen,gocognit
 func generateUKI(uki *UKI, stub, out string) error {
+	removeSBAT := false
+
+	// If there is an existing SBAT section, we need to remove it
+	if hasSBAT(stub) {
+		removeSBAT = true
+	}
+
+	// If we want to append the sbat section we need to read the
+	// existing section and write both to a file.
+	if uki.appendSbat && removeSBAT {
+		oldSBAT := getSBAT(stub)
+
+		sbatFile, err := os.CreateTemp("/var/tmp", "stmgr-sbat.*.csv")
+		if err != nil {
+			return fmt.Errorf("failed to make temporary file for stmgr.csv")
+		}
+
+		defer os.Remove(sbatFile.Name())
+
+		suppliedSBAT, err := os.ReadFile(uki.sbat)
+		if err != nil {
+			return err
+		}
+
+		if _, err := sbatFile.Write(suppliedSBAT); err != nil {
+			return err
+		}
+
+		if _, err := sbatFile.Write(oldSBAT); err != nil {
+			return err
+		}
+
+		uki.sbat = sbatFile.Name()
+	}
+
 	type section struct {
-		section string
-		file    string
+		section  string
+		file     string
+		optional bool
 	}
 
 	sections := []section{
-		{".osrel", uki.osRelease},
-		{".cmdline", uki.cmdline},
-		{".initrd", uki.initramfs},
-		{".linux", uki.kernel},
+		{".osrel", uki.osRelease, false},
+		{".cmdline", uki.cmdline, false},
+		{".initrd", uki.initramfs, false},
+		{".linux", uki.kernel, false},
+		// The stub has a default .sbat section we can use
+		{".sbat", uki.sbat, true},
 	}
 
 	// Because the sections might overlap we need to figure out the sizes of the
@@ -179,7 +245,7 @@ func generateUKI(uki *UKI, stub, out string) error {
 	//nolint:varnamelen
 	for _, s := range sections {
 		if s.file == "" {
-			if s.section == ".splash" {
+			if s.optional {
 				continue
 			}
 		}
@@ -196,6 +262,13 @@ func generateUKI(uki *UKI, stub, out string) error {
 			flags = "code,readonly"
 		default:
 			flags = "data,readonly"
+		}
+
+		// If the SBAT section is present we need to remove it before adding it
+		if removeSBAT {
+			args = append(args,
+				"--remove-section", ".sbat",
+			)
 		}
 
 		args = append(args,
