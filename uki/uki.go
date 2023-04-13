@@ -240,7 +240,8 @@ func generateUKI(uki *UKI, stub, out string) error {
 		return err
 	}
 
-	args := []string{}
+	// -p preserves the dates of the files we are embedding into sections
+	args := []string{"-p"}
 
 	//nolint:varnamelen
 	for _, s := range sections {
