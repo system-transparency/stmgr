@@ -12,7 +12,7 @@ import (
 	"github.com/diskfs/go-diskfs/partition/gpt"
 )
 
-//nolint:funlen
+//nolint:funlen,cyclop
 func mkvfat(out, binary, config string) error {
 	var espSize int64
 
@@ -27,6 +27,12 @@ func mkvfat(out, binary, config string) error {
 		}
 	}
 
+	// Smallest possible FAT32 partition
+	var minVfatSize int64 = 33548800
+	if espSize < minVfatSize {
+		espSize = minVfatSize
+	}
+
 	var (
 		align1MiBMask    uint64 = (1<<44 - 1) << 20
 		blkSize          int64  = 512
@@ -37,7 +43,7 @@ func mkvfat(out, binary, config string) error {
 		partitionEnd            = partitionSectors - partitionStart + 1
 	)
 
-	disk, err := diskfs.Create(out, diskSize, diskfs.Raw)
+	disk, err := diskfs.Create(out, diskSize, diskfs.Raw, diskfs.SectorSize512)
 	if err != nil {
 		return fmt.Errorf("failed to create disk file: %w", err)
 	}
@@ -87,8 +93,8 @@ func mkiso(out, vfat string) error {
 	size := fi.Size()
 	//nolint:gomnd
 	size += 5 * 1024 * 1024 // disk padding
+	iso, err := diskfs.Create(out, size, diskfs.Raw, diskfs.SectorSize512)
 
-	iso, err := diskfs.Create(out, size, diskfs.Raw)
 	if err != nil {
 		return err
 	}

@@ -5,6 +5,7 @@ module system-transparency.org/stmgr
 go 1.19
 
 require (
+	github.com/diskfs/go-diskfs v1.3.0
 	github.com/gdamore/tcell/v2 v2.5.4
 	github.com/rivo/tview v0.0.0-20230130130022-4a1b7a76c01c
 	github.com/u-root/u-root v0.10.0
@@ -12,7 +13,6 @@ require (
 )
 
 require (
-	github.com/diskfs/go-diskfs v1.2.0 // indirect
 	github.com/dustin/go-humanize v1.0.0 // indirect
 	github.com/gdamore/encoding v1.0.0 // indirect
 	github.com/golang/protobuf v1.4.1 // indirect
