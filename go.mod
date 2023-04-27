@@ -9,13 +9,15 @@ require (
 	github.com/gdamore/tcell/v2 v2.5.4
 	github.com/rivo/tview v0.0.0-20230130130022-4a1b7a76c01c
 	github.com/u-root/u-root v0.10.0
-	system-transparency.org/stboot v0.0.0-20230130142012-033e4de02012
+	system-transparency.org/stboot v0.1.0-beta.1.0.20230324154143-e50364d878dc
 )
 
 require (
 	github.com/dustin/go-humanize v1.0.0 // indirect
+	github.com/frankban/quicktest v1.14.5 // indirect
 	github.com/gdamore/encoding v1.0.0 // indirect
 	github.com/golang/protobuf v1.4.1 // indirect
+	github.com/google/go-cmp v0.5.9 // indirect
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/klauspost/compress v1.10.6 // indirect
 	github.com/lucasb-eyer/go-colorful v1.2.0 // indirect
