@@ -27,6 +27,12 @@ func main() {
 func run(args []string) error {
 	const usage = `Usage: stmgr <COMMAND> <SUBCOMMAND> [flags...]
 COMMANDS:
+	trustpolicy:
+		Manage trust policy files for stboot.
+
+	hostconfig:
+		Manage host configuration files for stboot.
+
 	ospkg:
 		Set of commands related to OS packages. This includes
 		creating, signing and analyzing them.
@@ -56,6 +62,10 @@ Use 'stmgr <COMMAND> -help' for more info.
 
 	// Check which command is requested or display usage
 	switch args[commandCallPosition] {
+	case "trustpolicy":
+		return trustpolicyArg(args)
+	case "hostconfig":
+		return hostconfigArg(args)
 	case "ospkg":
 		return ospkgArg(args)
 	case "uki":
@@ -70,6 +80,38 @@ Use 'stmgr <COMMAND> -help' for more info.
 
 		return nil
 	}
+}
+
+func trustpolicyArg(args []string) error {
+	switch args[subcommandCallPosition] {
+	case "check":
+		return eval.TrustPolicyCheck(args[flagsCallPosition:])
+	default:
+		log.Print(`SUBCOMMANDS:
+	check:
+		Create valid trust policy by checking the provided JSON.
+		
+Use 'stmgr trustpolicy <SUBCOMMAND> -help' for more info.
+`)
+	}
+
+	return nil
+}
+
+func hostconfigArg(args []string) error {
+	switch args[subcommandCallPosition] {
+	case "check":
+		return eval.HostConfigCheck(args[flagsCallPosition:])
+	default:
+		log.Print(`SUBCOMMANDS:
+	check:
+		Create valid host configuration by checking the provided JSON.
+		
+Use 'stmgr hostconfig <SUBCOMMAND> -help' for more info.
+`)
+	}
+
+	return nil
 }
 
 // Check for ospkg subcommands.
