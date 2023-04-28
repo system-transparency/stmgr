@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/diskfs/go-diskfs/filesystem"
 )
@@ -76,7 +77,10 @@ func Create(args []string) error {
 		return fmt.Errorf("format needs to be one of 'iso' or 'uki'")
 	}
 
-	outputFile := fmt.Sprintf("%s.%s", *out, *format)
+	outputFile := *out
+	if !strings.HasSuffix(outputFile, *format) {
+		outputFile = fmt.Sprintf("%s.%s", outputFile, *format)
+	}
 
 	if *force {
 		os.Remove(outputFile)
