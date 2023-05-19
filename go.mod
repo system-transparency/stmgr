@@ -9,7 +9,7 @@ require (
 	github.com/gdamore/tcell/v2 v2.5.4
 	github.com/rivo/tview v0.0.0-20230130130022-4a1b7a76c01c
 	github.com/u-root/u-root v0.10.0
-	system-transparency.org/stboot v0.1.0-beta.1.0.20230324154143-e50364d878dc
+	system-transparency.org/stboot v0.1.2
 )
 
 require (
