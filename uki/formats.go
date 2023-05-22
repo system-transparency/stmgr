@@ -13,10 +13,10 @@ import (
 )
 
 //nolint:funlen,cyclop
-func mkvfat(out, binary, config string) error {
+func mkvfat(out, binary string) error {
 	var espSize int64
 
-	for _, file := range []string{binary, config} {
+	for _, file := range []string{binary} {
 		if file != "" {
 			fi, err := os.Stat(file)
 			if err != nil {
@@ -73,12 +73,6 @@ func mkvfat(out, binary, config string) error {
 
 	if err := writeDiskFs(fs, binary, "/EFI/BOOT/BOOTX64.EFI"); err != nil {
 		return fmt.Errorf("failed to write kernel: %w", err)
-	}
-
-	if config != "" {
-		if err := writeDiskFs(fs, config, "/host_config.json"); err != nil {
-			return fmt.Errorf("failed to write host config: %w", err)
-		}
 	}
 
 	return nil

@@ -60,7 +60,6 @@ func Create(args []string) error {
 	cmdline := ukiCmd.String("cmdline", "console=ttyS0,115200", "cmdline options for the kernel (default: console=ttyS0,115200")
 	osrelease := ukiCmd.String("osrelease", "", "os-release file for the uki")
 	kernel := ukiCmd.String("kernel", "", "kernel or EFI binary to boot")
-	config := ukiCmd.String("config", "host_config.json", "stboot host_configuration (optional)")
 	force := ukiCmd.Bool("force", false, "remove existing files (default: false)")
 	format := ukiCmd.String("format", "iso", "output format iso or uki (default: iso)")
 	stub := ukiCmd.String("stub", "", "UKI stub location (defaults to an embedded stub)")
@@ -144,7 +143,7 @@ func Create(args []string) error {
 			return fmt.Errorf("failed to make temporary filename: %w", err)
 		}
 
-		if err := mkvfat(tmpfilename, ukiFilename, *config); err != nil {
+		if err := mkvfat(tmpfilename, ukiFilename); err != nil {
 			return fmt.Errorf("failed to make vfat partition: %w", err)
 		}
 
