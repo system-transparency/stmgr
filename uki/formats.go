@@ -12,7 +12,7 @@ import (
 	"github.com/diskfs/go-diskfs/partition/gpt"
 )
 
-//nolint:funlen,cyclop
+//nolint:funlen
 func mkvfat(out, binary string) error {
 	var espSize int64
 
@@ -65,7 +65,6 @@ func mkvfat(out, binary string) error {
 
 	spec := diskpkg.FilesystemSpec{Partition: 0, FSType: filesystem.TypeFat32}
 
-	//nolint:varnamelen
 	fs, err := disk.CreateFilesystem(spec)
 	if err != nil {
 		return fmt.Errorf("failed to create filesystem")
