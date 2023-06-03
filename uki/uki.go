@@ -46,7 +46,7 @@ func (u *UKI) SetInitramfs(initramfs string) error {
 func (u *UKI) SetCmdline(cmdline string) error {
 	cmdlineTmpfile, err := os.CreateTemp("", "cmdline.*")
 	if err != nil {
-		return fmt.Errorf("failed to make temporary file for os-release")
+		return fmt.Errorf("failed to make temporary file for cmdline")
 	}
 
 	if _, err := cmdlineTmpfile.Write([]byte(cmdline + "\n")); err != nil {

@@ -57,7 +57,7 @@ func Create(args []string) error {
 	ukiCmd := flag.NewFlagSet("uki", flag.ExitOnError)
 	out := ukiCmd.String("out", "stmgr", "output path with format as suffix (default: stmgr)")
 	initramfs := ukiCmd.String("initramfs", "/tmp/initramfs.linux_amd64.cpio", "initramfs of a system, commonly from u-root")
-	cmdline := ukiCmd.String("cmdline", "console=ttyS0,115200", "cmdline options for the kernel (default: console=ttyS0,115200")
+	cmdline := ukiCmd.String("cmdline", "", "additional cmdline options for the kernel")
 	osrelease := ukiCmd.String("osrelease", "", "os-release file for the uki")
 	kernel := ukiCmd.String("kernel", "", "kernel or EFI binary to boot")
 	force := ukiCmd.Bool("force", false, "remove existing files (default: false)")
