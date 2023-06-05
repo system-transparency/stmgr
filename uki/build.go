@@ -87,6 +87,8 @@ func Create(args []string) error {
 
 	uki := &UKI{}
 
+	defer uki.Cleanup()
+
 	if err := uki.SetCmdline(*cmdline); err != nil {
 		return fmt.Errorf("failed setting cmdline: %w", err)
 	}
@@ -123,10 +125,11 @@ func Create(args []string) error {
 		ukiFilename = outputFile
 	} else {
 		// File we write for the UKI
-		stmgrUkiTmpfile, err := os.CreateTemp("", "stmgr-uki.*.efi")
+		stmgrUkiTmpfile, err := os.CreateTemp("/var/tmp", "stmgr-uki.*.efi")
 		if err != nil {
 			return fmt.Errorf("failed to make temporary file for the UKI")
 		}
+		defer os.Remove(stmgrUkiTmpfile.Name())
 		ukiFilename = stmgrUkiTmpfile.Name()
 	}
 
@@ -142,6 +145,8 @@ func Create(args []string) error {
 		if err != nil {
 			return fmt.Errorf("failed to make temporary filename: %w", err)
 		}
+
+		defer os.Remove(tmpfilename)
 
 		if err := mkvfat(tmpfilename, ukiFilename); err != nil {
 			return fmt.Errorf("failed to make vfat partition: %w", err)

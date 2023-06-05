@@ -44,7 +44,7 @@ func (u *UKI) SetInitramfs(initramfs string) error {
 }
 
 func (u *UKI) SetCmdline(cmdline string) error {
-	cmdlineTmpfile, err := os.CreateTemp("", "cmdline.*")
+	cmdlineTmpfile, err := os.CreateTemp("/var/tmp", "cmdline.*")
 	if err != nil {
 		return fmt.Errorf("failed to make temporary file for cmdline")
 	}
@@ -61,7 +61,7 @@ func (u *UKI) SetCmdline(cmdline string) error {
 func (u *UKI) SetOSRelease(osrelease string) error {
 	// uki.OSRelease = "/etc/os-release"
 	if osrelease == "" {
-		osreleaseTmpfile, err := os.CreateTemp("", "os-release.*")
+		osreleaseTmpfile, err := os.CreateTemp("/var/tmp", "os-release.*")
 		if err != nil {
 			return fmt.Errorf("failed to make temporary file for os-release")
 		}
