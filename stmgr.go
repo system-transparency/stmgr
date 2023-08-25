@@ -4,10 +4,12 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"path"
 	"time"
 
 	"github.com/charmbracelet/lipgloss"
 	"github.com/schollz/progressbar/v3"
+	"system-transparency.org/stmgr/kernel"
 
 	"github.com/spf13/cobra"
 )
@@ -422,13 +424,29 @@ func doKernel(cmd *cobra.Command, args []string) {
 func doKernelBuild(kernelSpec string, config string, menu bool, name string) {
 	fmt.Printf("Building %s from Linux %s with %s configuration\n", name, kernelSpec, config)
 
-	downDesc := fmt.Sprintf("Downloading Linux %s tarball...", kernelSpec)
-	extractDesc := fmt.Sprintf("Extracting tarball...")
+	home, err := os.UserHomeDir()
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	err = os.MkdirAll(path.Join(home, "/.local/stmgr/build"), 0755)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	err = kernel.Build(context.Background(), "5.10.1", "testy")
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
 
-	printProgress([]string{downDesc, extractDesc}, 5*time.Second)
-	printCompilation(kernelOutput, 5*time.Second)
-	fmt.Printf("make: Leaving directory '/home/%s/.local/stmgr/kernel/%s'\n", os.Getenv("USER"), name)
-	fmt.Println("Done")
+	//downDesc := fmt.Sprintf("Downloading Linux %s tarball...", kernelSpec)
+	//extractDesc := fmt.Sprintf("Extracting tarball...")
+
+	//printProgress([]string{downDesc, extractDesc}, 5*time.Second)
+	//printCompilation(kernelOutput, 5*time.Second)
+	//fmt.Printf("make: Leaving directory '/home/%s/.local/stmgr/kernel/%s'\n", os.Getenv("USER"), name)
+	//fmt.Println("Done")
 }
 
 func printCompilation(lines []string, duration time.Duration) {
