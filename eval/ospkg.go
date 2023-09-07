@@ -3,7 +3,7 @@ package eval
 import (
 	"flag"
 
-	"system-transparency.org/stmgr/log"
+	"system-transparency.org/stboot/stlog"
 	"system-transparency.org/stmgr/ospkg"
 )
 
@@ -36,7 +36,7 @@ func OspkgCreate(args []string) error {
 
 	// Print the successfully parsed flags in debug level
 	createCmd.Visit(func(f *flag.Flag) {
-		log.Debugf("Registered flag %q", f)
+		stlog.Debug("Registered flag %q", f)
 	})
 
 	// Call function with parsed flags
@@ -73,7 +73,7 @@ func OspkgSign(args []string) error {
 
 	// Print the successfully parsed flags in debug level
 	signCmd.Visit(func(f *flag.Flag) {
-		log.Debugf("Registered flag %q", f)
+		stlog.Debug("Registered flag %q", f)
 	})
 
 	// Call function with parsed flags

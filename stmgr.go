@@ -1,10 +1,11 @@
 package main
 
 import (
+	"log"
 	"os"
 
+	"system-transparency.org/stboot/stlog"
 	"system-transparency.org/stmgr/eval"
-	"system-transparency.org/stmgr/log"
 	"system-transparency.org/stmgr/uki"
 )
 
@@ -16,8 +17,10 @@ const (
 )
 
 func main() {
+	log.SetFlags(0)
+
 	if err := run(os.Args); err != nil {
-		log.Error(err)
+		stlog.Error("%s", err)
 		os.Exit(1)
 	}
 }

@@ -1,19 +1,17 @@
 package eval
 
-import "system-transparency.org/stmgr/log"
+import "system-transparency.org/stboot/stlog"
 
 // Helper function to map strings to log.logLevel.
 func setLoglevel(level string) {
 	switch level {
 	case "debug":
-		log.SetLoglevel(log.DebugLevel)
+		stlog.SetLevel(stlog.DebugLevel)
 	case "info":
-		log.SetLoglevel(log.InfoLevel)
+		stlog.SetLevel(stlog.InfoLevel)
 	case "warn":
-		log.SetLoglevel(log.WarnLevel)
-	case "panic":
-		log.SetLoglevel(log.PanicLevel)
+		stlog.SetLevel(stlog.WarnLevel)
 	default:
-		log.SetLoglevel(log.ErrorLevel)
+		stlog.SetLevel(stlog.ErrorLevel)
 	}
 }

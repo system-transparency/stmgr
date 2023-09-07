@@ -4,7 +4,7 @@ import (
 	"flag"
 	"strings"
 
-	"system-transparency.org/stmgr/log"
+	"system-transparency.org/stboot/stlog"
 	"system-transparency.org/stmgr/provision"
 )
 
@@ -40,7 +40,7 @@ func ProvisionHostconfig(args []string) error {
 
 	// Print the successfully parsed flags in debug level
 	hostconfigCmd.Visit(func(f *flag.Flag) {
-		log.Debugf("Registered flag %q", f)
+		stlog.Debug("Registered flag %q", f)
 	})
 
 	// Call function with parsed flags

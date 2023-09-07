@@ -11,7 +11,7 @@ import (
 	"path/filepath"
 	"time"
 
-	"system-transparency.org/stmgr/log"
+	"system-transparency.org/stboot/stlog"
 )
 
 var (
@@ -102,7 +102,7 @@ func Certificate(args *CertificateArgs) error {
 func checkArgs(args *CertificateArgs) error {
 	switch {
 	case args.IsCa && (len(args.RootCertPath) != 0 || len(args.RootKeyPath) != 0):
-		log.Warn("isCa specified, will ignore rootKey and rootCert")
+		stlog.Warn("isCa specified, will ignore rootKey and rootCert")
 
 		return nil
 

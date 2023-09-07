@@ -10,7 +10,7 @@ import (
 	"os"
 	"os/exec"
 
-	"system-transparency.org/stmgr/log"
+	"system-transparency.org/stboot/stlog"
 )
 
 // Adapted from https://github.com/Foxboron/sbctl/blob/master/bundles.go
@@ -103,8 +103,8 @@ func getStub(stub string) []byte {
 			return b
 		}
 
-		log.Infof("Failed to read %s as stub: %v", stub, err)
-		log.Infof("Using fallback stub")
+		stlog.Info("Failed to read %s as stub: %v", stub, err)
+		stlog.Info("Using fallback stub")
 	}
 
 	f, err := stubs.ReadFile("stub/linuxx64.efi.stub")

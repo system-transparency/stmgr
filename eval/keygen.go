@@ -3,8 +3,8 @@ package eval
 import (
 	"flag"
 
+	"system-transparency.org/stboot/stlog"
 	"system-transparency.org/stmgr/keygen"
-	"system-transparency.org/stmgr/log"
 )
 
 // KeygenCertificate takes arguments like os.Args as a string array
@@ -38,7 +38,7 @@ func KeygenCertificate(args []string) error {
 
 	// Print the successfully parsed flags in debug level
 	certificateCmd.Visit(func(f *flag.Flag) {
-		log.Debugf("Registered flag %q", f)
+		stlog.Debug("Registered flag %q", f)
 	})
 
 	// Call function with parsed flags
