@@ -20,12 +20,11 @@ var (
 )
 
 const (
-	DefaultCertName      = "cert.pem"
-	DefaultRootCertName  = "rootcert.pem"
-	DefaultKeyName       = "key.pem"
-	DefaultRootKeyName   = "rootkey.pem"
-	defaultValidDuration = 72 * time.Hour
-	serialNumberRange    = 128
+	DefaultCertName     = "cert.pem"
+	DefaultRootCertName = "rootcert.pem"
+	DefaultKeyName      = "key.pem"
+	DefaultRootKeyName  = "rootkey.pem"
+	serialNumberRange   = 128
 )
 
 // CertificateArgs is a list of arguments
@@ -34,8 +33,8 @@ type CertificateArgs struct {
 	IsCa         bool
 	RootCertPath string
 	RootKeyPath  string
-	NotBefore    string
-	NotAfter     string
+	NotBefore    time.Time
+	NotAfter     time.Time
 	CertOut      string
 	KeyOut       string
 }
@@ -60,18 +59,6 @@ func Certificate(args *CertificateArgs) error {
 		return err
 	}
 
-	// Evaluate the certificate validity date.
-	notBefore, err := parseValidFrom(args.NotBefore)
-	if err != nil {
-		return err
-	}
-
-	// Evaluate the certificate expiration date.
-	notAfter, err := parseValidUntil(args.NotAfter)
-	if err != nil {
-		return err
-	}
-
 	var (
 		newCert *x509.Certificate
 		newKey  ed25519.PrivateKey
@@ -79,7 +66,7 @@ func Certificate(args *CertificateArgs) error {
 
 	if len(args.RootCertPath) == 0 {
 		// Create a self-signed certificate.
-		newCert, newKey, err = newCertWithKey(nil, nil, notBefore, notAfter)
+		newCert, newKey, err = newCertWithKey(nil, nil, args.NotBefore, args.NotAfter)
 		if err != nil {
 			return err
 		}
@@ -90,7 +77,7 @@ func Certificate(args *CertificateArgs) error {
 		}
 
 		// Create a certificate signed by a root certificate.
-		newCert, newKey, err = newCertWithKey(rootCert, rootKey, notBefore, notAfter)
+		newCert, newKey, err = newCertWithKey(rootCert, rootKey, args.NotBefore, args.NotAfter)
 		if err != nil {
 			return err
 		}
@@ -217,22 +204,6 @@ func parseCertPath(isCA bool, path string) (string, error) {
 	}
 
 	return path, nil
-}
-
-func parseValidFrom(date string) (time.Time, error) {
-	if len(date) == 0 {
-		return time.Now(), nil
-	}
-
-	return time.Parse(time.RFC822, date)
-}
-
-func parseValidUntil(date string) (time.Time, error) {
-	if len(date) == 0 {
-		return time.Now().Add(defaultValidDuration), nil
-	}
-
-	return time.Parse(time.RFC822, date)
 }
 
 // This is the core function to create a certificate and the corresponding ed25519 key.

@@ -2,10 +2,24 @@ package eval
 
 import (
 	"flag"
+	"fmt"
+	"time"
 
 	"system-transparency.org/stboot/stlog"
 	"system-transparency.org/stmgr/keygen"
 )
+
+const (
+	defaultValidDuration = 72 * time.Hour
+)
+
+func parseDate(date string, defaultDate time.Time) (time.Time, error) {
+	if len(date) == 0 {
+		return defaultDate, nil
+	}
+
+	return time.Parse(time.RFC3339, date)
+}
 
 // KeygenCertificate takes arguments like os.Args as a string array
 // and maps them to their corresponding flags using the std flag
@@ -18,9 +32,9 @@ func KeygenCertificate(args []string) error {
 	certificateRootKey := certificateCmd.String("rootKey", "", "Root key in PEM format to sign the new certificate."+
 		" Ignored if -isCA is set.")
 	certificateIsCA := certificateCmd.Bool("isCA", false, "Generate self signed root certificate.")
-	certificateValidFrom := certificateCmd.String("validFrom", "", "Date formatted as RFC822."+
+	certificateValidFrom := certificateCmd.String("validFrom", "", "Date formatted as RFC3339."+
 		" Defaults to time of creation.")
-	certificateValidUntil := certificateCmd.String("validUntil", "", "Date formatted as RFC822."+
+	certificateValidUntil := certificateCmd.String("validUntil", "", "Date formatted as RFC3339."+
 		" Defaults to time of creation + 72h.")
 	certificateCertOut := certificateCmd.String("certOut", "", "Output certificate file."+
 		" Defaults to cert.pem or rootcert.pem is -isCA is set.")
@@ -41,14 +55,26 @@ func KeygenCertificate(args []string) error {
 		stlog.Debug("Registered flag %q", f)
 	})
 
+	now := time.Now()
+
+	notBefore, err := parseDate(*certificateValidFrom, now)
+	if err != nil {
+		return fmt.Errorf("invalid validFrom date %q: %w", *certificateValidFrom, err)
+	}
+
+	notAfter, err := parseDate(*certificateValidUntil, now.Add(defaultValidDuration))
+	if err != nil {
+		return fmt.Errorf("invalid validUntil date %q: %w", *certificateValidUntil, err)
+	}
+
 	// Call function with parsed flags
 	return keygen.Certificate(
 		&keygen.CertificateArgs{
 			IsCa:         *certificateIsCA,
 			RootCertPath: *certificateRootCert,
 			RootKeyPath:  *certificateRootKey,
-			NotBefore:    *certificateValidFrom,
-			NotAfter:     *certificateValidUntil,
+			NotBefore:    notBefore,
+			NotAfter:     notAfter,
 			CertOut:      *certificateCertOut,
 			KeyOut:       *certificateKeyOut,
 		},
