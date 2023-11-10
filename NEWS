@@ -1,0 +1,43 @@
+NEWS for stmgr v0.2.X
+
+    First advertised release following the common System Transparency release
+    policy. The preveous v0.2.1 release [1] was a random snapshot of the
+    repository with a tag and dump of the recent commit messages as release info.
+
+    Changed since v0.2.1:
+
+    New features:
+
+    * None
+
+    Enhancements:
+
+    * Improved log messages
+    * Clean up temporary files when generating ISO
+
+    Bug fixes:
+
+    * None
+
+    Breaking changes:
+
+    * The command line flags '-validFrom' and '-validUntil' for the subcommand
+    'stmgr keygen certificate' now expect a date formatted as RFC3339 instead of
+    RFC822.
+
+
+    This release has been tested to work with:
+
+    * stboot v0.2.1 [2]
+
+    This release implements the following specifications:
+
+    * OS package [3]
+    * Host Configuration [4]
+    * Trust Policy [5]
+
+[1] https://git.glasklar.is/system-transparency/core/stmgr/-/releases/v0.2.1
+[2] https://git.glasklar.is/system-transparency/core/stboot/-/tree/v0.2.1
+[3] https://git.glasklar.is/system-transparency/project/documentation/-/blob/dd4469e99ae35faf5d2ea068066627559e4a71ef/docs.system-transparency.org/content/docs/reference/os_package.md
+[4] https://git.glasklar.is/system-transparency/project/documentation/-/blob/dd4469e99ae35faf5d2ea068066627559e4a71ef/docs.system-transparency.org/content/docs/reference/host_configuration.md
+[5] https://git.glasklar.is/system-transparency/project/documentation/-/blob/dd4469e99ae35faf5d2ea068066627559e4a71ef/docs.system-transparency.org/content/docs/reference/trust_policy.md
