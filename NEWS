@@ -1,7 +1,7 @@
 NEWS for stmgr v0.2.2
 
     First advertised release following the common System Transparency release
-    policy. The preveous v0.2.1 release [1] was a random snapshot of the
+    policy. The previous v0.2.1 release [1] was a random snapshot of the
     repository with a tag and dump of the recent commit messages as release info.
 
     Changed since v0.2.1:

@@ -41,7 +41,7 @@ Making a release:
 ## Announcement email template
 
 ```
-The ST team is happy to announce a new release of the stmgr programm,
+The ST team is happy to announce a new release of the stmgr program,
 tag v0.X.X, which succeeds the previous release at tag v0.Y.Y.  The
 source code is available as an archive on our GitLab's release page:
 
