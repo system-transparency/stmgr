@@ -25,7 +25,7 @@ func Verify(certPath, uki string) error {
 	if len(sigs) == 0 {
 		return fmt.Errorf("no signatures found")
 	}
-	var noMatch uint
+	var noMatch int
 	for _, signature := range sigs {
 		ok, err := pkcs7.VerifySignature(x509Cert, signature.Certificate)
 		if err != nil {
@@ -35,7 +35,7 @@ func Verify(certPath, uki string) error {
 		}
 	}
 	if noMatch > 0 {
-		return fmt.Errorf("%d signatures matched out of %d", noMatch, len(sigs))
+		return fmt.Errorf("%d signatures not matched out of %d", noMatch, len(sigs))
 	}
 	return nil
 }
