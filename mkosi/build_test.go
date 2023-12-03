@@ -1,4 +1,4 @@
-package ospkg_test
+package mkosi
 
 import (
 	"testing"

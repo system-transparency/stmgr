@@ -1,8 +1,8 @@
 package keygen
 
 import (
-	"crypto/ed25519"
 	"crypto/rand"
+	"crypto/rsa"
 	"crypto/x509"
 	"encoding/pem"
 	"errors"
@@ -61,7 +61,7 @@ func Certificate(args *CertificateArgs) error {
 
 	var (
 		newCert *x509.Certificate
-		newKey  ed25519.PrivateKey
+		newKey  *rsa.PrivateKey
 	)
 
 	if len(args.RootCertPath) == 0 {
@@ -105,7 +105,7 @@ func checkArgs(args *CertificateArgs) error {
 }
 
 // This function makes sure the on-disk format of the key and certificate are correct.
-func writeToDisk(cert *x509.Certificate, key ed25519.PrivateKey, certOut, keyOut string) error {
+func writeToDisk(cert *x509.Certificate, key *rsa.PrivateKey, certOut, keyOut string) error {
 	marshaledKey, err := x509.MarshalPKCS8PrivateKey(key)
 	if err != nil {
 		return err
@@ -206,10 +206,10 @@ func parseCertPath(isCA bool, path string) (string, error) {
 	return path, nil
 }
 
-// This is the core function to create a certificate and the corresponding ed25519 key.
+// This is the core function to create a certificate and the corresponding rsa key.
 // It uses Golangs std crypto package and uses a cryptographically secure (enough) source
 // of entropy, namely /dev/urandom on Linux.
-func newCertWithKey(rootCert *x509.Certificate, rootKey *interface{}, notBefore, notAfter time.Time) (*x509.Certificate, ed25519.PrivateKey, error) {
+func newCertWithKey(rootCert *x509.Certificate, rootKey *interface{}, notBefore, notAfter time.Time) (*x509.Certificate, *rsa.PrivateKey, error) {
 	serialNumberLimit := new(big.Int).Lsh(big.NewInt(1), serialNumberRange)
 
 	serialNumber, err := rand.Int(rand.Reader, serialNumberLimit)
@@ -224,7 +224,7 @@ func newCertWithKey(rootCert *x509.Certificate, rootKey *interface{}, notBefore,
 		NotAfter:     notAfter,
 	}
 
-	newPub, newPriv, err := ed25519.GenerateKey(rand.Reader)
+	newPriv, err := rsa.GenerateKey(rand.Reader, 2048)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -236,12 +236,12 @@ func newCertWithKey(rootCert *x509.Certificate, rootKey *interface{}, notBefore,
 		template.BasicConstraintsValid = true
 		template.IsCA = true
 
-		certBytes, err = x509.CreateCertificate(rand.Reader, &template, &template, newPub, newPriv)
+		certBytes, err = x509.CreateCertificate(rand.Reader, &template, &template, newPriv.Public(), newPriv)
 		if err != nil {
 			return nil, nil, err
 		}
 	} else {
-		certBytes, err = x509.CreateCertificate(rand.Reader, &template, rootCert, newPub, *rootKey)
+		certBytes, err = x509.CreateCertificate(rand.Reader, &template, rootCert, newPriv.Public(), *rootKey)
 		if err != nil {
 			return nil, nil, err
 		}

@@ -6,7 +6,6 @@ import (
 
 	"system-transparency.org/stboot/stlog"
 	"system-transparency.org/stmgr/eval"
-	"system-transparency.org/stmgr/uki"
 )
 
 const (
@@ -36,8 +35,8 @@ COMMANDS:
 	hostconfig:
 		Manage host configuration files for stboot.
 
-	ospkg:
-		Set of commands related to OS packages. This includes
+	mkosi:
+		Set of commands related to mkosi UKI. This includes
 		creating, signing and analyzing them.
 
 	provision:
@@ -47,11 +46,6 @@ COMMANDS:
 	keygen:
 		Commands to generate different keys and certificates for
 		system-transparency.
-
-	uki:
-		Create an Unified Kernel Image (UKI) for booting stboot and provisioning tools.
-		Output formats:
-			* ISO
 
 Use 'stmgr <COMMAND> -help' for more info.
 `
@@ -69,10 +63,8 @@ Use 'stmgr <COMMAND> -help' for more info.
 		return trustpolicyArg(args)
 	case "hostconfig":
 		return hostconfigArg(args)
-	case "ospkg":
-		return ospkgArg(args)
-	case "uki":
-		return ukiArg(args)
+	case "mkosi":
+		return mkosiArg(args)
 	case "provision":
 		return provisionArg(args)
 	case "keygen":
@@ -117,25 +109,30 @@ Use 'stmgr hostconfig <SUBCOMMAND> -help' for more info.
 	return nil
 }
 
-// Check for ospkg subcommands.
-func ospkgArg(args []string) error {
+// Check for mkosi subcommands.
+func mkosiArg(args []string) error {
 	switch args[subcommandCallPosition] {
-	case "create":
-		return eval.OspkgCreate(args[flagsCallPosition:])
+	case "build":
+		return eval.MkosiBuild(args[flagsCallPosition:])
 	case "sign":
-		return eval.OspkgSign(args[flagsCallPosition:])
+		return eval.MkosiSign(args[flagsCallPosition:])
+	case "verify":
+		return eval.MkosiVerify(args[flagsCallPosition:])
 
 	default:
 		// Display usage on unknown subcommand
 		log.Print(`SUBCOMMANDS:
-	create:
-		Create an OS package from the provided operating
+	build:
+		Build an mkosi UKI from the provided operating
 		system files.
 
 	sign:
-		Sign the provided OS package with your private key.
+		Sign the provided mkosi UKI with your private key.
+	
+	verify:
+		Verify the provided mkosi UKI with your public key.
 
-Use 'stmgr ospkg <SUBCOMMAND> -help' for more info.
+Use 'stmgr mkosi <SUBCOMMAND> -help' for more info.
 `)
 
 		return nil
@@ -160,21 +157,6 @@ Use 'stmgr provision <SUBCOMMAND> -help' for more info.
 
 		return nil
 	}
-}
-
-func ukiArg(args []string) error {
-	switch args[subcommandCallPosition] {
-	case "create":
-		return uki.Create(args[flagsCallPosition:])
-	default:
-		log.Print(`SUBCOMMANDS:
-	create:
-		create an unified kernel image with an optional host configuration.
-Use 'stmgr uki <SUBCOMMAND> -help' for more info.
-`)
-	}
-
-	return nil
 }
 
 // Check for keygen subcommands.
