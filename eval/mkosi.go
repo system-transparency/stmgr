@@ -2,6 +2,7 @@ package eval
 
 import (
 	"flag"
+	"fmt"
 
 	"system-transparency.org/stboot/stlog"
 	"system-transparency.org/stmgr/mkosi"
@@ -84,6 +85,7 @@ func MkosiVerify(args []string) error {
 	verifyCmd := flag.NewFlagSet("verify", flag.ExitOnError)
 	verifyCert := verifyCmd.String("cert", "", "Certificate corresponding to the private key.")
 	verifyUKI := verifyCmd.String("uki", "", "OS package archive or descriptor file. Both need to be present.")
+	verifyTrustPolicy := verifyCmd.String("trust-policy", "", "Trust policy file.")
 	verifyLogLevel := verifyCmd.String("loglevel", "", "Set loglevel to any of debug, info, warn, error (default) and panic.")
 
 	// Parse which flags are provided to the function
@@ -100,5 +102,9 @@ func MkosiVerify(args []string) error {
 	})
 
 	// Call function with parsed flags
-	return mkosi.Verify(*verifyCert, *verifyUKI)
+	if err := mkosi.Verify(*verifyCert, *verifyUKI, *verifyTrustPolicy); err != nil {
+		return err
+	}
+	fmt.Printf("Verification successful.\n")
+	return nil
 }
