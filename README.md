@@ -13,7 +13,7 @@ Go version 1.17 or higher.
 
 ## Installation instructions
 
-Either run `go install git.glasklar.is/system-transparency/core/stmgr@latest` or clone the repo and run `go build`.
+Either run `go install system-transparency.org/stmgr@latest` or clone the repo and run `go build`.
 
 ---
 
