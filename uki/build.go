@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 
@@ -64,6 +65,8 @@ func Create(args []string) error {
 	format := ukiCmd.String("format", "iso", "output format iso or uki (default: iso)")
 	stub := ukiCmd.String("stub", "", "UKI stub location (defaults to an embedded stub)")
 	sbat := ukiCmd.String("sbat", "", "SBAT metadata")
+	cert := ukiCmd.String("cert", "", "certificate for signing the UKI")
+	key := ukiCmd.String("key", "", "key for signing the UKI")
 	appendSbat := ukiCmd.Bool("append-sbat", false, "Append SBAT metadata to the existing section (default: false)")
 
 	if err := ukiCmd.Parse(args); err != nil {
@@ -135,6 +138,14 @@ func Create(args []string) error {
 
 	if err := generateUKI(uki, stubTmpfile.Name(), ukiFilename); err != nil {
 		return fmt.Errorf("failed to write UKI: %w", err)
+	}
+
+	// sign the UKI with osslsigncode
+	if *cert != "" && *key != "" {
+		if err := exec.Command("osslsigncode", "sign", "-spc", *cert, "-key", *key, "-in", ukiFilename, "-out", ukiFilename+".signed").Run(); err != nil {
+			return fmt.Errorf("failed to sign UKI: %w", err)
+		}
+		ukiFilename = ukiFilename + ".signed"
 	}
 
 	//nolint:godox
