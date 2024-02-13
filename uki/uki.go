@@ -3,7 +3,7 @@ package uki
 import (
 	"bytes"
 	"debug/pe"
-	"embed"
+	_ "embed" // Needed for go:embed directive
 	"errors"
 	"fmt"
 	"io"
@@ -90,29 +90,25 @@ func (u *UKI) Cleanup() {
 	os.Remove(u.osRelease)
 }
 
-//go:embed stub/*
-var stubs embed.FS
+//go:embed stub/linuxx64.efi.stub
+var embeddedStub []byte
+
+const systemStub = "/usr/lib/systemd/boot/efi/linuxx64.efi.stub"
 
 func getStub(stub string) []byte {
 	if stub == "" {
-		stub = "/usr/lib/systemd/boot/efi/linuxx64.elf.stub"
+		stub = systemStub
 	}
 
-	if _, err := os.Stat(stub); os.IsExist(err) {
-		if b, err := os.ReadFile(stub); err != nil {
-			return b
-		}
-
-		stlog.Info("Failed to read %s as stub: %v", stub, err)
-		stlog.Info("Using fallback stub")
-	}
-
-	f, err := stubs.ReadFile("stub/linuxx64.efi.stub")
+	data, err := os.ReadFile(stub)
 	if err != nil {
-		return []byte{}
+		stlog.Info("Failed to read %s as stub: %v", systemStub, err)
+		stlog.Info("Using fallback stub")
+		// Note: No copy, caller should not modify the returned slice.
+		data = embeddedStub
 	}
 
-	return f
+	return data
 }
 
 func writeStub(f io.Writer, stub string) error {
