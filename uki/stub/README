@@ -1,3 +1,0 @@
-The file linuxx64.efi.stub is copied from the
-/usr/lib/systemd/boot/efi directory in the debian amd64 binary package
-systemd-boot-efi, version 252.19-1~deb12u1.

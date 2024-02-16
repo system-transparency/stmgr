@@ -3,14 +3,11 @@ package uki
 import (
 	"bytes"
 	"debug/pe"
-	_ "embed" // Needed for go:embed directive
 	"errors"
 	"fmt"
 	"io"
 	"os"
 	"os/exec"
-
-	"system-transparency.org/stboot/stlog"
 )
 
 // Adapted from https://github.com/Foxboron/sbctl/blob/master/bundles.go
@@ -88,40 +85,6 @@ func (u *UKI) SetSBAT(sbat string, appendSBAT bool) {
 func (u *UKI) Cleanup() {
 	os.Remove(u.cmdline)
 	os.Remove(u.osRelease)
-}
-
-//go:embed stub/linuxx64.efi.stub
-var embeddedStub string
-
-// Filename of the stub, when provided by the debian systemd-boot-efi
-// package.
-const systemStub = "/usr/lib/systemd/boot/efi/linuxx64.efi.stub"
-
-func getStub(stub string) []byte {
-	if stub == "" {
-		stub = systemStub
-	}
-
-	data, err := os.ReadFile(stub)
-	if err != nil {
-		stlog.Info("Failed to read %s as uefi stub: %v", stub, err)
-		stlog.Info("Using fallback stub")
-		// Implies a copy of the non-mutable string.
-		return []byte(embeddedStub)
-	}
-
-	stlog.Info("Using %s as the uefi stub", stub)
-
-	return data
-}
-
-func writeStub(f io.Writer, stub string) error {
-	stubFile := getStub(stub)
-	if _, err := f.Write(stubFile); err != nil {
-		return err
-	}
-
-	return nil
 }
 
 // Check if binary has an existing SBAT section.

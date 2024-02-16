@@ -52,6 +52,10 @@ func createTempFilename() (string, error) {
 	return f.Name(), nil
 }
 
+// Filename of the stub, when provided by the debian systemd-boot-efi
+// package.
+const systemStub = "/usr/lib/systemd/boot/efi/linuxx64.efi.stub"
+
 //nolint:funlen,cyclop
 func Create(args []string) error {
 	ukiCmd := flag.NewFlagSet("uki", flag.ExitOnError)
@@ -62,7 +66,7 @@ func Create(args []string) error {
 	kernel := ukiCmd.String("kernel", "", "kernel or EFI binary to boot")
 	force := ukiCmd.Bool("force", false, "remove existing files (default: false)")
 	format := ukiCmd.String("format", "iso", "output format iso or uki (default: iso)")
-	stub := ukiCmd.String("stub", "", "UKI stub location (defaults to an embedded stub)")
+	stub := ukiCmd.String("stub", systemStub, "UKI stub location (defaults: "+systemStub+")")
 	sbat := ukiCmd.String("sbat", "", "SBAT metadata")
 	appendSbat := ukiCmd.Bool("append-sbat", false, "Append SBAT metadata to the existing section (default: false)")
 
@@ -108,18 +112,6 @@ func Create(args []string) error {
 	// SBAT section is optional
 	uki.SetSBAT(*sbat, *appendSbat)
 
-	// Write the stub file to a temporary file
-	stubTmpfile, err := os.CreateTemp("", "stub.*.efi")
-	if err != nil {
-		return fmt.Errorf("failed to make temporary file for stub")
-	}
-
-	defer os.Remove(stubTmpfile.Name())
-
-	if err := writeStub(stubTmpfile, *stub); err != nil {
-		return fmt.Errorf("failed to write stub to temporary file")
-	}
-
 	var ukiFilename string
 	if *format == "uki" {
 		ukiFilename = outputFile
@@ -133,7 +125,7 @@ func Create(args []string) error {
 		ukiFilename = stmgrUkiTmpfile.Name()
 	}
 
-	if err := generateUKI(uki, stubTmpfile.Name(), ukiFilename); err != nil {
+	if err := generateUKI(uki, *stub, ukiFilename); err != nil {
 		return fmt.Errorf("failed to write UKI: %w", err)
 	}
 
