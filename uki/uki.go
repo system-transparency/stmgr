@@ -93,26 +93,20 @@ func (u *UKI) Cleanup() {
 //go:embed stub/linuxx64.efi.stub
 var embeddedStub string
 
-// Filename of the stub, when provided by the debian systemd-boot-efi
-// package.
-const systemStub = "/usr/lib/systemd/boot/efi/linuxx64.efi.stub"
-
 func getStub(stub string) []byte {
-	if stub == "" {
-		stub = systemStub
-	}
+	if stub != "" {
+		data, err := os.ReadFile(stub)
+		if err == nil {
+			return data
+		}
 
-	data, err := os.ReadFile(stub)
-	if err != nil {
 		stlog.Info("Failed to read %s as uefi stub: %v", stub, err)
-		stlog.Info("Using fallback stub")
-		// Implies a copy of the non-mutable string.
-		return []byte(embeddedStub)
 	}
 
-	stlog.Info("Using %s as the uefi stub", stub)
+	stlog.Info("Using embedded uefi stub")
 
-	return data
+	// Implies a copy of the non-mutable string.
+	return []byte(embeddedStub)
 }
 
 func writeStub(f io.Writer, stub string) error {
