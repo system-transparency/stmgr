@@ -1,17 +1,16 @@
 stages:
-  - check
   - build
   - test
 
 golangci-lint v1.50.1:
-  stage: check
+  stage: test
   image: golangci/golangci-lint:v1.50.1
   script:
     - golangci-lint --version
     - golangci-lint run -v
 
 staticcheck v0.3.3:
-  stage: check
+  stage: test
   image: golang:1.19
   script:
     - go install honnef.co/go/tools/cmd/staticcheck@v0.3.3
@@ -48,3 +47,17 @@ coverage:
         coverage_format: cobertura
         path: coverage.xml
 
+stboot integration:
+  stage: test
+  image: debian:bookworm
+  allow_failure: true
+  before_script:
+    - apt update
+    - apt install -qqy qemu-system-x86 wget parted mtools cpio dosfstools git golang-1.19 golang-go
+  script:
+    - git clone https://git.glasklar.is/system-transparency/core/stboot.git
+    - cd stboot/integration && go work init && go work use . .. && ./qemu-boot-from-disk.sh
+  artifacts:
+    when: always
+    paths:
+      - stboot/integration/out/qemu.log
