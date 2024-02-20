@@ -90,34 +90,6 @@ func (u *UKI) Cleanup() {
 	os.Remove(u.osRelease)
 }
 
-//go:embed stub/linuxx64.efi.stub
-var embeddedStub string
-
-func getStub(stub string) []byte {
-	if stub != "" {
-		data, err := os.ReadFile(stub)
-		if err == nil {
-			return data
-		}
-
-		stlog.Info("Failed to read %s as uefi stub: %v", stub, err)
-	}
-
-	stlog.Info("Using embedded uefi stub")
-
-	// Implies a copy of the non-mutable string.
-	return []byte(embeddedStub)
-}
-
-func writeStub(f io.Writer, stub string) error {
-	stubFile := getStub(stub)
-	if _, err := f.Write(stubFile); err != nil {
-		return err
-	}
-
-	return nil
-}
-
 // Check if binary has an existing SBAT section.
 func hasSBAT(stub string) bool {
 	out, err := exec.Command("objdump", "-h", stub).Output()
@@ -175,8 +147,32 @@ func getVMA(stub string) (uint64, error) {
 	return vma, nil
 }
 
+//go:embed stub/linuxx64.efi.stub
+var embeddedStub []byte
+
 //nolint:cyclop,funlen,gocognit
 func generateUKI(uki *UKI, stub, out string) error {
+	if stub == "" {
+		stlog.Info("Using embedded uefi stub")
+
+		// Copy the embedded stub to a temporary file
+		file, err := os.CreateTemp("", "stub.*.efi")
+		if err != nil {
+			return fmt.Errorf("failed to make temporary file for stub")
+		}
+
+		stub = file.Name()
+
+		defer file.Close()
+		defer os.Remove(stub)
+
+		if _, err := file.Write(embeddedStub); err != nil {
+			return err
+		}
+
+		file.Close()
+	}
+
 	removeSBAT := false
 
 	// If there is an existing SBAT section, we need to remove it
@@ -279,18 +275,7 @@ func generateUKI(uki *UKI, stub, out string) error {
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
-	if err := cmd.Run(); err != nil {
-		if errors.Is(err, exec.ErrNotFound) {
-			return err
-		}
-
-		//nolint:errorlint
-		if exitError, ok := err.(*exec.ExitError); ok {
-			return fmt.Errorf("exit code was not 0: %d", exitError.ExitCode())
-		}
-	}
-
-	return nil
+	return cmd.Run()
 }
 
 //nolint:nlreturn

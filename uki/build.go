@@ -108,18 +108,6 @@ func Create(args []string) error {
 	// SBAT section is optional
 	uki.SetSBAT(*sbat, *appendSbat)
 
-	// Write the stub file to a temporary file
-	stubTmpfile, err := os.CreateTemp("", "stub.*.efi")
-	if err != nil {
-		return fmt.Errorf("failed to make temporary file for stub")
-	}
-
-	defer os.Remove(stubTmpfile.Name())
-
-	if err := writeStub(stubTmpfile, *stub); err != nil {
-		return fmt.Errorf("failed to write stub to temporary file")
-	}
-
 	var ukiFilename string
 	if *format == "uki" {
 		ukiFilename = outputFile
@@ -133,7 +121,7 @@ func Create(args []string) error {
 		ukiFilename = stmgrUkiTmpfile.Name()
 	}
 
-	if err := generateUKI(uki, stubTmpfile.Name(), ukiFilename); err != nil {
+	if err := generateUKI(uki, *stub, ukiFilename); err != nil {
 		return fmt.Errorf("failed to write UKI: %w", err)
 	}
 
