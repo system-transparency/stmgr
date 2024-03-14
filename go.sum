@@ -279,5 +279,5 @@ gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c h1:dUUwHk2QECo/6vqA44rthZ8ie
 honnef.co/go/tools v0.0.0-20190102054323-c2f93a96b099/go.mod h1:rf3lG4BRIbNafJWhAfAdb/ePZxsR/4RtNHQocxwk9r4=
 honnef.co/go/tools v0.0.0-20190523083050-ea95bdfd59fc/go.mod h1:rf3lG4BRIbNafJWhAfAdb/ePZxsR/4RtNHQocxwk9r4=
 pack.ag/tftp v1.0.1-0.20181129014014-07909dfbde3c h1:4DHuGX0VtxRIyjXlVpcjSGEmZ7OnIK7Hvo+INnxI8yk=
-system-transparency.org/stboot v0.3.2 h1:GEnWU7auTOLHRuiKpfy6tnVOXpN/Fxv2tp6rhtQEKNw=
-system-transparency.org/stboot v0.3.2/go.mod h1:WhEfaOhVBmLH5o1QRCWP760lGkoHqxw1gUjYS4fEDwU=
+system-transparency.org/stboot v0.3.4 h1:Y4UqHv3e8p+eVtbvMpTssCI+K4SVH+TpUsu0S1konL8=
+system-transparency.org/stboot v0.3.4/go.mod h1:WhEfaOhVBmLH5o1QRCWP760lGkoHqxw1gUjYS4fEDwU=
