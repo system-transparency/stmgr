@@ -11,6 +11,8 @@ linters:
     - goerr113
     - wrapcheck
     - gofumpt
+    - wsl
+    - cyclop
 
 linters-settings:
   lll:
