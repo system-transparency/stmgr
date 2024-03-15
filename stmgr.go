@@ -40,10 +40,6 @@ COMMANDS:
 		Set of commands related to OS packages. This includes
 		creating, signing and analyzing them.
 
-	provision:
-		Set of commands to provision a node for system-transparency
-		usage, like creating and writing a host configuration.
-
 	keygen:
 		Commands to generate different keys and certificates for
 		system-transparency.
@@ -73,8 +69,6 @@ Use 'stmgr <COMMAND> -help' for more info.
 		return ospkgArg(args)
 	case "uki":
 		return ukiArg(args)
-	case "provision":
-		return provisionArg(args)
 	case "keygen":
 		return keygenArg(args)
 	default:
@@ -136,26 +130,6 @@ func ospkgArg(args []string) error {
 		Sign the provided OS package with your private key.
 
 Use 'stmgr ospkg <SUBCOMMAND> -help' for more info.
-`)
-
-		return nil
-	}
-}
-
-// Check for provision subcommands.
-func provisionArg(args []string) error {
-	switch args[subcommandCallPosition] {
-	case "hostconfig":
-		return eval.ProvisionHostconfig(args[flagsCallPosition:])
-	default:
-		// Display usage on unknown subcommand
-		log.Print(`SUBCOMMANDS:
-	hostconfig:
-		Allows creating host configurations by spawning a TUI in
-		which the user can input values into that are converted
-		into a host_configuration.json file.
-
-Use 'stmgr provision <SUBCOMMAND> -help' for more info.
 `)
 
 		return nil
