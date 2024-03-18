@@ -1,6 +1,8 @@
 package keygen
 
 import (
+	"crypto/ed25519"
+	"encoding/hex"
 	"encoding/pem"
 	"errors"
 	"os"
@@ -9,10 +11,15 @@ import (
 	"testing"
 )
 
-func TestLoadPEM(t *testing.T) {
+func TestLoadPrivateKey(t *testing.T) {
+	rawPub, err := hex.DecodeString("aabdeccc316b5a0f2fc76f39a445d5e901973c75ff8d5485457674e49e60850f")
+	if err != nil {
+		t.Fatal(err)
+	}
 	for _, table := range []struct {
 		name    string
 		data    []byte
+		pub     ed25519.PublicKey
 		wantErr error
 	}{
 		{
@@ -22,6 +29,7 @@ func TestLoadPEM(t *testing.T) {
 					"MC4CAQAwBQYDK2VwBCIEIKrt4aIojIpXfdmw2aVWHNCNGZDvDSL+t1CI6STXjh7F\n" +
 					"-----END PRIVATE KEY-----\n",
 			),
+			pub:     ed25519.PublicKey(rawPub[:]),
 			wantErr: nil,
 		},
 		{
@@ -43,19 +51,16 @@ func TestLoadPEM(t *testing.T) {
 		t.Run(table.name, func(t *testing.T) {
 			path := filepath.Join(t.TempDir(), "test.pem")
 
-			want, rest := pem.Decode(table.data)
-			if len(rest) != 0 {
-				want = nil
-			}
-
 			if err := os.WriteFile(path, table.data, os.ModePerm); err != nil {
 				t.Errorf("Failed writing file: %v", err)
 			}
 
-			if got, err := LoadPEM(path); !errors.Is(err, table.wantErr) {
-				t.Errorf("LoadPEM() err = %q, want %q", err, table.wantErr)
-			} else if !reflect.DeepEqual(got, want) {
-				t.Errorf("LoadPEM() = %q, want %q", got, want)
+			if got, err := LoadPrivateKey(path); !errors.Is(err, table.wantErr) {
+				t.Errorf("LoadPrivateKey err = %q, want %q", err, table.wantErr)
+			} else if table.wantErr == nil {
+				if pub := got.Public(); !table.pub.Equal(pub) {
+					t.Errorf("LoadPrivateKey unexpected pub key, got %x, want %x", pub, table.pub)
+				}
 			}
 		})
 	}

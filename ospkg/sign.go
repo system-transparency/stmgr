@@ -1,8 +1,6 @@
 package ospkg
 
 import (
-	"crypto"
-	"crypto/x509"
 	"errors"
 	"fmt"
 	"os"
@@ -40,31 +38,15 @@ func Sign(keyPath, certPath, pkgPath string) error {
 		return err
 	}
 
-	key, err := keygen.LoadPEM(keyPath)
+	signer, err := keygen.LoadPrivateKey(keyPath)
 	if err != nil {
 		return err
 	}
-	if key.Type != "PRIVATE KEY" {
-		return fmt.Errorf("invalid key file, got type %q", key.Type)
-	}
-	priv, err := x509.ParsePKCS8PrivateKey(key.Bytes)
+	cert, err := keygen.LoadCertBytes(certPath)
 	if err != nil {
 		return err
 	}
-	signer, ok := priv.(crypto.Signer)
-	if !ok {
-		return fmt.Errorf("invalid private key type: %T", priv)
-	}
-
-	cert, err := keygen.LoadPEM(certPath)
-	if err != nil {
-		return err
-	}
-	if cert.Type != "CERTIFICATE" {
-		return fmt.Errorf("invalid cert file, got type %q", key.Type)
-	}
-
-	if err := osp.Sign(signer, cert.Bytes); err != nil {
+	if err := osp.Sign(signer, cert); err != nil {
 		return err
 	}
 

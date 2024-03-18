@@ -1,6 +1,7 @@
 package keygen
 
 import (
+	"crypto"
 	"crypto/ed25519"
 	"crypto/rand"
 	"crypto/x509"
@@ -130,18 +131,18 @@ func writeToDisk(cert *x509.Certificate, key ed25519.PrivateKey, certOut, keyOut
 	return nil
 }
 
-func parseCaFiles(rootCertPath, rootKeyPath string) (*x509.Certificate, *interface{}, error) {
+func parseCaFiles(rootCertPath, rootKeyPath string) (*x509.Certificate, crypto.Signer, error) {
 	rootCertPath, err := filepath.Abs(rootCertPath)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	rootCertBlock, err := LoadPEM(rootCertPath)
+	rootCertDER, err := LoadCertBytes(rootCertPath)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	rootCert, err := x509.ParseCertificate(rootCertBlock.Bytes)
+	rootCert, err := x509.ParseCertificate(rootCertDER)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -151,17 +152,12 @@ func parseCaFiles(rootCertPath, rootKeyPath string) (*x509.Certificate, *interfa
 		return nil, nil, err
 	}
 
-	rootKeyBlock, err := LoadPEM(rootKeyPath)
+	rootKey, err := LoadPrivateKey(rootKeyPath)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	rootKey, err := x509.ParsePKCS8PrivateKey(rootKeyBlock.Bytes)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	return rootCert, &rootKey, nil
+	return rootCert, rootKey, nil
 }
 
 func parseKeyPath(isCA bool, path string) (string, error) {
@@ -209,7 +205,7 @@ func parseCertPath(isCA bool, path string) (string, error) {
 // This is the core function to create a certificate and the corresponding ed25519 key.
 // It uses Golangs std crypto package and uses a cryptographically secure (enough) source
 // of entropy, namely /dev/urandom on Linux.
-func newCertWithKey(rootCert *x509.Certificate, rootKey *interface{}, notBefore, notAfter time.Time) (*x509.Certificate, ed25519.PrivateKey, error) {
+func newCertWithKey(rootCert *x509.Certificate, rootKey crypto.Signer, notBefore, notAfter time.Time) (*x509.Certificate, ed25519.PrivateKey, error) {
 	serialNumberLimit := new(big.Int).Lsh(big.NewInt(1), serialNumberRange)
 
 	serialNumber, err := rand.Int(rand.Reader, serialNumberLimit)
@@ -241,7 +237,7 @@ func newCertWithKey(rootCert *x509.Certificate, rootKey *interface{}, notBefore,
 			return nil, nil, err
 		}
 	} else {
-		certBytes, err = x509.CreateCertificate(rand.Reader, &template, rootCert, newPub, *rootKey)
+		certBytes, err = x509.CreateCertificate(rand.Reader, &template, rootCert, newPub, rootKey)
 		if err != nil {
 			return nil, nil, err
 		}

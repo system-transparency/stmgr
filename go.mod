@@ -6,6 +6,7 @@ go 1.19
 
 require (
 	github.com/diskfs/go-diskfs v1.3.0
+	sigsum.org/sigsum-go v0.7.2
 	system-transparency.org/stboot v0.3.4
 )
 
@@ -24,7 +25,6 @@ require (
 	github.com/ulikunitz/xz v0.5.10 // indirect
 	github.com/vishvananda/netlink v1.1.1-0.20211118161826-650dca95af54 // indirect
 	github.com/vishvananda/netns v0.0.0-20210104183010-2eb08e3e575f // indirect
-	golang.org/x/sys v0.0.0-20220722155257-8c9f86f7a55f // indirect
-	golang.org/x/tools v0.1.12 // indirect
+	golang.org/x/sys v0.4.0 // indirect
 	gopkg.in/djherbis/times.v1 v1.2.0 // indirect
 )
