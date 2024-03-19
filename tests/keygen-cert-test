@@ -11,10 +11,24 @@ function die () {
     exit 1
 }
 
+# It's not clear what expectations to verify on generated certs.
+# Currently, we check key usage bits (which aren't that important). It
+# would be reasonable to check that the resulting cert chain is valid,
+# e.g, using
+#
+#  openssl verify -trusted tmp.root.cert tmp.sign.cert
+#
+# But that fails, because x509 chaining is based on subject and issuer
+# names, and stmgr leaves those fields empty, violating
+# https://www.rfc-editor.org/rfc/rfc5280#section-4.1.2.4
+
+# Create a CA root cert
 go run ../stmgr.go keygen certificate -isCA -certOut tmp.root.cert -keyOut tmp.root.key
+
 openssl x509 -text <tmp.root.cert | grep CA:TRUE >/dev/null || die "Not a CA cert"
 openssl x509 -text <tmp.root.cert | grep " *Digital Signature, Certificate Sign$" >/dev/null || die "Unexpected CA cert usage"
 
+# Create a signing cert, signed with the CA's private key.
 go run ../stmgr.go keygen certificate -rootCert tmp.root.cert -rootKey tmp.root.key \
    -certOut tmp.sign.cert -keyOut tmp.sign.key
 
