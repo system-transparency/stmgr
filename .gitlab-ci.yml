@@ -47,6 +47,15 @@ coverage:
         coverage_format: cobertura
         path: coverage.xml
 
+integration test:
+  stage: test
+  image: golang:1.19
+  before_script:
+    - apt update
+    - apt install -qqy openssl
+  script:
+    - make check
+
 stboot integration:
   stage: test
   image: debian:bookworm

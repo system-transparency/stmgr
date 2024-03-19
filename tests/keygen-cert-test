@@ -1,0 +1,22 @@
+#! /bin/bash
+
+set -eu
+
+cd "$(dirname "$0")"
+
+rm -f tmp.*
+
+function die () {
+    echo "$@" >&2
+    exit 1
+}
+
+go run ../stmgr.go keygen certificate -isCA -certOut tmp.root.cert -keyOut tmp.root.key
+openssl x509 -text <tmp.root.cert | grep CA:TRUE >/dev/null || die "Not a CA cert"
+openssl x509 -text <tmp.root.cert | grep " *Digital Signature, Certificate Sign$" >/dev/null || die "Unexpected CA cert usage"
+
+go run ../stmgr.go keygen certificate -rootCert tmp.root.cert -rootKey tmp.root.key \
+   -certOut tmp.sign.cert -keyOut tmp.sign.key
+
+if openssl x509 -text <tmp.sign.cert | grep CA:TRUE >/dev/null ; then die "Unexpected CA cert" ; fi
+openssl x509 -text <tmp.sign.cert | grep " *Digital Signature$" >/dev/null || die "Unexpected signing cert usage"
