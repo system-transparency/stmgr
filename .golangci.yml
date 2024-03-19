@@ -12,6 +12,7 @@ linters:
     - wrapcheck
     - gofumpt
     - wsl
+    - nlreturn
     - cyclop
 
 linters-settings:

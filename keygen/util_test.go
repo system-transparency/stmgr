@@ -29,7 +29,7 @@ func TestLoadPrivateKey(t *testing.T) {
 					"MC4CAQAwBQYDK2VwBCIEIKrt4aIojIpXfdmw2aVWHNCNGZDvDSL+t1CI6STXjh7F\n" +
 					"-----END PRIVATE KEY-----\n",
 			),
-			pub:     ed25519.PublicKey(rawPub[:]),
+			pub:     ed25519.PublicKey(rawPub),
 			wantErr: nil,
 		},
 		{
