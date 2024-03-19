@@ -53,7 +53,7 @@ stboot integration:
   allow_failure: true
   before_script:
     - apt update
-    - apt install -qqy qemu-system-x86 wget parted mtools cpio dosfstools git golang-1.19 golang-go
+    - apt install -qqy qemu-system-x86 wget parted mtools cpio dosfstools git golang-1.19 golang-go unzip
   script:
     - git clone https://git.glasklar.is/system-transparency/core/stboot.git
     - cd stboot/integration && go work init && go work use . ../.. && ./qemu-boot-from-disk.sh
