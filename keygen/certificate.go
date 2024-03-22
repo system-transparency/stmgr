@@ -61,13 +61,18 @@ func Certificate(args *CertificateArgs) error {
 	}
 
 	var (
-		newCert *x509.Certificate
+		newCert []byte
 		newKey  ed25519.PrivateKey
 	)
 
 	if len(args.RootCertPath) == 0 {
+		var err error
 		// Create a self-signed certificate.
-		newCert, newKey, err = newCertWithKey(nil, nil, args.NotBefore, args.NotAfter)
+		_, newKey, err = ed25519.GenerateKey(rand.Reader)
+		if err != nil {
+			return err
+		}
+		newCert, err = newCaCert(newKey, args.NotBefore, args.NotAfter)
 		if err != nil {
 			return err
 		}
@@ -76,15 +81,23 @@ func Certificate(args *CertificateArgs) error {
 		if err != nil {
 			return err
 		}
+		var newPub crypto.PublicKey
 
+		newPub, newKey, err = ed25519.GenerateKey(rand.Reader)
+		if err != nil {
+			return err
+		}
 		// Create a certificate signed by a root certificate.
-		newCert, newKey, err = newCertWithKey(rootCert, rootKey, args.NotBefore, args.NotAfter)
+		newCert, err = newSigningCert(rootCert, rootKey, newPub, args.NotBefore, args.NotAfter)
 		if err != nil {
 			return err
 		}
 	}
 
-	return writeToDisk(newCert, newKey, args.CertOut, keyOut)
+	if err := writeCert(newCert, args.CertOut); err != nil {
+		return err
+	}
+	return writeKey(newKey, keyOut)
 }
 
 func checkArgs(args *CertificateArgs) error {
@@ -105,30 +118,24 @@ func checkArgs(args *CertificateArgs) error {
 	}
 }
 
+func writeCert(cert []byte, certOut string) error {
+	return WritePEM(&pem.Block{
+		Type:  "CERTIFICATE",
+		Bytes: cert,
+	}, certOut)
+}
+
 // This function makes sure the on-disk format of the key and certificate are correct.
-func writeToDisk(cert *x509.Certificate, key ed25519.PrivateKey, certOut, keyOut string) error {
+func writeKey(key ed25519.PrivateKey, keyOut string) error {
 	marshaledKey, err := x509.MarshalPKCS8PrivateKey(key)
 	if err != nil {
 		return err
 	}
 
-	certBlock := pem.Block{
-		Type:  "CERTIFICATE",
-		Bytes: cert.Raw,
-	}
-	if err := WritePEM(&certBlock, certOut); err != nil {
-		return err
-	}
-
-	keyBlock := pem.Block{
+	return WritePEM(&pem.Block{
 		Type:  "PRIVATE KEY",
 		Bytes: marshaledKey,
-	}
-	if err := WritePEM(&keyBlock, keyOut); err != nil {
-		return err
-	}
-
-	return nil
+	}, keyOut)
 }
 
 func parseCaFiles(rootCertPath, rootKeyPath string) (*x509.Certificate, crypto.Signer, error) {
@@ -202,51 +209,42 @@ func parseCertPath(isCA bool, path string) (string, error) {
 	return path, nil
 }
 
-// This is the core function to create a certificate and the corresponding ed25519 key.
-// It uses Golangs std crypto package and uses a cryptographically secure (enough) source
-// of entropy, namely /dev/urandom on Linux.
-func newCertWithKey(rootCert *x509.Certificate, rootKey crypto.Signer, notBefore, notAfter time.Time) (*x509.Certificate, ed25519.PrivateKey, error) {
+func randomSerial() (*big.Int, error) {
 	serialNumberLimit := new(big.Int).Lsh(big.NewInt(1), serialNumberRange)
 
-	serialNumber, err := rand.Int(rand.Reader, serialNumberLimit)
-	if err != nil {
-		return nil, nil, err
-	}
+	return rand.Int(rand.Reader, serialNumberLimit)
+}
 
+// Create a new self-signed certificate.
+func newCaCert(signer crypto.Signer, notBefore, notAfter time.Time) ([]byte, error) {
+	serialNumber, err := randomSerial()
+	if err != nil {
+		return nil, err
+	}
+	// TODO: Assign issuer and subject; leaving those names empty violates RFC 5280.
+	template := x509.Certificate{
+		SerialNumber:          serialNumber,
+		KeyUsage:              x509.KeyUsageDigitalSignature | x509.KeyUsageCertSign,
+		BasicConstraintsValid: true,
+		IsCA:                  true,
+		NotBefore:             notBefore,
+		NotAfter:              notAfter,
+	}
+	return x509.CreateCertificate(rand.Reader, &template, &template, signer.Public(), signer)
+}
+
+// Creates a new signing certificate, signed by the CA key.
+func newSigningCert(caCert *x509.Certificate, caSigner crypto.Signer, subjectPublicKey crypto.PublicKey, notBefore, notAfter time.Time) ([]byte, error) {
+	serialNumber, err := randomSerial()
+	if err != nil {
+		return nil, err
+	}
+	// TODO: Assign issuer and subject; leaving those names empty violates RFC 5280.
 	template := x509.Certificate{
 		SerialNumber: serialNumber,
 		KeyUsage:     x509.KeyUsageDigitalSignature,
 		NotBefore:    notBefore,
 		NotAfter:     notAfter,
 	}
-
-	newPub, newPriv, err := ed25519.GenerateKey(rand.Reader)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	var certBytes []byte
-
-	if rootCert == nil || rootKey == nil {
-		template.KeyUsage |= x509.KeyUsageCertSign
-		template.BasicConstraintsValid = true
-		template.IsCA = true
-
-		certBytes, err = x509.CreateCertificate(rand.Reader, &template, &template, newPub, newPriv)
-		if err != nil {
-			return nil, nil, err
-		}
-	} else {
-		certBytes, err = x509.CreateCertificate(rand.Reader, &template, rootCert, newPub, rootKey)
-		if err != nil {
-			return nil, nil, err
-		}
-	}
-
-	newCert, err := x509.ParseCertificate(certBytes)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	return newCert, newPriv, nil
+	return x509.CreateCertificate(rand.Reader, &template, caCert, subjectPublicKey, caSigner)
 }
