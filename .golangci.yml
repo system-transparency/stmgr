@@ -16,6 +16,7 @@ linters:
     - cyclop
     - nestif
     - godox
+    - funlen
 
 linters-settings:
   lll:
