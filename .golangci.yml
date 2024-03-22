@@ -15,6 +15,7 @@ linters:
     - nlreturn
     - cyclop
     - nestif
+    - godox
 
 linters-settings:
   lll:
