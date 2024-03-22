@@ -31,6 +31,7 @@ func KeygenCertificate(args []string) error {
 		" Ignored if -isCA is set.")
 	certificateRootKey := certificateCmd.String("rootKey", "", "Root key in PEM format to sign the new certificate."+
 		" Ignored if -isCA is set.")
+	certificateSubjectKey := certificateCmd.String("subjectKey", "", "public key to certify, in PEM or OpenSSH format.")
 	certificateIsCA := certificateCmd.Bool("isCA", false, "Generate self signed root certificate.")
 	certificateValidFrom := certificateCmd.String("validFrom", "", "Date formatted as RFC3339."+
 		" Defaults to time of creation.")
@@ -70,13 +71,14 @@ func KeygenCertificate(args []string) error {
 	// Call function with parsed flags
 	return keygen.Certificate(
 		&keygen.CertificateArgs{
-			IsCa:         *certificateIsCA,
-			RootCertPath: *certificateRootCert,
-			RootKeyPath:  *certificateRootKey,
-			NotBefore:    notBefore,
-			NotAfter:     notAfter,
-			CertOut:      *certificateCertOut,
-			KeyOut:       *certificateKeyOut,
+			IsCa:           *certificateIsCA,
+			IssuerCertFile: *certificateRootCert,
+			IssuerKeyFile:  *certificateRootKey,
+			SubjectKeyFile: *certificateSubjectKey,
+			NotBefore:      notBefore,
+			NotAfter:       notAfter,
+			CertOut:        *certificateCertOut,
+			KeyOut:         *certificateKeyOut,
 		},
 	)
 }

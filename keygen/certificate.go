@@ -31,13 +31,14 @@ const (
 // CertificateArgs is a list of arguments
 // that's passed to Certificate().
 type CertificateArgs struct {
-	IsCa         bool
-	RootCertPath string
-	RootKeyPath  string
-	NotBefore    time.Time
-	NotAfter     time.Time
-	CertOut      string
-	KeyOut       string
+	IsCa           bool
+	IssuerCertFile string // Empty, for creating a self-signed cert.
+	IssuerKeyFile  string // Private cert signing key.
+	SubjectKeyFile string // Public key
+	NotBefore      time.Time
+	NotAfter       time.Time
+	CertOut        string
+	KeyOut         string
 }
 
 // Certificate is used to create a new certificate and private
@@ -62,60 +63,74 @@ func Certificate(args *CertificateArgs) error {
 
 	var (
 		newCert []byte
-		newKey  ed25519.PrivateKey
+		newKey  crypto.Signer
 	)
 
-	if len(args.RootCertPath) == 0 {
+	if len(args.IssuerCertFile) == 0 {
 		var err error
+		var signer crypto.Signer
 		// Create a self-signed certificate.
-		_, newKey, err = ed25519.GenerateKey(rand.Reader)
+		if len(args.IssuerKeyFile) > 0 {
+			signer, err = LoadPrivateKey(args.IssuerKeyFile)
+		} else {
+			_, signer, err = ed25519.GenerateKey(rand.Reader)
+			newKey = signer
+		}
 		if err != nil {
 			return err
 		}
-		newCert, err = newCaCert(newKey, args.NotBefore, args.NotAfter)
+		newCert, err = newCaCert(signer, args.NotBefore, args.NotAfter)
 		if err != nil {
 			return err
 		}
 	} else {
-		rootCert, rootKey, err := parseCaFiles(args.RootCertPath, args.RootKeyPath)
+		rootCert, rootKey, err := parseCaFiles(args.IssuerCertFile, args.IssuerKeyFile)
 		if err != nil {
 			return err
 		}
-		var newPub crypto.PublicKey
+		var subjectPublicKey crypto.PublicKey
 
-		newPub, newKey, err = ed25519.GenerateKey(rand.Reader)
+		if len(args.SubjectKeyFile) > 0 {
+			subjectPublicKey, err = LoadPublicKey(args.SubjectKeyFile)
+		} else {
+			subjectPublicKey, newKey, err = ed25519.GenerateKey(rand.Reader)
+		}
 		if err != nil {
 			return err
 		}
 		// Create a certificate signed by a root certificate.
-		newCert, err = newSigningCert(rootCert, rootKey, newPub, args.NotBefore, args.NotAfter)
+		newCert, err = newSigningCert(rootCert, rootKey, subjectPublicKey, args.NotBefore, args.NotAfter)
 		if err != nil {
 			return err
 		}
 	}
 
-	if err := writeCert(newCert, args.CertOut); err != nil {
-		return err
+	if newKey != nil {
+		if err := writeKey(newKey, keyOut); err != nil {
+			return err
+		}
 	}
-	return writeKey(newKey, keyOut)
+	return writeCert(newCert, args.CertOut)
 }
 
 func checkArgs(args *CertificateArgs) error {
-	switch {
-	case args.IsCa && (len(args.RootCertPath) != 0 || len(args.RootKeyPath) != 0):
-		stlog.Warn("isCa specified, will ignore rootKey and rootCert")
-
-		return nil
-
-	case len(args.RootCertPath) == 0 && len(args.RootKeyPath) != 0:
-		return ErrNoRootCert
-
-	case len(args.RootKeyPath) == 0 && len(args.RootCertPath) != 0:
-		return ErrNoRootKey
-
-	default:
+	if args.IsCa {
+		if len(args.IssuerCertFile) != 0 {
+			stlog.Warn("isCa specified, will ignore rootCert")
+		}
 		return nil
 	}
+	// For generating non-CA certs, either both key and cert must
+	// be provided, or none (in which case default filenames are
+	// used).
+	if len(args.IssuerCertFile) == 0 && len(args.IssuerKeyFile) != 0 {
+		return ErrNoRootCert
+	}
+
+	if len(args.IssuerKeyFile) == 0 && len(args.IssuerCertFile) != 0 {
+		return ErrNoRootKey
+	}
+	return nil
 }
 
 func writeCert(cert []byte, certOut string) error {
@@ -126,7 +141,7 @@ func writeCert(cert []byte, certOut string) error {
 }
 
 // This function makes sure the on-disk format of the key and certificate are correct.
-func writeKey(key ed25519.PrivateKey, keyOut string) error {
+func writeKey(key crypto.Signer, keyOut string) error {
 	marshaledKey, err := x509.MarshalPKCS8PrivateKey(key)
 	if err != nil {
 		return err
@@ -222,6 +237,7 @@ func newCaCert(signer crypto.Signer, notBefore, notAfter time.Time) ([]byte, err
 		return nil, err
 	}
 	// TODO: Assign issuer and subject; leaving those names empty violates RFC 5280.
+	// See issue#51.
 	template := x509.Certificate{
 		SerialNumber:          serialNumber,
 		KeyUsage:              x509.KeyUsageDigitalSignature | x509.KeyUsageCertSign,
@@ -240,6 +256,7 @@ func newSigningCert(caCert *x509.Certificate, caSigner crypto.Signer, subjectPub
 		return nil, err
 	}
 	// TODO: Assign issuer and subject; leaving those names empty violates RFC 5280.
+	// See issue#51.
 	template := x509.Certificate{
 		SerialNumber: serialNumber,
 		KeyUsage:     x509.KeyUsageDigitalSignature,

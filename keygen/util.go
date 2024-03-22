@@ -49,7 +49,7 @@ func LoadPrivateKey(fileName string) (crypto.Signer, error) {
 	if err != nil {
 		return nil, err
 	}
-	if bytes.HasPrefix(data, []byte("ssh-ed25519 ")) {
+	handleSSHKey := func() (crypto.Signer, error) {
 		// Attempt decoding as OpenSSH pubkey. Sigsum's key
 		// package supports reading OpenSSH private keys, as
 		// well as OpenSSH public keys where the corresponding
@@ -60,6 +60,9 @@ func LoadPrivateKey(fileName string) (crypto.Signer, error) {
 		}
 		return sigsumSigner{signer}, nil
 	}
+	if bytes.HasPrefix(data, []byte("ssh-ed25519 ")) {
+		return handleSSHKey()
+	}
 	block, rest := pem.Decode(data)
 	if block == nil {
 		return nil, ErrNoPEMBlock
@@ -68,18 +71,49 @@ func LoadPrivateKey(fileName string) (crypto.Signer, error) {
 		return nil, ErrTrailing
 	}
 
-	if block.Type != "PRIVATE KEY" {
+	switch block.Type {
+	default:
 		return nil, fmt.Errorf("invalid private key file, PEM type: %q", block.Type)
+	case "PRIVATE KEY":
+		priv, err := x509.ParsePKCS8PrivateKey(block.Bytes)
+		if err != nil {
+			return nil, err
+		}
+		signer, ok := priv.(crypto.Signer)
+		if !ok {
+			return nil, fmt.Errorf("invalid private key type: %T", priv)
+		}
+		return signer, nil
+	case "OPENSSH PRIVATE KEY":
+		return handleSSHKey()
 	}
-	priv, err := x509.ParsePKCS8PrivateKey(block.Bytes)
+}
+
+func LoadPublicKey(fileName string) (crypto.PublicKey, error) {
+	data, err := os.ReadFile(fileName)
 	if err != nil {
 		return nil, err
 	}
-	signer, ok := priv.(crypto.Signer)
-	if !ok {
-		return nil, fmt.Errorf("invalid private key type: %T", priv)
+	if bytes.HasPrefix(data, []byte("ssh-ed25519 ")) {
+		// Attempt decoding as OpenSSH pubkey.
+		pub, err := key.ParsePublicKey(string(data))
+		if err != nil {
+			return nil, err
+		}
+		return ed25519.PublicKey(pub[:]), nil
 	}
-	return signer, nil
+	block, rest := pem.Decode(data)
+	if block == nil {
+		return nil, ErrNoPEMBlock
+	}
+	if len(rest) != 0 {
+		return nil, ErrTrailing
+	}
+
+	if block.Type != "PUBLIC KEY" {
+		return nil, fmt.Errorf("invalid private key file, PEM type: %q", block.Type)
+	}
+	return x509.ParsePKIXPublicKey(block.Bytes)
 }
 
 // Loads a PEM coded x509 certificate, without decoding the DER blob.
