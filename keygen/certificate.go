@@ -34,7 +34,7 @@ type CertificateArgs struct {
 	IsCa           bool
 	IssuerCertFile string // Empty, for creating a self-signed cert.
 	IssuerKeyFile  string // Private cert signing key.
-	SubjectKeyFile string // Public key
+	LeafKeyFile    string // Public key
 	NotBefore      time.Time
 	NotAfter       time.Time
 	CertOut        string
@@ -88,18 +88,18 @@ func Certificate(args *CertificateArgs) error {
 		if err != nil {
 			return err
 		}
-		var subjectPublicKey crypto.PublicKey
+		var leafPublicKey crypto.PublicKey
 
-		if len(args.SubjectKeyFile) > 0 {
-			subjectPublicKey, err = LoadPublicKey(args.SubjectKeyFile)
+		if len(args.LeafKeyFile) > 0 {
+			leafPublicKey, err = LoadPublicKey(args.LeafKeyFile)
 		} else {
-			subjectPublicKey, newKey, err = ed25519.GenerateKey(rand.Reader)
+			leafPublicKey, newKey, err = ed25519.GenerateKey(rand.Reader)
 		}
 		if err != nil {
 			return err
 		}
 		// Create a certificate signed by a root certificate.
-		newCert, err = newSigningCert(rootCert, rootKey, subjectPublicKey, args.NotBefore, args.NotAfter)
+		newCert, err = newSigningCert(rootCert, rootKey, leafPublicKey, args.NotBefore, args.NotAfter)
 		if err != nil {
 			return err
 		}
@@ -249,7 +249,7 @@ func newCaCert(signer crypto.Signer, notBefore, notAfter time.Time) ([]byte, err
 }
 
 // Creates a new signing certificate, signed by the CA key.
-func newSigningCert(caCert *x509.Certificate, caSigner crypto.Signer, subjectPublicKey crypto.PublicKey, notBefore, notAfter time.Time) ([]byte, error) {
+func newSigningCert(caCert *x509.Certificate, caSigner crypto.Signer, leafPublicKey crypto.PublicKey, notBefore, notAfter time.Time) ([]byte, error) {
 	serialNumber, err := randomSerial()
 	if err != nil {
 		return nil, err
@@ -261,5 +261,5 @@ func newSigningCert(caCert *x509.Certificate, caSigner crypto.Signer, subjectPub
 		NotBefore:    notBefore,
 		NotAfter:     notAfter,
 	}
-	return x509.CreateCertificate(rand.Reader, &template, caCert, subjectPublicKey, caSigner)
+	return x509.CreateCertificate(rand.Reader, &template, caCert, leafPublicKey, caSigner)
 }

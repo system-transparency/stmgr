@@ -25,7 +25,7 @@ openssl x509 -text <tmp.root.cert | grep " *Digital Signature, Certificate Sign$
 
 # Create a signing cert, signed with the CA's private key.
 go run ../stmgr.go keygen certificate -rootCert tmp.root.cert -rootKey tmp.root.key \
-   -subjectKey tmp.sign.key.pub -certOut tmp.sign.cert
+   -leafKey tmp.sign.key.pub -certOut tmp.sign.cert
 
 if openssl x509 -text <tmp.sign.cert | grep CA:TRUE >/dev/null ; then die "Unexpected CA cert" ; fi
 openssl x509 -text <tmp.sign.cert | grep " *Digital Signature$" >/dev/null || die "Unexpected signing cert usage"

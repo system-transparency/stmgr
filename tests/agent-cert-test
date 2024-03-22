@@ -26,7 +26,7 @@ ssh-agent sh <<EOF
 
   # Create a signing cert, signed with the CA's private key.
   go run ../stmgr.go keygen certificate -rootCert tmp.root.cert -rootKey tmp.root.key.pub \
-      -subjectKey tmp.sign.key.pub -certOut tmp.sign.cert
+      -leafKey tmp.sign.key.pub -certOut tmp.sign.cert
 EOF
 
 openssl x509 -text <tmp.root.cert | grep CA:TRUE >/dev/null || die "Not a CA cert"
