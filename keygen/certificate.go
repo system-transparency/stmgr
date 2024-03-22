@@ -236,8 +236,7 @@ func newCaCert(signer crypto.Signer, notBefore, notAfter time.Time) ([]byte, err
 	if err != nil {
 		return nil, err
 	}
-	// TODO: Assign issuer and subject; leaving those names empty violates RFC 5280.
-	// See issue#51.
+	// TODO(#51): Consider assigning issuer and subject.
 	template := x509.Certificate{
 		SerialNumber:          serialNumber,
 		KeyUsage:              x509.KeyUsageDigitalSignature | x509.KeyUsageCertSign,
@@ -255,8 +254,7 @@ func newSigningCert(caCert *x509.Certificate, caSigner crypto.Signer, subjectPub
 	if err != nil {
 		return nil, err
 	}
-	// TODO: Assign issuer and subject; leaving those names empty violates RFC 5280.
-	// See issue#51.
+	// TODO(#51): Consider assigning issuer and subject.
 	template := x509.Certificate{
 		SerialNumber: serialNumber,
 		KeyUsage:     x509.KeyUsageDigitalSignature,

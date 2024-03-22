@@ -17,16 +17,8 @@ openssl pkey -in tmp.root.key -pubout -out tmp.root.key.pub
 openssl genpkey -algorithm ed25519 -out tmp.sign.key
 openssl pkey -in tmp.sign.key -pubout -out tmp.sign.key.pub
 
-# It's not clear what expectations to verify on generated certs.
-# Currently, we check key usage bits (which aren't that important). It
-# would be reasonable to check that the resulting cert chain is valid,
-# e.g, using
-#
-#  openssl verify -trusted tmp.root.cert tmp.sign.cert
-#
-# But that fails, because x509 chaining is based on subject and issuer
-# names, and stmgr leaves those fields empty, violating
-# https://www.rfc-editor.org/rfc/rfc5280#section-4.1.2.4
+# TODO(#51): Check resulting certificate chain using
+#   openssl verify -trusted tmp.root.cert tmp.sign.cert
 
 # Create a CA root cert
 go run ../stmgr.go keygen certificate -isCA -rootKey tmp.root.key -certOut tmp.root.cert
