@@ -1,0 +1,38 @@
+#! /bin/bash
+
+set -eu
+
+cd "$(dirname "$0")"
+
+rm -f tmp.*
+
+function die () {
+    echo "$@" >&2
+    exit 1
+}
+
+# Create a dummy OS package
+echo foo > tmp.data
+go run ../stmgr.go ospkg create -initramfs tmp.data -kernel tmp.data -out tmp.pkg.json
+
+# Create a CA root cert
+go run ../stmgr.go keygen certificate -isCA -certOut tmp.root.cert -keyOut tmp.root.key
+
+# Sign it
+go run ../stmgr.go ospkg sign -key tmp.root.key -cert tmp.root.cert -ospkg tmp.pkg.json
+
+# Create an ssh key to use for signing
+ssh-keygen -q -N '' -t ed25519 -f tmp.sign.key
+
+# Create certificate
+go run ../stmgr.go keygen certificate -isCA -rootKey tmp.root.key -certOut tmp.sign.cert
+
+# Sign, accessing key via ssh agent.
+ssh-agent sh <<EOF
+  ssh-add tmp.sign.key
+  rm tmp.sign.key # Delete, accessible only via agent
+  go run ../stmgr.go ospkg sign -key tmp.sign.key.pub -cert tmp.sign.cert -ospkg tmp.pkg.json
+EOF
+
+[[ $(jq '.certificates | length' < tmp.pkg.json) = 2 ]] || die "Unexpected number of certificates"
+[[ $(jq '.signatures | length' < tmp.pkg.json) = 2 ]] || die "Unexpected number of signatures"

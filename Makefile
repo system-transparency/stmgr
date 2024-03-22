@@ -8,3 +8,4 @@ check:
 	./tests/openssl-cert-test
 	./tests/agent-cert-test
 	./tests/hostconfig-check-test
+	./tests/ospkg-sign-test
