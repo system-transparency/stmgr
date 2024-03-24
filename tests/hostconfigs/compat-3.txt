@@ -1,0 +1,20 @@
+This file is representative of what is provisioned on a real system, thanks
+vistor at Mullvad VPN for contributing it.  It contains roughly the same
+abandoned, incompatible, and missing fields as the compat-{1,2}.txt.  The
+difference is that this configuration is even older and not aware of
+"network_interfaces", "bonding_mode", "bond_name" (and so doesn't set them).
+---
+{
+  "version": 1,
+  "network_mode": "static",
+  "host_ip": "69.4.234.132/27",
+  "gateway": "69.4.234.129",
+  "dns": "8.8.8.8",
+  "network_interface": "ac:1f:6b:fc:c0:68",
+  "provisioning_urls": [
+    "https://USERNAME:PASSWORD@HOSTNAME/os-stable.json"
+  ],
+  "identity": "bar",
+  "authentication": "foo",
+  "timestamp": 1665824126
+}

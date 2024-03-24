@@ -1,0 +1,15 @@
+#!/bin/bash
+
+set -eu
+
+cd "$(dirname "$0")"
+
+function die () {
+    echo "$@" >&2
+    exit 1
+}
+
+for filename in hostconfigs/*.txt; do
+	go run ../stmgr.go hostconfig check "$(sed '1,/---/d' "$filename")" >/dev/null ||
+		die "Error: failed to check $filename"
+done

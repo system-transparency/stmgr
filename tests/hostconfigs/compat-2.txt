@@ -1,0 +1,23 @@
+This file is representative of what is provisioned on a real system, thanks
+vistor at Mullvad VPN for contributing it.  It contains abandoned fields,
+incompatible fields, and misses fields.  This provides test coverage for the
+old-style "dns", "provisioning_urls", and "network_interface" (singular).
+---
+{
+  "version": 1,
+  "network_mode": "static",
+  "host_ip": "146.70.197.194/26",
+  "gateway": "146.70.197.193",
+  "dns": "9.9.9.9",
+  "network_interface": "3c:ec:ef:9b:96:e4",
+  "provisioning_urls": [
+    "https://USERNAME:PASSWORD@HOSTNAME/os-stable.json"
+  ],
+  "identity": "bar",
+  "authentication": "foo",
+  "timestamp": 1695382181,
+  "network_interfaces": null,
+  "bonding": false,
+  "bonding_mode": "",
+  "bond_name": ""
+}
