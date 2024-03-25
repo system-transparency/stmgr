@@ -3,9 +3,9 @@ default:
 
 # Keep things simple, no test driver script.
 check:
-	./tests/keygen-cert-test
-	./tests/ssh-cert-test
-	./tests/openssl-cert-test
-	./tests/agent-cert-test
+	./tests/cert-keygen-test
+	./tests/cert-ssh-test
+	./tests/cert-openssl-test
+	./tests/cert-agent-test
 	./tests/hostconfig-check-test
 	./tests/ospkg-sign-test
