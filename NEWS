@@ -1,3 +1,18 @@
+NEWS for stmgr v0.3.x
+
+    Incompatible changes:
+
+    * Generation of UKI files no longer defaults to using
+      /usr/lib/systemd/boot/efi/linuxx64.efi.stub. It now defaults to
+      a stub file embedded at stmgr compile time. (See uki/stub/README
+      for which version is embedded).
+
+    * The out-of-date "stmgr provision" sub command has been deleted.
+
+    New features:
+
+    * TODO: ssh-agent signing
+
 NEWS for stmgr v0.2.2
 
     First advertised release following the common System Transparency release
