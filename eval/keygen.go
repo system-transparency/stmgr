@@ -31,7 +31,7 @@ func KeygenCertificate(args []string) error {
 		" Ignored if -isCA is set.")
 	certificateRootKey := certificateCmd.String("rootKey", "", "Root key in PEM or OpenSSH format to sign the new certificate."+
 		" Ignored if -isCA is set.")
-	certificateLeafKey := certificateCmd.String("leafKey", "", "public key to certify, in PEM or OpenSSH format.")
+	certificateLeafKey := certificateCmd.String("leafKey", "", "Public key to certify, in PEM or OpenSSH format.")
 	certificateIsCA := certificateCmd.Bool("isCA", false, "Generate self signed root certificate.")
 	certificateValidFrom := certificateCmd.String("validFrom", "", "Date formatted as RFC3339."+
 		" Defaults to time of creation.")

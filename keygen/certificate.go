@@ -33,7 +33,7 @@ const (
 type CertificateArgs struct {
 	IsCa           bool
 	IssuerCertFile string // Empty, for creating a self-signed cert.
-	IssuerKeyFile  string // Private cert signing key.
+	IssuerKeyFile  string // Private root CA signing key.
 	LeafKeyFile    string // Public key
 	NotBefore      time.Time
 	NotAfter       time.Time
