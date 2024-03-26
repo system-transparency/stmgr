@@ -14,17 +14,11 @@ function die () {
 ssh-keygen -q -N '' -t ed25519 -f tmp.root.key
 ssh-keygen -q -N '' -t ed25519 -f tmp.sign.key
 
-# TODO(#51): Check resulting certificate chain using
-#   openssl verify -trusted tmp.root.cert tmp.sign.cert
-
-# Create a CA root cert
 ssh-agent sh <<EOF
   ssh-add tmp.root.key
   rm tmp.root.key # Delete, accessible only via agent
 
   go run ../stmgr.go keygen certificate -isCA -rootKey tmp.root.key.pub -certOut tmp.root.cert
-
-  # Create a signing cert, signed with the CA's private key.
   go run ../stmgr.go keygen certificate -rootCert tmp.root.cert -rootKey tmp.root.key.pub \
       -leafKey tmp.sign.key.pub -certOut tmp.sign.cert
 EOF
@@ -32,5 +26,8 @@ EOF
 openssl x509 -text <tmp.root.cert | grep CA:TRUE >/dev/null || die "Not a CA cert"
 openssl x509 -text <tmp.root.cert | grep " *Digital Signature, Certificate Sign$" >/dev/null || die "Unexpected CA cert usage"
 
-if openssl x509 -text <tmp.sign.cert | grep CA:TRUE >/dev/null ; then die "Unexpected CA cert" ; fi
+! openssl x509 -text <tmp.sign.cert | grep CA:TRUE >/dev/null || die "Unexpected CA cert"
 openssl x509 -text <tmp.sign.cert | grep " *Digital Signature$" >/dev/null || die "Unexpected signing cert usage"
+
+# TODO(#51): Check resulting certificate chain using
+#   openssl verify -trusted tmp.root.cert tmp.sign.cert
