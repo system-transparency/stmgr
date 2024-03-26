@@ -46,7 +46,7 @@ integration test:
   image: golang:1.19
   before_script:
     - apt update
-    - apt install -qqy openssl jq
+    - apt install -qqy openssl openssh-client jq
   script:
     - make check
 
