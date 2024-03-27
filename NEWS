@@ -14,13 +14,13 @@ NEWS for stmgr v0.3.x
     * Signing OS packages (stmgr ospkg sign) can now use ssh-agent to
       access the private signing key, see docs/manual.md.
 
-    * Creating certificates (stmgr keygen certificate) can now be done
-      with keys not generated as part of the process. More precisely,
-      a root certificate can be created for a private key specified
-      with the -rootKey option, including support for ssh-agent to
-      access the private key. A leaf certificate can be created with
-      the new -leafKey option specifying the public key to be
-      certified.
+    * Creating certificates (stmgr keygen certificate) used to always
+      create a new keypair as part of the process. That key generation
+      is now optional. More precisely, a root certificate can be
+      created for a private key specified with the -rootKey option,
+      including support for ssh-agent to access the private key. A
+      leaf certificate can be created with the new -leafKey option
+      specifying the public key to be certified.
 
     * Validating host config (stmgr hostconfig check) updated to match
       recent changes in stboot, including backwards compatibility.
