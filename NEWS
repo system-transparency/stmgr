@@ -9,9 +9,29 @@ NEWS for stmgr v0.3.x
 
     * The out-of-date "stmgr provision" sub command has been deleted.
 
-    New features:
+    New features and improvements:
 
-    * TODO: ssh-agent signing
+    * Signing OS packages (stmgr ospkg sign) can now use ssh-agent to
+      access the private signing key, see docs/manual.md.
+
+    * Creating certificates (stmgr keygen certificate) can now be done
+      with keys not generated as part of the process. More precisely,
+      a root certificate can be created for a private key specified
+      with the -rootKey option, including support for ssh-agent to
+      access the private key. A leaf certificate can be created with
+      the new -leafKey option specifying the public key to be
+      certified.
+
+    * Validating host config (stmgr hostconfig check) updated to match
+      recent changes in stboot, including backwards compatibility.
+      Submission of additional host config files to check in stmgr
+      regression tests are welcome.
+
+    * Improved documentation, new docs/manual.md.
+
+    Miscellaneous:
+
+    * Improved integration tests.
 
 NEWS for stmgr v0.2.2
 
