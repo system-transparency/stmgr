@@ -10,6 +10,6 @@ function die () {
 }
 
 for filename in hostconfigs/*.txt; do
-	go run ../stmgr.go hostconfig check "$(sed '1,/---/d' "$filename")" >/dev/null ||
+	go run ../stmgr.go hostconfig check "$(sed '1,/^---$/d' "$filename")" >/dev/null ||
 		die "Error: failed to check $filename"
 done
