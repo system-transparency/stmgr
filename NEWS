@@ -27,6 +27,9 @@ NEWS for stmgr v0.3.x
       Submission of additional host config files to check in stmgr
       regression tests are welcome.
 
+    * The command "stmgr uki create" can now optionally sign the
+      generated UKI for Secure Boot; new flags: -signkey, -signcert.
+
     * Improved documentation, new docs/manual.md.
 
     Miscellaneous:

@@ -1,6 +1,7 @@
 package uki
 
 import (
+	"crypto/x509"
 	"flag"
 	"fmt"
 	"os"
@@ -8,6 +9,8 @@ import (
 	"strings"
 
 	"github.com/diskfs/go-diskfs/filesystem"
+	"github.com/foxboron/go-uefi/efi/pecoff"
+	"system-transparency.org/stmgr/keygen"
 )
 
 //nolint:varnamelen
@@ -65,6 +68,8 @@ func Create(args []string) error {
 	stub := ukiCmd.String("stub", "", "UKI stub location (defaults to an embedded stub)")
 	sbat := ukiCmd.String("sbat", "", "SBAT metadata")
 	appendSbat := ukiCmd.Bool("append-sbat", false, "Append SBAT metadata to the existing section (default: false)")
+	signCert := ukiCmd.String("signcert", "", "Certificate corresponding to the private key (a file in PEM format)")
+	signKey := ukiCmd.String("signkey", "", "Private key for signing the uki for Secure Boot (a file in PEM format)")
 
 	if err := ukiCmd.Parse(args); err != nil {
 		return err
@@ -83,6 +88,11 @@ func Create(args []string) error {
 
 	if *force {
 		os.Remove(outputFile)
+	}
+
+	// Require both or none of these flags (XOR)
+	if (*signCert != "") != (*signKey != "") {
+		return fmt.Errorf("both -signcert and -signkey are required for signing UKI")
 	}
 
 	uki := &UKI{}
@@ -125,6 +135,12 @@ func Create(args []string) error {
 		return fmt.Errorf("failed to write UKI: %w", err)
 	}
 
+	if (*signKey != "") && (*signCert != "") {
+		if err := signPE(*signKey, *signCert, ukiFilename); err != nil {
+			return fmt.Errorf("failed to sign UKI/PE: %w", err)
+		}
+	}
+
 	//nolint:godox
 	// TODO: More output formats
 	if *format == "iso" {
@@ -143,6 +159,55 @@ func Create(args []string) error {
 		if err := mkiso(outputFile, tmpfilename); err != nil {
 			return fmt.Errorf("failed to make iso: %w", err)
 		}
+	}
+
+	return nil
+}
+
+func signPE(keyFileName, certFileName, peFileName string) error {
+	peData, err := os.ReadFile(peFileName)
+	if err != nil {
+		return fmt.Errorf("ReadFile failed: %w", err)
+	}
+
+	if sigs, err := pecoff.GetSignatures(peData); err != nil {
+		return fmt.Errorf("GetSignatures failed: %w", err)
+	} else if len(sigs) > 0 {
+		return fmt.Errorf("PE is already signed")
+	}
+
+	signer, err := keygen.LoadPrivateKey(keyFileName)
+	if err != nil {
+		return fmt.Errorf("LoadPrivateKey failed: %w", err)
+	}
+	certDER, err := keygen.LoadCertBytes(certFileName)
+	if err != nil {
+		return fmt.Errorf("LoadCertBytes failed: %w", err)
+	}
+	cert, err := x509.ParseCertificate(certDER)
+	if err != nil {
+		return fmt.Errorf("invalid x509 certificate: %w", err)
+	}
+
+	ctx := pecoff.PECOFFChecksum(peData)
+
+	sig, err := pecoff.CreateSignature(ctx, cert, signer)
+	if err != nil {
+		return fmt.Errorf("CreateSignature failed: %w", err)
+	}
+
+	peSigned, err := pecoff.AppendToBinary(ctx, sig)
+	if err != nil {
+		return fmt.Errorf("AppendToBinary failed: %w", err)
+	}
+
+	info, err := os.Stat(peFileName)
+	if err != nil {
+		return fmt.Errorf("stat failed: %w", err)
+	}
+
+	if err = os.WriteFile(peFileName, peSigned, info.Mode()); err != nil {
+		return fmt.Errorf("WriteFile failed: %w", err)
 	}
 
 	return nil

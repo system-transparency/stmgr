@@ -84,6 +84,10 @@ stmgr uki create -cmdline STRING [-format iso|uki] -initramfs FILENAME -kernel F
 The default output format is `iso`, and means that the UKI is wrapped in
 a bootable CDROM image. To get just the uki, pass `-format uki`.
 
+The UKI, a PE executable, can optionally be signed for Secure Boot.
+Use the flags `-signkey` and `-signcert` to set the file names to a
+private key and its corresponding certificate, both in PEM format.
+
 ## The stmgr trustpolicy and host config commands
 
 These commands can be used to validate syntax and contents of host config and
