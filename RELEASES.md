@@ -48,8 +48,8 @@ Downgrading is in general not supported.
 ## Expected changes in upcoming releases
 
   - The command line interface is expected to be overhauled.
-  - Transition to an OS package format based on Unified Kernel Images (UKIs).
-  - Transition to new signature format that's compatible with Sigsum.
+  - Transition to new signature format that's compatible with Sigsum,
+    likely with changes to the OS Package format.
   - Any changes to the System Transparency reference specifications will be
 implemented.  This could for example affect the format of configuration
 files such as host configuration or trust policy.
