@@ -24,8 +24,10 @@ access the corresponding signing key.
 
 ## The stmgr ospkg command
 
-The `ospkg` command has two subcommands, `create` and `sign`. To
-create an OS package, use
+System transparency OS packages are defined by the [OS package][]
+specification. The `stmgr ospkg` command has two subcommands
+operating on OS packages: `create` and `sign`. To create an OS package
+use
 ```
 stmgr ospkg create [OPTIONS] -cmdline STRING -initramfs FILENAME -kernel FILENAME -out FILENAME [-url OSPKG-URL]
 ```
@@ -44,7 +46,7 @@ a corresponding signature are added to the descriptor file. The `-key`
 option specifies the corresponding signing key, possibly with access
 via ssh-agent, as described above.
 
-TODO: Link to OS package spec.
+[OS package]: https://docs.system-transparency.org/docs/reference/data-structures/os_package/
 
 ## The stmgr keygen command
 
@@ -90,12 +92,13 @@ private key and its corresponding certificate, both in PEM format.
 
 ## The stmgr trustpolicy and host config commands
 
-These commands can be used to validate syntax and contents of host config and
-trust policy configuration files, respectively. They take the contents
+These commands can be used to validate syntax and contents of [host config][] and
+[trust policy][] configuration files, respectively. They take the contents
 of the configuration (not a filename!) on the command line.
 ```
 stmgr hostconfig check JSON-DATA
 stmgr trustpolicy check JSON-DATA
 ```
 
-TODO: Link to specs.
+[trust policy]: https://docs.system-transparency.org/docs/reference/data-structures/trust_policy/
+[host config]: https://docs.system-transparency.org/docs/reference/data-structures/host_configuration/
