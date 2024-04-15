@@ -10,8 +10,8 @@ Making a release:
   - [ ] Test the procedure of upgrading from the previous release (if any)
   - [ ] Test and document which other System Transparency components are
     interoperable.  We currently test the produced artifacts produced by stmgr in qemu (_via the pipelines in https://git.glasklar.is/system-transparency/core/system-transparency - to be transferred partially to this repo_):
-      - staring stboot as ISO image from UEFI firmware - load hostcfg from efivars - boot Ubuntu focal OS package via network boot
-      - staring stboot as ISO image from UEFI firmware - load hostcfg from initramfs - boot Ubuntu focal OS package via network boot
+      - starting stboot as ISO image from UEFI firmware - load hostcfg from efivars - boot Ubuntu focal OS package via network boot
+      - starting stboot as ISO image from UEFI firmware - load hostcfg from initramfs - boot Ubuntu focal OS package via network boot
   - [ ] Test/check that the tutorial, how-to, and explanation sections of
     docs.system-transparency.org (branch main) are up-to-date for stmgr
   - [ ] After finalizing the release documentation (in particular the NEWS
