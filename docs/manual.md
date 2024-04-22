@@ -54,7 +54,7 @@ ssh-agent, as described above.
 ## The stmgr keygen command
 
 There's only one subcommand, which is used to create certificates, and
-optionally generate a corresponding keypair. There are defaults for the
+optionally generate a corresponding key-pair. There are defaults for the
 file name arguments, see `stmgr keygen certificate` for details. To
 create a self-signed root certificate:
 
@@ -64,7 +64,7 @@ stmgr keygen certificate -isCA [-rootKey FILENAME] [-certOut FILENAME] [-keyOut 
 
 The `-rootKey` option specifies a signing key to use, possibly with
 access via ssh-agent, as described above. If not specified, a new
-keypair is generated, and the private key is written to the file
+key-pair is generated, and the private key is written to the file
 specified with `-keyOut`.
 
 To create a leaf signing certificate:
@@ -75,7 +75,7 @@ stmgr keygen certificate [-rootCert FILENAME] [-rootKey FILENAME] [-certOut FILE
 
 The `-rootCert` and `-rootKey` specify the CA root and corresponding
 signing key. `-leafKey` specifies the public key to certify, if not
-provided, a new keypair is generated, and the private key is written to
+provided, a new key-pair is generated, and the private key is written to
 the file specified with `-keyOut`.
 
 ## The stmgr uki command
@@ -92,7 +92,7 @@ stmgr uki create -cmdline STRING [-format iso|uki] -initramfs FILENAME -kernel F
 ```
 
 The default output format is `iso`, and means that the UKI is wrapped in
-a bootable CDROM image. To get just the uki, pass `-format uki`.
+a bootable CDROM image. To get just the UKI, pass `-format uki`.
 
 The UKI, a PE executable, can optionally be signed for Secure Boot.  Use
 the flags `-signkey` and `-signcert` to set the file names to a private
