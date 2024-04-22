@@ -49,7 +49,7 @@ corresponding signature are added to the descriptor file. The `-key`
 option specifies the corresponding signing key, possibly with access via
 ssh-agent, as described above.
 
-[OS package]: https://docs.system-transparency.org/docs/reference/data-structures/os_package/
+[OS package]: https://git.glasklar.is/system-transparency/project/docs/-/blob/main/content/docs/reference/os_package.md?ref_type=heads
 
 ## The stmgr keygen command
 
@@ -110,5 +110,5 @@ stmgr hostconfig check JSON-DATA
 stmgr trustpolicy check JSON-DATA
 ```
 
-[trust policy]: https://docs.system-transparency.org/docs/reference/data-structures/trust_policy/
-[host config]: https://docs.system-transparency.org/docs/reference/data-structures/host_configuration/
+[trust policy]: https://git.glasklar.is/system-transparency/project/docs/-/blob/main/content/docs/reference/trust_policy.md?ref_type=heads
+[host config]: https://git.glasklar.is/system-transparency/project/docs/-/blob/main/content/docs/reference/host_configuration.md?ref_type=heads
