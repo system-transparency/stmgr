@@ -6,18 +6,17 @@ This document is intended for maintainers that make releases.
 
 Making a release:
 
-  - [ ] README, RELEASES, and MAINTAINER files are up-to-date
-  - [ ] Test the procedure of upgrading from the previous release (if any)
-  - [ ] Test and document which other System Transparency components are
-    interoperable.  We currently test the produced artifacts produced by stmgr in qemu (_via the pipelines in https://git.glasklar.is/system-transparency/core/system-transparency - to be transferred partially to this repo_):
-      - starting stboot as ISO image from UEFI firmware - load hostcfg from efivars - boot Ubuntu focal OS package via network boot
-      - starting stboot as ISO image from UEFI firmware - load hostcfg from initramfs - boot Ubuntu focal OS package via network boot
-  - [ ] Test/check that the tutorial, how-to, and explanation sections of
-    docs.system-transparency.org (branch main) are up-to-date for stmgr
-  - [ ] After finalizing the release documentation (in particular the NEWS
-    file), create a new tag.  Usually, this means incrementing the third number
-    for the most recent tag that was used during our interoperability tests.
-  - [ ] Create release page
+  - [ ] README.md and RELEASES.md are up-to-date
+  - [ ] Ensure tests pass. Make sure the stmgr dependencies in other
+        repos (stboot, stprov, system-transparency) are updated to
+        an stmgr release candidate version, and that the integration
+        tests in those repos are passing.
+  - [ ] Test/check that the tutorial at docs.system-transparency.org
+        (branch main) is up-to-date for stmgr
+  - [ ] After finalizing the release documentation (in particular the
+        NEWS file), create a new signed tag. Usually, this means
+        incrementing the third number for the most recent tag that was
+        used during our interoperability tests.
   - [ ] Send announcement email
 
 ## RELEASES-file checklist
@@ -43,18 +42,13 @@ Making a release:
 ```
 The ST team is happy to announce a new release of the stmgr programm,
 tag v0.X.X, which succeeds the previous release at tag v0.Y.Y.  The
-source code is available as an archive on our GitLab's release page:
-
- https://git.glasklar.is/system-transparency/core/stmgr/-/releases
-
-Alternatively, you can checkout the git-repository:
+source code for this release is available from the git repository:
 
   git clone -b v0.X.X https://git.glasklar.is/system-transparency/core/stmgr.git
 
 Or install using Go's tooling:
 
   go install system-transparency.org/stmgr@v0.X.X
-
 
 The expectations and intended use of the stmgr program is documented
 in the repository's RELEASES file.  This RELEASES file also contains

@@ -6,15 +6,22 @@ The following program is released and supported:
 
   - `./stmgr`
 
-New releases are announced on the System Transparency [announce list][].  What
-changed in each release is documented in a [NEWS file](./NEWS).  The NEWS file
-also specifies which other System Transparency components are known to be
-interoperable, as well as which reference specifications are being implemented.
+New releases are announced on the System Transparency [announce list][].
+What changed in each release is documented in a [NEWS file](./NEWS). The
+NEWS file also specifies which other System Transparency components are
+known to be interoperable, as well as which reference specifications are
+being implemented.
 
-Note that a release is simply a git-tag specified on our mailing list.  The
-source for this git-tag becomes available on the repository's release page:
-
-  https://git.glasklar.is/system-transparency/core/stmgr/-/releases
+Note that a release is simply a signed git tag specified on our mailing
+list, accessed from the [stmgr repository][]. To verify tag signatures,
+get the `allowed-ST-release-signers` file published at [signing keys][],
+and verify the tag `vX.Y.Z` using the command
+```
+git -c gpg.format=ssh -c gpg.ssh.allowedSignersFile=allowed-ST-release-signers \
+  tag --verify vX.Y.Z
+```
+If desired, the config settings above can be stored more permanently using
+`git config`.
 
 The stmgr Go module is **not** considered stable before a v1.0.0 release.  By
 the terms of the LICENSE file you are free to use this code "as is" in almost
@@ -22,6 +29,8 @@ any way you like, but for now, we support its use _only_ via the above program.
 We don't aim to provide any backwards-compatibility for internal interfaces.
 
 [announce list]: https://lists.system-transparency.org/mailman3/postorius/lists/st-announce.lists.system-transparency.org/
+[stmgr repository]: https://git.glasklar.is/system-transparency/core/stmgr/
+[signing keys]: https://www.system-transparency.org/keys
 
 ## What release cycle is used?
 
