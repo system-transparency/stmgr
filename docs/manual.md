@@ -9,12 +9,13 @@ arguments.
 
 ## Specifying the keys to use
 
-Public keys, and corresponding private keys, are used both for signing
-OS packages (`stmgr ospkg sign` command) and for signing certificates
-(`stmgr keygen certificate` command). Only Ed25519 keys are supported.
-When specifying a public key, you provide a file with a public Ed25519
-key in either PKIX PEM format, or OpenSSH single-line public key format.
-Certificates use x.509 PEM format.
+Keys are used for signing OS packages and certificates.  Use the `stmgr
+ospkg sign` and `stmgr keygen certificate` commands.  Only Ed25519 keys
+are supported.
+
+When specifying a public key, provide a file with a public Ed25519 key
+in either PKIX PEM format or OpenSSH single-line public key format.
+Certificates use X.509 PEM format.
 
 For private keys, you can specify an unencrypted private key in either
 PKIX or OpenSSH format. The recommended way, however, is to pass a
@@ -32,30 +33,30 @@ on OS packages: `create` and `sign`. To create an OS package use
 stmgr ospkg create [OPTIONS] -cmdline STRING -initramfs FILENAME -kernel FILENAME -out FILENAME [-url OSPKG-URL]
 ```
 
-This command creates two files, a .zip archive and a .json descriptor
-file. The `-url` option is required for network boot. It is included in
-the descriptor file and specifies from where the OS package should be
-downloaded at boot time.
+This command creates two files, a `.zip` archive and a `.json`
+descriptor file. The `-url` option is required for network boot. It is
+included in the descriptor file and specifies from where the OS package
+should be downloaded at boot time.
 
-To command for signing an OS package is
+The command for signing an OS package is
 
 ```
-stmgr ospkg sign -cert X509-CERT -key PRIVATE-KEY -ospkg FILE
+stmgr ospkg sign -cert FILENAME -key FILENAME -ospkg FILENAME
 ```
 
-Both the archive .zip and the descriptor .json files are needed, the
+Both the archive `.zip` and the descriptor `.json` files are needed; the
 `-ospkg` flag takes the name of either file. The certificate and a
 corresponding signature are added to the descriptor file. The `-key`
 option specifies the corresponding signing key, possibly with access via
 ssh-agent, as described above.
 
-[OS package]: https://git.glasklar.is/system-transparency/project/docs/-/blob/main/content/docs/reference/os_package.md?ref_type=heads
+[OS package]: https://git.glasklar.is/system-transparency/project/docs/-/blob/v0.2.0/content/docs/reference/os_package.md
 
 ## The stmgr keygen command
 
 There's only one subcommand, which is used to create certificates, and
-optionally generate a corresponding key-pair. There are defaults for the
-file name arguments, see `stmgr keygen certificate` for details. To
+optionally to generate a corresponding key-pair. There are defaults for
+the file name arguments, see `stmgr keygen certificate` for details. To
 create a self-signed root certificate:
 
 ```
@@ -81,11 +82,11 @@ the file specified with `-keyOut`.
 ## The stmgr uki command
 
 This command is used to create a Unified Kernel Image (UKI) that is
-bootable directly by UEFI firmware. Essentially, a UKI is kernel,
-initramfs and command line packages into a UEFI PE executable. This
+bootable directly by UEFI firmware. Essentially, a UKI is a kernel,
+an initramfs and a command line packaged into a UEFI PE executable. This
 command is used for packaging the stboot executable, trust policy, and
-other related files. Inputs are similar to those for `ospkg create`, but
-for a different purpose and with different output format.
+other related files. Inputs are similar to those of `ospkg create`, but
+for a different purpose and with a different output format.
 
 ```
 stmgr uki create -cmdline STRING [-format iso|uki] -initramfs FILENAME -kernel FILENAME -out FILENAME
@@ -110,5 +111,5 @@ stmgr hostconfig check JSON-DATA
 stmgr trustpolicy check JSON-DATA
 ```
 
-[trust policy]: https://git.glasklar.is/system-transparency/project/docs/-/blob/main/content/docs/reference/trust_policy.md?ref_type=heads
-[host config]: https://git.glasklar.is/system-transparency/project/docs/-/blob/main/content/docs/reference/host_configuration.md?ref_type=heads
+[trust policy]: https://git.glasklar.is/system-transparency/project/docs/-/blob/v0.2.0/content/docs/reference/trust_policy.md
+[host config]: https://git.glasklar.is/system-transparency/project/docs/-/blob/v0.2.0/content/docs/reference/host_configuration.md
