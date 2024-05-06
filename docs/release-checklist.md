@@ -46,9 +46,12 @@ source code for this release is available from the git repository:
 
   git clone -b v0.X.X https://git.glasklar.is/system-transparency/core/stmgr.git
 
-Or install using Go's tooling:
+Authoritative ST release signing keys are published at
+https://www.system-transparency.org/keys, and the tag signature can be
+verified using the command
 
-  go install system-transparency.org/stmgr@v0.X.X
+git -c gpg.format=ssh -c gpg.ssh.allowedSignersFile=allowed-ST-release-signers \
+  tag --verify v0.X.X
 
 The expectations and intended use of the stmgr program is documented
 in the repository's RELEASES file.  This RELEASES file also contains

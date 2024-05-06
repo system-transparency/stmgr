@@ -45,14 +45,10 @@ upgrading to it is particularly disruptive due to the changes that it brings.
 
 ## Upgrading
 
-You are expected to upgrade linearly from one advertised release to the next
-advertised release, e.g., from v0.1.1 to v0.2.1.  We strive to make such linear
-upgrades easy and well-documented to help with forward-compatibility.  Any
-complications that are caused by changed reference specifications, command-line
-flags, or similar will be clearly outlined in the [NEWS files](./NEWS).  Pay
-close attention to the "Breaking changes" section for these migration notes.
-
-Downgrading is in general not supported.
+We strive to make stmgr upgrades easy and well-documented. Any complications,
+e.g., chages to command line flags, will be clearly outlined in the [NEWS
+file](./NEWS). Pay close attention to the "Incompatible changes" section before
+upgrading to a new version.
 
 ## Expected changes in upcoming releases
 
