@@ -11,8 +11,10 @@ Making a release:
         repos (stboot, stprov, system-transparency) are updated to
         an stmgr release candidate version, and that the integration
         tests in those repos are passing.
-  - [ ] Test/check that the tutorial at docs.system-transparency.org
-        (branch main) is up-to-date for stmgr
+  - [ ] Ensure that the stimages/test/getting-started.sh script uses
+        relevant versions of stmgr and other tools. Check that the
+        script works in podman, and that the introductory build guide
+        is consistent with this script.
   - [ ] After finalizing the release documentation (in particular the
         NEWS file), create a new signed tag. Usually, this means
         incrementing the third number for the most recent tag that was
