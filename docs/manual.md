@@ -97,7 +97,8 @@ a bootable CDROM image. To get just the UKI, pass `-format uki`.
 
 The UKI, a PE executable, can optionally be signed for Secure Boot.  Use
 the flags `-signkey` and `-signcert` to set the file names to a private
-key and its corresponding certificate, both in PEM format.
+key and its corresponding certificate, both in PEM format.  Because
+SecureBoot does not support Ed25519, RSA keys are allowed here.
 
 ## The stmgr trustpolicy and host config commands
 
