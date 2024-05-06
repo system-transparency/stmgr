@@ -1,12 +1,10 @@
-# Cheat-sheet on releases
+# Releases checklist
 
 This document is intended for maintainers that make releases.
 
-## Checklist
+## Making a release
 
-Making a release:
-
-  - [ ] README.md and RELEASES.md are up-to-date
+  - [ ] The README.md and RELEASES.md files are up-to-date
   - [ ] Ensure tests pass. Make sure the stmgr dependencies in other
         repos (stboot, stprov, system-transparency) are updated to
         an stmgr release candidate version, and that the integration
@@ -21,7 +19,7 @@ Making a release:
         used during our interoperability tests.
   - [ ] Send announcement email
 
-## RELEASES-file checklist
+## RELEASES-file
 
   - [ ] What in the repository is released and supported
   - [ ] The overall release process is described, e.g., where are releases
@@ -31,7 +29,7 @@ Making a release:
     described, e.g., what we intend to (not) break in the future or any
     relevant pointers on how we ensure that things are "working".
 
-## NEWS-file checklist
+## NEWS-file
 
   - [ ] The previous NEWS entry is for the previous release
   - [ ] Explain what changed
