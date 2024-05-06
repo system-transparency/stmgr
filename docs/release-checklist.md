@@ -13,6 +13,11 @@ This document is intended for maintainers that make releases.
         relevant versions of stmgr and other tools. Check that the
         script works in podman, and that the introductory build guide
         is consistent with this script.
+  - [ ] The manual is up-to-date, including links to reference
+        documentation.
+  - [ ] All direct dependencies are up to date, or are explicitly kept
+        at older versions we want. Look for updates with `go list -m
+        -u example.org/MODULE`.
   - [ ] After finalizing the release documentation (in particular the
         NEWS file), create a new signed tag. Usually, this means
         incrementing the third number for the most recent tag that was
