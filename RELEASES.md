@@ -54,7 +54,7 @@ upgrading to a new version.
 
   - The command line interface is expected to be overhauled.
   - Transition to new signature format that's compatible with Sigsum,
-    likely with changes to the OS Package format.
+    likely with changes to the OS package format.
   - Any changes to the System Transparency reference specifications will be
 implemented.  This could for example affect the format of configuration
 files such as host configuration or trust policy.
