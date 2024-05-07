@@ -28,10 +28,10 @@ NEWS for stmgr v0.3.x
       leaf certificate can be created with the new -leafKey option
       specifying the public key to be certified.
 
-    * Validating host config (stmgr hostconfig check) updated to match
-      recent changes in stboot, including backwards compatibility.
-      Submission of additional host config files to check in stmgr
-      regression tests are welcome.
+    * Host config validation (stmgr hostconfig check) has been updated
+      to match recent changes in stboot, including backwards
+      compatibility. Submission of additional host config files to
+      check in stmgr regression tests are welcome.
 
     * The command "stmgr uki create" can now optionally sign the
       generated UKI for Secure Boot; new flags: -signkey, -signcert.
