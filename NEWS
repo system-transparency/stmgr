@@ -1,6 +1,6 @@
-NEWS for stmgr v0.3.x
+NEWS for stmgr v0.3.3
 
-    This release is an update to match the stboot-0.3.x release. The
+    This release is an update to match the stboot-0.3.6 release. The
     main new features relate to signing: UKI executables can now be
     signed for Secure Boot. Signatures on OS packages and certificates
     can now use private keys accessed via the ssh-agent protocol,
