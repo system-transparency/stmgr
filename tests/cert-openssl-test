@@ -21,11 +21,11 @@ go run ../stmgr.go keygen certificate -isCA -rootKey tmp.root.key -certOut tmp.r
 go run ../stmgr.go keygen certificate -rootCert tmp.root.cert -rootKey tmp.root.key \
    -leafKey tmp.sign.key.pub -certOut tmp.sign.cert
 
-openssl x509 -text <tmp.root.cert | grep CA:TRUE >/dev/null || die "Not a CA cert"
-openssl x509 -text <tmp.root.cert | grep " *Digital Signature, Certificate Sign$" >/dev/null || die "Unexpected CA cert usage"
+openssl x509 -text -in tmp.root.cert | grep CA:TRUE >/dev/null || die "Not a CA cert"
+openssl x509 -text -in tmp.root.cert | grep " *Digital Signature, Certificate Sign$" >/dev/null || die "Unexpected CA cert usage"
 
-! openssl x509 -text <tmp.sign.cert | grep CA:TRUE >/dev/null || die "Unexpected CA cert"
-openssl x509 -text <tmp.sign.cert | grep " *Digital Signature$" >/dev/null || die "Unexpected signing cert usage"
+! openssl x509 -text -in tmp.sign.cert | grep CA:TRUE >/dev/null || die "Unexpected CA cert"
+openssl x509 -text -in tmp.sign.cert | grep " *Digital Signature$" >/dev/null || die "Unexpected signing cert usage"
 
 # TODO(#51): Check resulting certificate chain using
 #   openssl verify -trusted tmp.root.cert tmp.sign.cert
