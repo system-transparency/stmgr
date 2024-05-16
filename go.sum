@@ -530,5 +530,5 @@ rsc.io/sampler v1.3.0/go.mod h1:T1hPZKmBbMNahiBKFy5HrXp6adAjACjK9JXDnKaTXpA=
 sigsum.org/sigsum-go v0.7.2 h1:HxdtVArlGw4pkaY/VsbBNKuRiNacF8OR2iUAgkEpBAQ=
 sigsum.org/sigsum-go v0.7.2/go.mod h1:VuYGNZBDKuff6QNd9mgN9Nfi5ZWnGq4JZz6FUso42BY=
 src.elv.sh v0.16.0-rc1.0.20220116211855-fda62502ad7f h1:pjVeIo9Ba6K1Wy+rlwX91zT7A+xGEmxiNRBdN04gDTQ=
-system-transparency.org/stboot v0.3.6 h1:BIAURKVWdPasS64EWdn1hPvnztsTV6zyMvQrBZQE/EA=
-system-transparency.org/stboot v0.3.6/go.mod h1:pQT5hl2sPAb9Ya6AWEnm3Jj8a4TvnKW7qEZ6NoSsRWk=
+system-transparency.org/stboot v0.4.0 h1:5sa3q4YEYVZwzZG30atyM6DzJJsG/UazPE2uDwUE3qc=
+system-transparency.org/stboot v0.4.0/go.mod h1:pQT5hl2sPAb9Ya6AWEnm3Jj8a4TvnKW7qEZ6NoSsRWk=

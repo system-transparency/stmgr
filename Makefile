@@ -8,4 +8,5 @@ check:
 	./tests/cert-openssl-test
 	./tests/cert-agent-test
 	./tests/hostconfig-check-test
+	./tests/ospkg-create-test
 	./tests/ospkg-sign-test

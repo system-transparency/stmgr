@@ -1,0 +1,24 @@
+#! /bin/bash
+
+set -eu
+
+cd "$(dirname "$0")"
+
+rm -f tmp.*
+
+function die () {
+    echo "$@" >&2
+    exit 1
+}
+
+echo "A dummmy OS package" > tmp.data
+
+for url in "example.zip" "https://example.org/pkg.zip" ; do
+    rm -f tmp.pkg.json
+    go run ../stmgr.go ospkg create -initramfs tmp.data -kernel tmp.data -out tmp.pkg.json -url "${url}"
+
+    [[ $(jq '.version == 1' < tmp.pkg.json) = true ]] || die "Unexpected descriptor version"
+    [[ $(jq ".os_pkg_url == \"${url}\"" < tmp.pkg.json) = true ]] || die "Unexpected descriptor os_pkg_url"
+
+    [[ $(unzip -p tmp.pkg.zip manifest.json | jq '.version == 1') == true ]] || die "Unexpected manifest version"
+done
