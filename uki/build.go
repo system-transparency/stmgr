@@ -1,6 +1,7 @@
 package uki
 
 import (
+	"bytes"
 	"crypto/x509"
 	"flag"
 	"fmt"
@@ -9,7 +10,7 @@ import (
 	"strings"
 
 	"github.com/diskfs/go-diskfs/filesystem"
-	"github.com/foxboron/go-uefi/efi/pecoff"
+	"github.com/foxboron/go-uefi/authenticode"
 	"system-transparency.org/stmgr/keygen"
 )
 
@@ -170,8 +171,13 @@ func signPE(keyFileName, certFileName, peFileName string) error {
 		return fmt.Errorf("ReadFile failed: %w", err)
 	}
 
-	if sigs, err := pecoff.GetSignatures(peData); err != nil {
-		return fmt.Errorf("GetSignatures failed: %w", err)
+	pe, err := authenticode.Parse(bytes.NewReader(peData))
+	if err != nil {
+		return fmt.Errorf("Parse failed: %w", err)
+	}
+
+	if sigs, err := pe.Signatures(); err != nil {
+		return fmt.Errorf("Signatures failed: %w", err)
 	} else if len(sigs) > 0 {
 		return fmt.Errorf("PE is already signed")
 	}
@@ -189,16 +195,9 @@ func signPE(keyFileName, certFileName, peFileName string) error {
 		return fmt.Errorf("invalid x509 certificate: %w", err)
 	}
 
-	ctx := pecoff.PECOFFChecksum(peData)
-
-	sig, err := pecoff.CreateSignature(ctx, cert, signer)
-	if err != nil {
-		return fmt.Errorf("CreateSignature failed: %w", err)
-	}
-
-	peSigned, err := pecoff.AppendToBinary(ctx, sig)
-	if err != nil {
-		return fmt.Errorf("AppendToBinary failed: %w", err)
+	// Sign returns the signature
+	if _, err := pe.Sign(signer, cert); err != nil {
+		return fmt.Errorf("Sign failed: %w", err)
 	}
 
 	info, err := os.Stat(peFileName)
@@ -206,7 +205,8 @@ func signPE(keyFileName, certFileName, peFileName string) error {
 		return fmt.Errorf("stat failed: %w", err)
 	}
 
-	if err = os.WriteFile(peFileName, peSigned, info.Mode()); err != nil {
+	// Bytes returns the signed PE
+	if err = os.WriteFile(peFileName, pe.Bytes(), info.Mode()); err != nil {
 		return fmt.Errorf("WriteFile failed: %w", err)
 	}
 
