@@ -49,13 +49,3 @@ We strive to make stmgr upgrades easy and well-documented. Any complications,
 e.g., chages to command line flags, will be clearly outlined in the [NEWS
 file](./NEWS). Pay close attention to the "Incompatible changes" section before
 upgrading to a new version.
-
-## Expected changes in upcoming releases
-
-  - The command line interface is expected to be overhauled.
-  - Transition to new signature format that's compatible with Sigsum,
-    likely with changes to the OS package format.
-  - Any changes to the System Transparency reference specifications will be
-implemented.  This could for example affect the format of configuration
-files such as host configuration or trust policy.
-
