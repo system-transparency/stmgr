@@ -3,7 +3,7 @@
 ST manager can be used to create and sign [OS Packages][] and more to
 ease the usage of [System Transparency][].
 
-[OS Packages]: https://git.glasklar.is/system-transparency/project/docs/-/blob/v0.2.0/content/docs/reference/os_package.md
+[OS Packages]: https://git.glasklar.is/system-transparency/project/docs/-/blob/v0.3.0/content/docs/reference/os_package.md
 [System Transparency]: https://www.system-transparency.org
 
 ---
