@@ -9,11 +9,11 @@ golangci-lint v1.50.1:
     - golangci-lint --version
     - golangci-lint run -v
 
-staticcheck v0.3.3:
+staticcheck v0.5.1:
   stage: test
   image: golang:1.22
   script:
-    - go install honnef.co/go/tools/cmd/staticcheck@v0.3.3
+    - go install honnef.co/go/tools/cmd/staticcheck@v0.5.1
     - staticcheck ./...
 
 compile go 1.22:
