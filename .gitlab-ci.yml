@@ -11,26 +11,26 @@ golangci-lint v1.50.1:
 
 staticcheck v0.3.3:
   stage: test
-  image: golang:1.19
+  image: golang:1.22
   script:
     - go install honnef.co/go/tools/cmd/staticcheck@v0.3.3
     - staticcheck ./...
 
-compile go 1.19:
+compile go 1.22:
   stage: build
-  image: golang:1.19
+  image: golang:1.22
   script:
     - go build -v ./...
 
 unittests:
   stage: test
-  image: golang:1.19
+  image: golang:1.22
   script:
     - go test -race -v ./...
 
 coverage:
   stage: test
-  image: golang:1.19
+  image: golang:1.22
   script:
     - go test ./... -coverprofile=coverage.txt -covermode count
     - go install github.com/boumenot/gocover-cobertura@latest
@@ -43,7 +43,7 @@ coverage:
 
 integration test:
   stage: test
-  image: golang:1.19
+  image: golang:1.22
   before_script:
     - apt update
     - apt install -qqy openssl openssh-client jq unzip
@@ -56,7 +56,7 @@ stboot integration:
   allow_failure: true
   before_script:
     - apt update
-    - apt install -qqy qemu-system-x86 wget parted mtools cpio dosfstools git golang-1.19 golang-go unzip
+    - apt install -qqy qemu-system-x86 wget parted mtools cpio dosfstools git golang-1.22 golang-go unzip
   script:
     - git clone https://git.glasklar.is/system-transparency/core/stboot.git
     - cd stboot/integration && go work init && go work use . ../.. && ./qemu-boot-from-disk.sh
