@@ -45,18 +45,20 @@ integration test:
   stage: test
   image: golang:1.22
   before_script:
-    - apt update
-    - apt install -qqy openssl openssh-client jq unzip
+    - apt-get update
+    - apt-get install -qqy openssl openssh-client jq unzip
   script:
     - make check
 
 stboot integration:
   stage: test
-  image: debian:bookworm
+  image: debian:bookworm-backports
   allow_failure: true
   before_script:
-    - apt update
-    - apt install -qqy qemu-system-x86 wget parted mtools cpio dosfstools git golang-1.22 golang-go unzip
+    - apt-get update
+    - apt-get install -qqy -t bookworm-backports golang-1.22
+    - apt-get install -qqy qemu-system-x86 wget parted mtools cpio dosfstools git unzip
+    - export PATH=/usr/lib/go-1.22/bin:$PATH
   script:
     - git clone https://git.glasklar.is/system-transparency/core/stboot.git
     - cd stboot/integration && go work init && go work use . ../.. && ./qemu-boot-from-disk.sh
