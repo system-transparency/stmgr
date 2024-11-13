@@ -46,7 +46,7 @@ integration test:
   image: golang:1.22
   before_script:
     - apt-get update
-    - apt-get install -qqy openssl openssh-client jq unzip
+    - apt-get install -qqy openssl openssh-client jq unzip file
   script:
     - make check
 

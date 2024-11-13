@@ -1,0 +1,40 @@
+#! /bin/bash
+
+set -eu
+
+cd "$(dirname "$0")"
+
+rm -f tmp.*
+
+function die () {
+    echo "$@" >&2
+    exit 1
+}
+
+echo "A dummmy kernel & initramfs" > tmp.data
+
+# format = iso
+go run ../stmgr.go uki create -format iso -initramfs tmp.data -kernel tmp.data -out tmp.pkg.iso 2&>/dev/null
+
+[[ -f tmp.pkg.iso ]] || die "Expected tmp.pkg.iso"
+file -i tmp.pkg.iso | grep "application/x-iso9660-image" >/dev/null  || die "Unexpected file type"
+rm -f tmp.pkg.iso
+
+# format = uki
+go run ../stmgr.go uki create -format uki -initramfs tmp.data -kernel tmp.data -out tmp.pkg.uki 2&>/dev/null
+
+[[ -f tmp.pkg.uki ]] || die "Expected tmp.pkg.uki"
+file -i tmp.pkg.uki | grep "application/vnd.microsoft.portable-executable" >/dev/null || die "Unexpected file type"
+rm -f tmp.pkg.uki
+
+# both format
+for format in "iso,uki" "uki,iso" ; do
+    go run ../stmgr.go uki create -format "${format}" -initramfs tmp.data -kernel tmp.data -out tmp.pkg 2&>/dev/null
+
+    [[ -f tmp.pkg.uki ]] || die "Expected tmp.pkg.uki"
+    [[ -f tmp.pkg.iso ]] || die "Expected tmp.pkg.iso"
+    file -i tmp.pkg.iso | grep "application/x-iso9660-image" >/dev/null  || die "Unexpected file type"
+    file -i tmp.pkg.uki | grep "application/vnd.microsoft.portable-executable" >/dev/null || die "Unexpected file type"
+    rm -f tmp.pkg.uki
+    rm -f tmp.pkg.iso
+done

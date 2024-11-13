@@ -10,3 +10,4 @@ check:
 	./tests/hostconfig-check-test
 	./tests/ospkg-create-test
 	./tests/ospkg-sign-test
+	./tests/uki-create-test

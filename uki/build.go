@@ -55,7 +55,12 @@ func createTempFilename() (string, error) {
 	return f.Name(), nil
 }
 
-//nolint:funlen,cyclop
+const (
+	formatIso = "iso"
+	formatUki = "uki"
+)
+
+//nolint:funlen,cyclop,gocognit
 func Create(args []string) error {
 	ukiCmd := flag.NewFlagSet("uki", flag.ExitOnError)
 	out := ukiCmd.String("out", "stmgr", "output path with format as suffix (default: stmgr)")
@@ -64,7 +69,7 @@ func Create(args []string) error {
 	osrelease := ukiCmd.String("osrelease", "", "os-release file for the uki")
 	kernel := ukiCmd.String("kernel", "", "kernel or EFI binary to boot")
 	force := ukiCmd.Bool("force", false, "remove existing files (default: false)")
-	format := ukiCmd.String("format", "iso", "output format iso or uki (default: iso)")
+	format := ukiCmd.String("format", "iso", "comma separated list of output formats (iso, uki)")
 	stub := ukiCmd.String("stub", "", "UKI stub location (defaults to an embedded stub)")
 	sbat := ukiCmd.String("sbat", "", "SBAT metadata")
 	appendSbat := ukiCmd.Bool("append-sbat", false, "Append SBAT metadata to the existing section (default: false)")
@@ -75,19 +80,48 @@ func Create(args []string) error {
 		return err
 	}
 
-	//nolint:godox
-	// TODO: Use slice.Contains when we want generics
-	if *format != "iso" && *format != "uki" {
-		return fmt.Errorf("format needs to be one of 'iso' or 'uki'")
+	formats := strings.Split(*format, ",")
+	outputIso := false
+	outputUki := false
+	for _, f := range formats {
+		switch f {
+		case formatIso:
+			outputIso = true
+		case formatUki:
+			outputUki = true
+		case "":
+		default:
+			return fmt.Errorf("format list can only contain iso or uki")
+		}
 	}
 
-	outputFile := *out
-	if !strings.HasSuffix(outputFile, *format) {
-		outputFile = fmt.Sprintf("%s.%s", outputFile, *format)
+	if !outputIso && !outputUki {
+		return fmt.Errorf("no output format specified")
 	}
 
-	if *force {
-		os.Remove(outputFile)
+	ukiFilename := *out
+	isoFilename := *out
+	if !strings.HasSuffix(isoFilename, ".iso") {
+		isoFilename = fmt.Sprintf("%s.iso", isoFilename)
+	}
+	if !strings.HasSuffix(ukiFilename, ".uki") {
+		ukiFilename = fmt.Sprintf("%s.uki", ukiFilename)
+	}
+
+	if *force && outputIso {
+		os.Remove(isoFilename)
+	}
+	if *force && outputUki {
+		os.Remove(ukiFilename)
+	}
+	if !outputUki {
+		// File we write for the UKI
+		stmgrUkiTmpfile, err := os.CreateTemp("/var/tmp", "stmgr-uki.*.efi")
+		if err != nil {
+			return fmt.Errorf("failed to make temporary file for the UKI")
+		}
+		defer os.Remove(stmgrUkiTmpfile.Name())
+		ukiFilename = stmgrUkiTmpfile.Name()
 	}
 
 	// Require both or none of these flags (XOR)
@@ -118,19 +152,6 @@ func Create(args []string) error {
 	// SBAT section is optional
 	uki.SetSBAT(*sbat, *appendSbat)
 
-	var ukiFilename string
-	if *format == "uki" {
-		ukiFilename = outputFile
-	} else {
-		// File we write for the UKI
-		stmgrUkiTmpfile, err := os.CreateTemp("/var/tmp", "stmgr-uki.*.efi")
-		if err != nil {
-			return fmt.Errorf("failed to make temporary file for the UKI")
-		}
-		defer os.Remove(stmgrUkiTmpfile.Name())
-		ukiFilename = stmgrUkiTmpfile.Name()
-	}
-
 	if err := generateUKI(uki, *stub, ukiFilename); err != nil {
 		return fmt.Errorf("failed to write UKI: %w", err)
 	}
@@ -143,7 +164,7 @@ func Create(args []string) error {
 
 	//nolint:godox
 	// TODO: More output formats
-	if *format == "iso" {
+	if outputIso {
 		// We care about the name, not the file. Create the file, delete it and use it's name
 		tmpfilename, err := createTempFilename()
 		if err != nil {
@@ -156,7 +177,7 @@ func Create(args []string) error {
 			return fmt.Errorf("failed to make vfat partition: %w", err)
 		}
 
-		if err := mkiso(outputFile, tmpfilename); err != nil {
+		if err := mkiso(isoFilename, tmpfilename); err != nil {
 			return fmt.Errorf("failed to make iso: %w", err)
 		}
 	}
