@@ -44,7 +44,7 @@ func writeDiskFs(fs filesystem.FileSystem, file, diskPath string) error {
 func createTempFilename() (string, error) {
 	// Go only allows us to create templated filenames if we make one then delete
 	// it.
-	f, err := os.CreateTemp("/var/tmp", "stmgr.*.vfat")
+	f, err := os.CreateTemp("", "stmgr.*.vfat")
 	if err != nil {
 		return "", fmt.Errorf("failed to create temporary vfat file: %w", err)
 	}
@@ -116,7 +116,7 @@ func Create(args []string) error {
 	}
 	if !outputUki {
 		// File we write for the UKI
-		stmgrUkiTmpfile, err := os.CreateTemp("/var/tmp", "stmgr-uki.*.efi")
+		stmgrUkiTmpfile, err := os.CreateTemp("", "stmgr-uki.*.efi")
 		if err != nil {
 			return fmt.Errorf("failed to make temporary file for the UKI")
 		}
