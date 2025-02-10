@@ -2,12 +2,11 @@ stages:
   - build
   - test
 
-golangci-lint v1.50.1:
+# Succeeds if no changes are suggested by gofmt -d .
+gofmt:
   stage: test
-  image: golangci/golangci-lint:v1.50.1
-  script:
-    - golangci-lint --version
-    - golangci-lint run -v
+  image: golang:1.22
+  script: if gofmt -d . | grep . ; then false ; else true ; fi
 
 staticcheck v0.5.1:
   stage: test
