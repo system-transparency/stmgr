@@ -6,7 +6,7 @@ go 1.22
 
 require (
 	github.com/diskfs/go-diskfs v1.3.0
-	github.com/foxboron/go-uefi v0.0.0-20230808201820-18b9ba9cd4c3
+	github.com/foxboron/go-uefi v0.0.0-20250207204325-69fb7dba244f
 	sigsum.org/sigsum-go v0.7.2
 	system-transparency.org/stboot v0.4.0
 )
@@ -28,7 +28,8 @@ require (
 	github.com/ulikunitz/xz v0.5.11 // indirect
 	github.com/vishvananda/netlink v1.2.1-beta.2 // indirect
 	github.com/vishvananda/netns v0.0.4 // indirect
-	golang.org/x/sys v0.17.0 // indirect
-	golang.org/x/text v0.14.0 // indirect
+	golang.org/x/crypto v0.31.0 // indirect
+	golang.org/x/sys v0.28.0 // indirect
+	golang.org/x/text v0.21.0 // indirect
 	gopkg.in/djherbis/times.v1 v1.2.0 // indirect
 )
