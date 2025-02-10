@@ -14,14 +14,14 @@ function die () {
 echo "A dummmy kernel & initramfs" > tmp.data
 
 # format = iso
-go run ../stmgr.go uki create -format iso -initramfs tmp.data -kernel tmp.data -out tmp.pkg.iso 2&>/dev/null
+go run ../stmgr.go uki create -format iso -initramfs tmp.data -kernel tmp.data -out tmp.pkg.iso
 
 [[ -f tmp.pkg.iso ]] || die "Expected tmp.pkg.iso"
 file -i tmp.pkg.iso | grep "application/x-iso9660-image" >/dev/null  || die "Unexpected file type"
 rm -f tmp.pkg.iso
 
 # format = uki
-go run ../stmgr.go uki create -format uki -initramfs tmp.data -kernel tmp.data -out tmp.pkg.uki 2&>/dev/null
+go run ../stmgr.go uki create -format uki -initramfs tmp.data -kernel tmp.data -out tmp.pkg.uki
 
 [[ -f tmp.pkg.uki ]] || die "Expected tmp.pkg.uki"
 file -i tmp.pkg.uki | grep "application/vnd.microsoft.portable-executable" >/dev/null || die "Unexpected file type"
@@ -29,7 +29,7 @@ rm -f tmp.pkg.uki
 
 # both format
 for format in "iso,uki" "uki,iso" ; do
-    go run ../stmgr.go uki create -format "${format}" -initramfs tmp.data -kernel tmp.data -out tmp.pkg 2&>/dev/null
+    go run ../stmgr.go uki create -format "${format}" -initramfs tmp.data -kernel tmp.data -out tmp.pkg
 
     [[ -f tmp.pkg.uki ]] || die "Expected tmp.pkg.uki"
     [[ -f tmp.pkg.iso ]] || die "Expected tmp.pkg.iso"
@@ -38,3 +38,15 @@ for format in "iso,uki" "uki,iso" ; do
     rm -f tmp.pkg.uki
     rm -f tmp.pkg.iso
 done
+
+# format = uki, signed for Secure Boot
+sbsigncert=tmp-db-cert.pem
+sbsignkey=tmp-db-key.pem
+openssl req -quiet -newkey rsa:4096 -nodes -keyout $sbsignkey \
+        -new -x509 -sha256 -days 10 -subj "/O=Organism/" -out $sbsigncert
+go run ../stmgr.go uki create -format uki -initramfs tmp.data -kernel tmp.data -out tmp.pkg.uki \
+   -signcert $sbsigncert -signkey $sbsignkey
+[[ -f tmp.pkg.uki ]] || die "Expected tmp.pkg.uki"
+file -i tmp.pkg.uki | grep "application/vnd.microsoft.portable-executable" >/dev/null || die "Unexpected file type"
+sbverify --cert $sbsigncert ./tmp.pkg.uki
+rm -f tmp.pkg.uki $sbsigncert $sbsignkey
