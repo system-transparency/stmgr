@@ -10,4 +10,5 @@ check:
 	./tests/hostconfig-check-test
 	./tests/ospkg-create-test
 	./tests/ospkg-sign-test
+	./tests/ospkg-sigsum-test
 	./tests/uki-create-test

@@ -79,3 +79,28 @@ func OspkgSign(args []string) error {
 	// Call function with parsed flags
 	return ospkg.Sign(*signKey, *signCert, *signOSPKG)
 }
+
+func OspkgSigsum(args []string) error {
+	// Create a custom flag set and register flags
+	signCmd := flag.NewFlagSet("sign", flag.ExitOnError)
+	sigsumProof := signCmd.String("proof", "", "Sigsum proof of logging.")
+	signCert := signCmd.String("cert", "", "Certificate corresponding to the private key.")
+	signOSPKG := signCmd.String("ospkg", "", "OS package archive or descriptor file. Both need to be present.")
+	signLogLevel := signCmd.String("loglevel", "", "Set loglevel to any of debug, info, warn, error (default) and panic.")
+
+	// Parse which flags are provided to the function
+	if err := signCmd.Parse(args); err != nil {
+		return err
+	}
+
+	// Adjust loglevel
+	setLoglevel(*signLogLevel)
+
+	// Print the successfully parsed flags in debug level
+	signCmd.Visit(func(f *flag.Flag) {
+		stlog.Debug("Registered flag %q", f)
+	})
+
+	// Call function with parsed flags
+	return ospkg.AddSigsumProof(*sigsumProof, *signCert, *signOSPKG)
+}

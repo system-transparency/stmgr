@@ -118,7 +118,8 @@ func ospkgArg(args []string) error {
 		return eval.OspkgCreate(args[flagsCallPosition:])
 	case "sign":
 		return eval.OspkgSign(args[flagsCallPosition:])
-
+	case "sigsum":
+		return eval.OspkgSigsum(args[flagsCallPosition:])
 	default:
 		// Display usage on unknown subcommand
 		log.Print(`SUBCOMMANDS:
@@ -128,6 +129,9 @@ func ospkgArg(args []string) error {
 
 	sign:
 		Sign the provided OS package with your private key.
+
+	sigsum:
+		Add a Sigsum proof of logging and corresponding cert.
 
 Use 'stmgr ospkg <SUBCOMMAND> -help' for more info.
 `)
