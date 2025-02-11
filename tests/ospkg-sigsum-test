@@ -1,0 +1,39 @@
+#! /bin/bash
+
+set -eu
+
+cd "$(dirname "$0")"
+
+rm -f tmp.*
+
+function die () {
+    echo "$@" >&2
+    exit 1
+}
+
+
+go run ../stmgr.go keygen certificate -isCA -certOut tmp.root.cert -keyOut tmp.root.key
+go run sigsum.org/sigsum-go/cmd/sigsum-key generate -o tmp.sign.key
+go run ../stmgr.go keygen certificate -rootKey tmp.root.key -rootCert tmp.root.cert \
+   -leafKey tmp.sign.key.pub -certOut tmp.sign.cert
+
+cat >tmp.policy <<EOF
+log 154f49976b59ff09a123675f58cb3e346e0455753c3c3b15d465dcb4f6512b0b https://poc.sigsum.org/jellyfish
+witness poc.sigsum.org/nisse 1c25f8a44c635457e2e391d1efbca7d4c2951a0aef06225a881e46b98962ac6c
+witness rgdd.se/poc-witness  28c92a5a3a054d317c86fc2eeb6a7ab2054d6217100d0be67ded5b74323c5806
+witness witness1.smartit.nu/witness1 f4855a0f46e8a3e23bb40faf260ee57ab8a18249fa402f2ca2d28a60e1a3130e
+
+group  quorum-rule 2 poc.sigsum.org/nisse rgdd.se/poc-witness witness1.smartit.nu/witness1
+quorum quorum-rule
+EOF
+
+echo "A dummmy OS package to sign without and with ssh agent" > tmp.data
+go run ../stmgr.go ospkg create -initramfs tmp.data -kernel tmp.data -out tmp.pkg.json
+
+go run sigsum.org/sigsum-go/cmd/sigsum-submit -k tmp.sign.key -p tmp.policy tmp.pkg.zip
+
+go run ../stmgr.go ospkg sigsum -proof tmp.pkg.zip.proof -cert tmp.sign.cert -ospkg tmp.pkg.json
+
+[[ $(jq '.certificates | length' < tmp.pkg.json) = 1 ]] || die "Unexpected number of certificates"
+[[ $(jq '.signatures | length' < tmp.pkg.json) = 1 ]] || die "Unexpected number of signatures"
+[[ $(jq -r '.signatures[0]|@base64d' < tmp.pkg.json) = $(cat tmp.pkg.zip.proof) ]] || die "Unexpected proof"
