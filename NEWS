@@ -1,3 +1,16 @@
+NEWS for stmgr v0.5.x
+
+    New features and improvements:
+
+    * The stmgr uki create subcommand now accepts a comma-separated
+      list for the -format option, to produce multiple output files.
+      E.g., use -format iso,uki to produce both a .uki file (a UEFI
+      executable) and the same file wrapped in a bootable .iso image.
+
+    Incompatible changes:
+
+    * This version requires go version 1.22 or later when building.
+
 NEWS for stmgr v0.4.1
 
     This release adds support for using relative OS package URLs.
