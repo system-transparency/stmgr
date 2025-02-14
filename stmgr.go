@@ -53,7 +53,9 @@ Use 'stmgr <COMMAND> -help' for more info.
 `
 
 	// Display helptext if not enough arguments are given
-	if len(args) < flagsCallPosition {
+	if len(args) < flagsCallPosition
+
+	{
 		log.Print(usage)
 
 		return nil
