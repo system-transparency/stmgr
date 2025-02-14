@@ -24,5 +24,4 @@ openssl x509 -text -in tmp.root.cert | grep " *Digital Signature, Certificate Si
 ! openssl x509 -text -in tmp.sign.cert | grep CA:TRUE >/dev/null || die "Unexpected CA cert"
 openssl x509 -text -in tmp.sign.cert | grep " *Digital Signature$" >/dev/null || die "Unexpected signing cert usage"
 
-# TODO(#51): Check resulting certificate chain using
-#   openssl verify -trusted tmp.root.cert tmp.sign.cert
+openssl verify -trusted tmp.root.cert tmp.sign.cert

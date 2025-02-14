@@ -4,9 +4,13 @@ import (
 	"crypto"
 	"crypto/ed25519"
 	"crypto/rand"
+	"crypto/sha256"
 	"crypto/x509"
+	"crypto/x509/pkix"
+	"encoding/base64"
 	"encoding/pem"
 	"errors"
+	"fmt"
 	"math/big"
 	"os"
 	"path/filepath"
@@ -230,14 +234,28 @@ func randomSerial() (*big.Int, error) {
 	return rand.Int(rand.Reader, serialNumberLimit)
 }
 
+func hashPublicKey(pub crypto.PublicKey) (string, error) {
+	ed25519pub, ok := pub.(ed25519.PublicKey)
+	if !ok {
+		return "", fmt.Errorf("not ed25519")
+	}
+	hash := sha256.Sum256(ed25519pub)
+	return base64.StdEncoding.EncodeToString(hash[:]), nil
+}
+
 // Create a new self-signed certificate.
 func newCaCert(signer crypto.Signer, notBefore, notAfter time.Time) ([]byte, error) {
+	keyHash, err := hashPublicKey(signer.Public())
+	if err != nil {
+		return nil, err
+	}
 	serialNumber, err := randomSerial()
 	if err != nil {
 		return nil, err
 	}
-	// TODO(#51): Consider assigning issuer and subject.
 	template := x509.Certificate{
+		Issuer:                pkix.Name{CommonName: keyHash}, // anything that is unique
+		Subject:               pkix.Name{CommonName: keyHash}, // anything that is unique
 		SerialNumber:          serialNumber,
 		KeyUsage:              x509.KeyUsageDigitalSignature | x509.KeyUsageCertSign,
 		BasicConstraintsValid: true,
@@ -250,12 +268,17 @@ func newCaCert(signer crypto.Signer, notBefore, notAfter time.Time) ([]byte, err
 
 // Creates a new signing certificate, signed by the CA key.
 func newSigningCert(caCert *x509.Certificate, caSigner crypto.Signer, leafPublicKey crypto.PublicKey, notBefore, notAfter time.Time) ([]byte, error) {
+	keyHash, err := hashPublicKey(leafPublicKey)
+	if err != nil {
+		return nil, err
+	}
 	serialNumber, err := randomSerial()
 	if err != nil {
 		return nil, err
 	}
-	// TODO(#51): Consider assigning issuer and subject.
 	template := x509.Certificate{
+		Issuer:       caCert.Subject,
+		Subject:      pkix.Name{CommonName: keyHash}, // anything that is unique
 		SerialNumber: serialNumber,
 		KeyUsage:     x509.KeyUsageDigitalSignature,
 		NotBefore:    notBefore,
