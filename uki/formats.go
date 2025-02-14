@@ -12,7 +12,6 @@ import (
 	"github.com/diskfs/go-diskfs/partition/gpt"
 )
 
-//nolint:funlen
 func mkvfat(out, binary string) error {
 	var espSize int64
 
@@ -84,7 +83,6 @@ func mkiso(out, vfat string) error {
 	}
 
 	size := fi.Size()
-	//nolint:gomnd
 	size += 5 * 1024 * 1024 // disk padding
 	iso, err := diskfs.Create(out, size, diskfs.Raw, diskfs.SectorSize512)
 
@@ -94,7 +92,6 @@ func mkiso(out, vfat string) error {
 
 	iso.LogicalBlocksize = 2048
 
-	//nolint:varnamelen
 	fs, err := iso.CreateFilesystem(diskpkg.FilesystemSpec{
 		Partition:   0,
 		FSType:      filesystem.TypeISO9660,

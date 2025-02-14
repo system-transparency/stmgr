@@ -63,7 +63,7 @@ func parsePkgPath(path string) (string, error) {
 		return DefaultOutName, nil
 	}
 
-	if stat, err := os.Stat(path); err != nil { //nolint:nestif
+	if stat, err := os.Stat(path); err != nil {
 		if dir := filepath.Dir(path); dir != "." {
 			if _, err := os.Stat(dir); err != nil {
 				return "", err

@@ -110,7 +110,6 @@ func getSBAT(stub string) []byte {
 	return out
 }
 
-//nolint:varnamelen
 func writeOsrelease(f io.Writer) error {
 	osrelease := []byte(`NAME="stboot"
 PRETTY_NAME="System Transparency Boot Loader"
@@ -124,7 +123,6 @@ BUILD_ID=rolling
 	return nil
 }
 
-//nolint:varnamelen
 func getVMA(stub string) (uint64, error) {
 	e, err := pe.Open(stub)
 	if err != nil {
@@ -150,7 +148,6 @@ func getVMA(stub string) (uint64, error) {
 //go:embed stub/linuxx64.efi.stub
 var embeddedStub []byte
 
-//nolint:cyclop,funlen,gocognit
 func generateUKI(uki *UKI, stub, out string) error {
 	if stub == "" {
 		stlog.Info("Using embedded uefi stub")
@@ -233,7 +230,6 @@ func generateUKI(uki *UKI, stub, out string) error {
 	// -p preserves the dates of the files we are embedding into sections
 	args := []string{"-p"}
 
-	//nolint:varnamelen
 	for _, s := range sections {
 		if s.file == "" {
 			if s.optional {
@@ -278,7 +274,6 @@ func generateUKI(uki *UKI, stub, out string) error {
 	return cmd.Run()
 }
 
-//nolint:nlreturn
 func roundUpToBlockSize(size uint64) uint64 {
 	const blockSize = 4096
 	return ((size + blockSize - 1) / blockSize) * blockSize

@@ -13,7 +13,6 @@ import (
 	"system-transparency.org/stmgr/keygen"
 )
 
-//nolint:varnamelen
 func writeDiskFs(fs filesystem.FileSystem, file, diskPath string) error {
 	if path := filepath.Dir(diskPath); path != "/" {
 		if err := fs.Mkdir(path); err != nil {
@@ -21,7 +20,6 @@ func writeDiskFs(fs filesystem.FileSystem, file, diskPath string) error {
 		}
 	}
 
-	//nolint:nosnakecase
 	rw, err := fs.OpenFile(diskPath, os.O_CREATE|os.O_RDWR)
 	if err != nil {
 		return fmt.Errorf("failed to make %s on the disk image", diskPath)
@@ -40,7 +38,6 @@ func writeDiskFs(fs filesystem.FileSystem, file, diskPath string) error {
 	return nil
 }
 
-//nolint:varnamelen
 func createTempFilename() (string, error) {
 	// Go only allows us to create templated filenames if we make one then delete
 	// it.
@@ -60,7 +57,6 @@ const (
 	formatUki = "uki"
 )
 
-//nolint:funlen,cyclop,gocognit
 func Create(args []string) error {
 	ukiCmd := flag.NewFlagSet("uki", flag.ExitOnError)
 	out := ukiCmd.String("out", "stmgr", "output path with format as suffix (default: stmgr)")
@@ -162,7 +158,6 @@ func Create(args []string) error {
 		}
 	}
 
-	//nolint:godox
 	// TODO: More output formats
 	if outputIso {
 		// We care about the name, not the file. Create the file, delete it and use it's name
