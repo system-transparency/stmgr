@@ -17,7 +17,8 @@ ssh-keygen -q -N '' -t ed25519 -f tmp.sign.key
 echo "A dummmy OS package to sign without and with ssh agent" > tmp.data
 go run ../stmgr.go ospkg create -initramfs tmp.data -kernel tmp.data -out tmp.pkg.json
 go run ../stmgr.go ospkg sign -key tmp.root.key -cert tmp.root.cert -ospkg tmp.pkg.json
-go run ../stmgr.go keygen certificate -isCA -rootKey tmp.root.key -certOut tmp.sign.cert
+go run ../stmgr.go keygen certificate -rootKey tmp.root.key -rootCert tmp.root.cert \
+   -leafKey tmp.sign.key.pub -certOut tmp.sign.cert
 ssh-agent sh <<EOF
   ssh-add tmp.sign.key
   rm tmp.sign.key # Delete, accessible only via agent
