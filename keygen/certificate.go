@@ -70,11 +70,11 @@ func Certificate(args *CertificateArgs) error {
 		newKey  crypto.Signer
 	)
 
-	if len(args.IssuerCertFile) == 0 {
+	if args.IssuerCertFile == "" {
 		var err error
 		var signer crypto.Signer
 		// Create a self-signed certificate.
-		if len(args.IssuerKeyFile) > 0 {
+		if args.IssuerKeyFile != "" {
 			signer, err = LoadPrivateKey(args.IssuerKeyFile)
 		} else {
 			_, signer, err = ed25519.GenerateKey(rand.Reader)
@@ -94,7 +94,7 @@ func Certificate(args *CertificateArgs) error {
 		}
 		var leafPublicKey crypto.PublicKey
 
-		if len(args.LeafKeyFile) > 0 {
+		if args.LeafKeyFile != "" {
 			leafPublicKey, err = LoadPublicKey(args.LeafKeyFile)
 		} else {
 			leafPublicKey, newKey, err = ed25519.GenerateKey(rand.Reader)
@@ -119,7 +119,7 @@ func Certificate(args *CertificateArgs) error {
 
 func checkArgs(args *CertificateArgs) error {
 	if args.IsCa {
-		if len(args.IssuerCertFile) != 0 {
+		if args.IssuerCertFile != "" {
 			stlog.Warn("isCA specified, will ignore rootCert")
 			args.IssuerCertFile = ""
 		}
@@ -128,11 +128,11 @@ func checkArgs(args *CertificateArgs) error {
 	// For generating non-CA certs, either both key and cert must
 	// be provided, or none (in which case default filenames are
 	// used).
-	if len(args.IssuerCertFile) == 0 && len(args.IssuerKeyFile) != 0 {
+	if args.IssuerCertFile == "" && args.IssuerKeyFile != "" {
 		return ErrNoRootCert
 	}
 
-	if len(args.IssuerKeyFile) == 0 && len(args.IssuerCertFile) != 0 {
+	if args.IssuerKeyFile == "" && args.IssuerCertFile != "" {
 		return ErrNoRootKey
 	}
 	return nil
@@ -188,7 +188,7 @@ func parseCaFiles(rootCertPath, rootKeyPath string) (*x509.Certificate, crypto.S
 }
 
 func parseKeyPath(isCA bool, path string) (string, error) {
-	if len(path) == 0 {
+	if path == "" {
 		if isCA {
 			return DefaultRootKeyName, nil
 		}
@@ -209,7 +209,7 @@ func parseKeyPath(isCA bool, path string) (string, error) {
 }
 
 func parseCertPath(isCA bool, path string) (string, error) {
-	if len(path) == 0 {
+	if path == "" {
 		if isCA {
 			return DefaultRootCertName, nil
 		}

@@ -59,7 +59,7 @@ func Sign(keyPath, certPath, pkgPath string) error {
 }
 
 func parsePkgPath(path string) (string, error) {
-	if len(path) == 0 {
+	if path == "" {
 		return DefaultOutName, nil
 	}
 

@@ -14,7 +14,7 @@ const (
 )
 
 func parseDate(date string, defaultDate time.Time) (time.Time, error) {
-	if len(date) == 0 {
+	if date == "" {
 		return defaultDate, nil
 	}
 
