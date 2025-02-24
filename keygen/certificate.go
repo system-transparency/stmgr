@@ -120,7 +120,8 @@ func Certificate(args *CertificateArgs) error {
 func checkArgs(args *CertificateArgs) error {
 	if args.IsCa {
 		if len(args.IssuerCertFile) != 0 {
-			stlog.Warn("isCa specified, will ignore rootCert")
+			stlog.Warn("isCA specified, will ignore rootCert")
+			args.IssuerCertFile = ""
 		}
 		return nil
 	}

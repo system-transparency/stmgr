@@ -29,8 +29,7 @@ func KeygenCertificate(args []string) error {
 	certificateCmd := flag.NewFlagSet("certificate", flag.ExitOnError)
 	certificateRootCert := certificateCmd.String("rootCert", "", "Root cert in PEM format to sign the new certificate."+
 		" Ignored if -isCA is set.")
-	certificateRootKey := certificateCmd.String("rootKey", "", "Root key in PEM or OpenSSH format to sign the new certificate."+
-		" Ignored if -isCA is set.")
+	certificateRootKey := certificateCmd.String("rootKey", "", "Root key in PEM or OpenSSH format to sign the new certificate.")
 	certificateLeafKey := certificateCmd.String("leafKey", "", "Public key to certify, in PEM or OpenSSH format.")
 	certificateIsCA := certificateCmd.Bool("isCA", false, "Generate self signed root certificate.")
 	certificateValidFrom := certificateCmd.String("validFrom", "", "Date formatted as RFC3339."+
@@ -41,7 +40,7 @@ func KeygenCertificate(args []string) error {
 		" Defaults to cert.pem or rootcert.pem is -isCA is set.")
 	certificateKeyOut := certificateCmd.String("keyOut", "", "Output key file."+
 		" Defaults to key.pem or rootkey.pem if -isCA is set.")
-	certificateLogLevel := certificateCmd.String("loglevel", "", "Set loglevel to any of debug, info, warn, error (default) and panic.")
+	certificateLogLevel := certificateCmd.String("loglevel", "", "Set loglevel to any of debug, info (default), warn, error and panic.")
 
 	// Parse which flags are provided to the function
 	if err := certificateCmd.Parse(args); err != nil {

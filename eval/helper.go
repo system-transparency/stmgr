@@ -12,6 +12,6 @@ func setLoglevel(level string) {
 	case "warn":
 		stlog.SetLevel(stlog.WarnLevel)
 	default:
-		stlog.SetLevel(stlog.ErrorLevel)
+		stlog.SetLevel(stlog.InfoLevel)
 	}
 }

@@ -24,7 +24,7 @@ func OspkgCreate(args []string) error {
 	createKernel := createCmd.String("kernel", "", "Operating system kernel.")
 	createInitramfs := createCmd.String("initramfs", "", "Operating system initramfs.")
 	createCmdLine := createCmd.String("cmdline", "", "Kernel command line.")
-	createLogLevel := createCmd.String("loglevel", "", "Set loglevel to any of debug, info, warn, error (default) and panic.")
+	createLogLevel := createCmd.String("loglevel", "", "Set loglevel to any of debug, info (default), warn, error and panic.")
 
 	// Parse which flags are provided to the function
 	if err := createCmd.Parse(args); err != nil {
@@ -61,7 +61,7 @@ func OspkgSign(args []string) error {
 	signKey := signCmd.String("key", "", "Private key for signing.")
 	signCert := signCmd.String("cert", "", "Certificate corresponding to the private key.")
 	signOSPKG := signCmd.String("ospkg", "", "OS package archive or descriptor file. Both need to be present.")
-	signLogLevel := signCmd.String("loglevel", "", "Set loglevel to any of debug, info, warn, error (default) and panic.")
+	signLogLevel := signCmd.String("loglevel", "", "Set loglevel to any of debug, info (default), warn, error and panic.")
 
 	// Parse which flags are provided to the function
 	if err := signCmd.Parse(args); err != nil {
