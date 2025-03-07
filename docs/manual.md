@@ -50,7 +50,7 @@ corresponding signature are added to the descriptor file. The `-key`
 option specifies the corresponding signing key, possibly with access via
 ssh-agent, as described above.
 
-[OS package]: https://git.glasklar.is/system-transparency/project/docs/-/blob/v0.3.0/content/docs/reference/os_package.md
+[OS package]: https://git.glasklar.is/system-transparency/project/docs/-/blob/v0.4.1/content/docs/reference/os_package.md
 
 ## The stmgr keygen command
 
@@ -112,5 +112,5 @@ stmgr hostconfig check JSON-DATA
 stmgr trustpolicy check JSON-DATA
 ```
 
-[trust policy]: https://git.glasklar.is/system-transparency/project/docs/-/blob/v0.3.0/content/docs/reference/trust_policy.md
-[host config]: https://git.glasklar.is/system-transparency/project/docs/-/blob/v0.3.0/content/docs/reference/host_configuration.md
+[trust policy]: https://git.glasklar.is/system-transparency/project/docs/-/blob/v0.4.1/content/docs/reference/trust_policy.md
+[host config]: https://git.glasklar.is/system-transparency/project/docs/-/blob/v0.4.1/content/docs/reference/host_configuration.md
