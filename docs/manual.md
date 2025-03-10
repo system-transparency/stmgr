@@ -50,7 +50,28 @@ corresponding signature are added to the descriptor file. The `-key`
 option specifies the corresponding signing key, possibly with access via
 ssh-agent, as described above.
 
+To verify the signatures of an OS package use:
+
+```
+stmgr ospkg verify -rootCert FILENAME [-trustPolicy FILENAME] -ospkg FILENAME
+```
+
+Both the archive `.zip` and the descriptor `.json` files are needed;
+the `-ospkg` flag takes the name of either file. The root certificate
+is used to verify the signatures found in the descriptor file.
+
+The `-trustPolicy` flag can be used to pass a valid [Trust policy][]
+JSON file. If the number of valid signatures is smaller than the
+`ospkg_signature_threshold` set in this file, then verification fails
+and the program returns with a non-zero exit code.
+
+If the `-trustPolicy` flag is not used, then *all* signatures found in
+the descriptor file must be valid, otherwise verification fails and
+the program returns a non-zero exit code. This means that if there are
+no signatures present, verification will succeed.
+
 [OS package]: https://git.glasklar.is/system-transparency/project/docs/-/blob/v0.4.1/content/docs/reference/os_package.md
+[Trust policy]: https://git.glasklar.is/system-transparency/project/docs/-/blob/v0.4.1/content/docs/reference/trust_policy.md
 
 ## The stmgr keygen command
 
