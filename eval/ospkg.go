@@ -1,6 +1,7 @@
 package eval
 
 import (
+	"errors"
 	"flag"
 
 	"system-transparency.org/stboot/stlog"
@@ -103,4 +104,40 @@ func OspkgSigsum(args []string) error {
 
 	// Call function with parsed flags
 	return ospkg.AddSigsumProof(*sigsumProof, *cert, *sigsumOSPKG)
+}
+
+func OspkgVerify(args []string) error {
+	// Create a custom flag set and register flags
+	verifyCmd := flag.NewFlagSet("verify", flag.ExitOnError)
+	verifyTrustPolicyDir := verifyCmd.String("trustPolicy", "", "Trust policy directory to use for verifying.")
+	verifyRootCert := verifyCmd.String("rootCert", "", "Root certificate to use for verifying.")
+	verifyOSPKG := verifyCmd.String("ospkg", "", "OS package archive or descriptor file. Both need to be present.")
+	verifyLogLevel := verifyCmd.String("loglevel", "", "Set loglevel to any of debug, info (default), warn, error and panic.")
+
+	// Parse which flags are provided to the function
+	if err := verifyCmd.Parse(args); err != nil {
+		return err
+	}
+
+	// Adjust loglevel
+	setLoglevel(*verifyLogLevel)
+
+	// Print the successfully parsed flags in debug level
+	verifyCmd.Visit(func(f *flag.Flag) {
+		stlog.Debug("Registered flag %q", f)
+	})
+
+	if *verifyTrustPolicyDir != "" && *verifyRootCert != "" {
+		return errors.New("the trustPolicy and rootCert flags cannot be used together")
+	}
+
+	if *verifyTrustPolicyDir == "" && *verifyRootCert == "" {
+		return errors.New("one of the flags trustPolicy and rootCert must be used")
+	}
+
+	if *verifyTrustPolicyDir != "" {
+		return ospkg.VerifyTrustPolicy(*verifyTrustPolicyDir, *verifyOSPKG)
+	} else {
+		return ospkg.VerifyRootCert(*verifyRootCert, *verifyOSPKG)
+	}
 }

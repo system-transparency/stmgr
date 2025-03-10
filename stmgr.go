@@ -120,6 +120,8 @@ func ospkgArg(args []string) error {
 		return eval.OspkgSign(args[flagsCallPosition:])
 	case "sigsum":
 		return eval.OspkgSigsum(args[flagsCallPosition:])
+	case "verify":
+		return eval.OspkgVerify(args[flagsCallPosition:])
 	default:
 		// Display usage on unknown subcommand
 		log.Print(`SUBCOMMANDS:
@@ -133,6 +135,10 @@ func ospkgArg(args []string) error {
 	sigsum:
 		Add a Sigsum proof of logging and corresponding cert
 		to the OS package descriptor.
+
+	verify:
+		Verify the provided OS package using a Trust policy directory,
+		or a root certificate file.
 
 Use 'stmgr ospkg <SUBCOMMAND> -help' for more info.
 `)

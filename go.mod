@@ -12,6 +12,7 @@ require (
 )
 
 require (
+	filippo.io/age v1.2.1 // indirect
 	github.com/dchest/safefile v0.0.0-20151022103144-855e8d98f185 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/frankban/quicktest v1.14.5 // indirect
