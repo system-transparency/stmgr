@@ -27,3 +27,7 @@ EOF
 
 [[ $(jq '.certificates | length' < tmp.pkg.json) = 2 ]] || die "Unexpected number of certificates"
 [[ $(jq '.signatures | length' < tmp.pkg.json) = 2 ]] || die "Unexpected number of signatures"
+
+go run ../stmgr.go trustpolicy check '{ "ospkg_signature_threshold": 2, "ospkg_fetch_method": "network" }' \
+   >tmp.trust_policy.json
+go run ../stmgr.go ospkg verify -trustPolicy tmp.trust_policy.json -rootCert tmp.root.cert -ospkg tmp.pkg.json

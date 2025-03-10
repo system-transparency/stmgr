@@ -79,3 +79,28 @@ func OspkgSign(args []string) error {
 	// Call function with parsed flags
 	return ospkg.Sign(*signKey, *signCert, *signOSPKG)
 }
+
+func OspkgVerify(args []string) error {
+	// Create a custom flag set and register flags
+	verifyCmd := flag.NewFlagSet("verify", flag.ExitOnError)
+	verifyTrustPolicy := verifyCmd.String("trustPolicy", "", "Trust policy JSON file.")
+	verifyRootCert := verifyCmd.String("rootCert", "", "Root certificate to use for verifying.")
+	verifyOSPKG := verifyCmd.String("ospkg", "", "OS package archive or descriptor file. Both need to be present.")
+	verifyLogLevel := verifyCmd.String("loglevel", "", "Set loglevel to any of debug, info (default), warn, error and panic.")
+
+	// Parse which flags are provided to the function
+	if err := verifyCmd.Parse(args); err != nil {
+		return err
+	}
+
+	// Adjust loglevel
+	setLoglevel(*verifyLogLevel)
+
+	// Print the successfully parsed flags in debug level
+	verifyCmd.Visit(func(f *flag.Flag) {
+		stlog.Debug("Registered flag %q", f)
+	})
+
+	// Call function with parsed flags
+	return ospkg.Verify(*verifyRootCert, *verifyTrustPolicy, *verifyOSPKG)
+}

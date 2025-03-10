@@ -118,6 +118,8 @@ func ospkgArg(args []string) error {
 		return eval.OspkgCreate(args[flagsCallPosition:])
 	case "sign":
 		return eval.OspkgSign(args[flagsCallPosition:])
+	case "verify":
+		return eval.OspkgVerify(args[flagsCallPosition:])
 
 	default:
 		// Display usage on unknown subcommand
@@ -128,6 +130,9 @@ func ospkgArg(args []string) error {
 
 	sign:
 		Sign the provided OS package with your private key.
+
+	verify:
+		Verify the provided OS package using a root certificate.
 
 Use 'stmgr ospkg <SUBCOMMAND> -help' for more info.
 `)
