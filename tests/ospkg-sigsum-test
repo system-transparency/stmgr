@@ -27,7 +27,7 @@ group  quorum-rule 2 poc.sigsum.org/nisse rgdd.se/poc-witness witness1.smartit.n
 quorum quorum-rule
 EOF
 
-echo "A dummmy OS package to sign without and with ssh agent" > tmp.data
+echo "A dummmy OS package to sign with sigsum @$(date +%s)" > tmp.data
 go run ../stmgr.go ospkg create -initramfs tmp.data -kernel tmp.data -out tmp.pkg.json
 
 go run sigsum.org/sigsum-go/cmd/sigsum-submit -k tmp.sign.key -p tmp.policy tmp.pkg.zip
