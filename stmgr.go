@@ -131,7 +131,8 @@ func ospkgArg(args []string) error {
 		Sign the provided OS package with your private key.
 
 	sigsum:
-		Add a Sigsum proof of logging and corresponding cert.
+		Add a Sigsum proof of logging and corresponding cert
+		to the OS package descriptor.
 
 Use 'stmgr ospkg <SUBCOMMAND> -help' for more info.
 `)

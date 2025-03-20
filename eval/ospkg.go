@@ -82,25 +82,25 @@ func OspkgSign(args []string) error {
 
 func OspkgSigsum(args []string) error {
 	// Create a custom flag set and register flags
-	signCmd := flag.NewFlagSet("sign", flag.ExitOnError)
-	sigsumProof := signCmd.String("proof", "", "Sigsum proof of logging.")
-	signCert := signCmd.String("cert", "", "Certificate corresponding to the private key.")
-	signOSPKG := signCmd.String("ospkg", "", "OS package archive or descriptor file. Both need to be present.")
-	signLogLevel := signCmd.String("loglevel", "", "Set loglevel to any of debug, info, warn, error (default) and panic.")
+	sigsumCmd := flag.NewFlagSet("sigsum", flag.ExitOnError)
+	sigsumProof := sigsumCmd.String("proof", "", "Sigsum proof of logging.")
+	cert := sigsumCmd.String("cert", "", "Certificate for the Sigsum submission key.")
+	sigsumOSPKG := sigsumCmd.String("ospkg", "", "OS package archive or descriptor file. Both need to be present.")
+	sigsumLogLevel := sigsumCmd.String("loglevel", "", "Set loglevel to any of debug, info (default), warn, error and panic.")
 
 	// Parse which flags are provided to the function
-	if err := signCmd.Parse(args); err != nil {
+	if err := sigsumCmd.Parse(args); err != nil {
 		return err
 	}
 
 	// Adjust loglevel
-	setLoglevel(*signLogLevel)
+	setLoglevel(*sigsumLogLevel)
 
 	// Print the successfully parsed flags in debug level
-	signCmd.Visit(func(f *flag.Flag) {
+	sigsumCmd.Visit(func(f *flag.Flag) {
 		stlog.Debug("Registered flag %q", f)
 	})
 
 	// Call function with parsed flags
-	return ospkg.AddSigsumProof(*sigsumProof, *signCert, *signOSPKG)
+	return ospkg.AddSigsumProof(*sigsumProof, *cert, *sigsumOSPKG)
 }
