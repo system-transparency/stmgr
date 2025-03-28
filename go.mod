@@ -8,7 +8,7 @@ require (
 	github.com/diskfs/go-diskfs v1.3.0
 	github.com/foxboron/go-uefi v0.0.0-20250207204325-69fb7dba244f
 	sigsum.org/sigsum-go v0.10.1
-	system-transparency.org/stboot v0.6.0
+	system-transparency.org/stboot v0.6.1
 )
 
 require (

@@ -138,7 +138,7 @@ func ospkgArg(args []string) error {
 
 	verify:
 		Verify the provided OS package using a Trust policy directory,
-		or a root certificate file.
+		or just a file containing root certificate(s).
 
 Use 'stmgr ospkg <SUBCOMMAND> -help' for more info.
 `)

@@ -32,3 +32,4 @@ go run ../stmgr.go trustpolicy check '{ "ospkg_signature_threshold": 2, "ospkg_f
    >trust_policy.json
 cp -af tmp.root.cert ospkg_signing_root.pem
 go run ../stmgr.go ospkg verify -trustPolicy . -ospkg tmp.pkg.json
+go run ../stmgr.go ospkg verify -rootCerts ospkg_signing_root.pem -ospkg tmp.pkg.json
