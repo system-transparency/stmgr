@@ -3,6 +3,7 @@ package uki
 import (
 	"bytes"
 	"crypto/x509"
+	"errors"
 	"flag"
 	"fmt"
 	"os"
@@ -75,6 +76,10 @@ func Create(args []string) error {
 
 	if err := ukiCmd.Parse(args); err != nil {
 		return err
+	}
+
+	if ukiCmd.NArg() > 0 {
+		return errors.New("unexpected positional argument")
 	}
 
 	formats := strings.Split(*format, ",")

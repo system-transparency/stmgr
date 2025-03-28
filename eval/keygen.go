@@ -1,6 +1,7 @@
 package eval
 
 import (
+	"errors"
 	"flag"
 	"fmt"
 	"time"
@@ -45,6 +46,10 @@ func KeygenCertificate(args []string) error {
 	// Parse which flags are provided to the function
 	if err := certificateCmd.Parse(args); err != nil {
 		return err
+	}
+
+	if certificateCmd.NArg() > 0 {
+		return errors.New("unexpected positional argument")
 	}
 
 	// Adjust loglevel

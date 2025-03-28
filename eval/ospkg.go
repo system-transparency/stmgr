@@ -32,6 +32,10 @@ func OspkgCreate(args []string) error {
 		return err
 	}
 
+	if createCmd.NArg() > 0 {
+		return errors.New("unexpected positional argument")
+	}
+
 	// Adjust loglevel
 	setLoglevel(*createLogLevel)
 
@@ -69,6 +73,10 @@ func OspkgSign(args []string) error {
 		return err
 	}
 
+	if signCmd.NArg() > 0 {
+		return errors.New("unexpected positional argument, use the ospkg flag to set the OS package to sign")
+	}
+
 	// Adjust loglevel
 	setLoglevel(*signLogLevel)
 
@@ -94,6 +102,10 @@ func OspkgSigsum(args []string) error {
 		return err
 	}
 
+	if sigsumCmd.NArg() > 0 {
+		return errors.New("unexpected positional argument, use the ospkg flag to set the OS package to add Sigsum proof to")
+	}
+
 	// Adjust loglevel
 	setLoglevel(*sigsumLogLevel)
 
@@ -117,6 +129,10 @@ func OspkgVerify(args []string) error {
 	// Parse which flags are provided to the function
 	if err := verifyCmd.Parse(args); err != nil {
 		return err
+	}
+
+	if verifyCmd.NArg() > 0 {
+		return errors.New("unexpected positional argument, use the ospkg flag to set the OS package to verify")
 	}
 
 	// Adjust loglevel
