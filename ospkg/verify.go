@@ -7,6 +7,7 @@ import (
 	"time"
 
 	sigsumCrypto "sigsum.org/sigsum-go/pkg/crypto"
+	"sigsum.org/sigsum-go/pkg/policy"
 	"system-transparency.org/stboot/opts"
 	"system-transparency.org/stboot/ospkg"
 	"system-transparency.org/stboot/stlog"
@@ -16,6 +17,8 @@ import (
 const (
 	trustPolicyFile = "trust_policy.json"
 	signingRootFile = "ospkg_signing_root.pem"
+	// Sigsum policy (optional).
+	sigsumPolicyFile = "ospkg_trust_policy"
 )
 
 // VerifyTrustPolicy verifies an OS package using the provided path to
@@ -33,8 +36,12 @@ func VerifyTrustPolicy(trustPolicyDir, pkgPath string) error {
 	if err != nil {
 		return err
 	}
+	sigsumPolicy, err := opts.ReadSigsumPolicy(filepath.Join(trustPolicyDir, sigsumPolicyFile))
+	if err != nil {
+		return err
+	}
 
-	return verify(rootCerts, trustPolicy, now, pkgPath)
+	return verify(rootCerts, sigsumPolicy, trustPolicy, now, pkgPath)
 }
 
 // VerifyRootCerts verifies an OS package using the provided path to a
@@ -48,12 +55,12 @@ func VerifyRootCerts(rootCertsPath, pkgPath string) error {
 		return err
 	}
 
-	return verify(rootCerts, &trust.Policy{SignatureThreshold: ospkg.SignatureThresholdAll}, now, pkgPath)
+	return verify(rootCerts, nil, &trust.Policy{SignatureThreshold: ospkg.SignatureThresholdAll}, now, pkgPath)
 }
 
 // verify verifies an OS package using the provided root
 // certificate(s) and Trust Policy
-func verify(rootCerts *x509.CertPool, trustPolicy *trust.Policy, now time.Time, pkgPath string) error {
+func verify(rootCerts *x509.CertPool, sigsumPolicy *policy.Policy, trustPolicy *trust.Policy, now time.Time, pkgPath string) error {
 	pkgPath, err := parsePkgPath(pkgPath)
 	if err != nil {
 		return err
@@ -77,5 +84,5 @@ func verify(rootCerts *x509.CertPool, trustPolicy *trust.Policy, now time.Time, 
 		return err
 	}
 
-	return descriptor.Verify(rootCerts, nil, trustPolicy, &hash, now)
+	return descriptor.Verify(rootCerts, sigsumPolicy, trustPolicy, &hash, now)
 }
