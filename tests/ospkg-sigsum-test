@@ -4,21 +4,22 @@ set -eu
 
 cd "$(dirname "$0")"
 
-rm -rf tmp.*
+rm -f tmp.*
+rm -rf tmp_trust_policy
 
 function die () {
     echo "$@" >&2
     exit 1
 }
 
-mkdir tmp.trust_policy
+mkdir tmp_trust_policy
 
-go run ../stmgr.go keygen certificate -isCA -certOut tmp.trust_policy/ospkg_signing_root.pem -keyOut tmp.root.key
+go run ../stmgr.go keygen certificate -isCA -certOut tmp_trust_policy/ospkg_signing_root.pem -keyOut tmp.root.key
 go run sigsum.org/sigsum-go/cmd/sigsum-key generate -o tmp.sign.key
-go run ../stmgr.go keygen certificate -rootKey tmp.root.key -rootCert tmp.trust_policy/ospkg_signing_root.pem \
+go run ../stmgr.go keygen certificate -rootKey tmp.root.key -rootCert tmp_trust_policy/ospkg_signing_root.pem \
    -leafKey tmp.sign.key.pub -certOut tmp.sign.cert
 
-cat >tmp.trust_policy/ospkg_trust_policy <<EOF
+cat >tmp_trust_policy/ospkg_trust_policy <<EOF
 log 4644af2abd40f4895a003bca350f9d5912ab301a49c77f13e5b6d905c20a5fe6 https://test.sigsum.org/barreleye
 witness poc.sigsum.org/nisse 1c25f8a44c635457e2e391d1efbca7d4c2951a0aef06225a881e46b98962ac6c
 witness rgdd.se/poc-witness  28c92a5a3a054d317c86fc2eeb6a7ab2054d6217100d0be67ded5b74323c5806
@@ -28,12 +29,12 @@ group  quorum-rule 2 poc.sigsum.org/nisse rgdd.se/poc-witness witness1.smartit.n
 quorum quorum-rule
 EOF
 
-echo '{"ospkg_signature_threshold": 1, "ospkg_fetch_method": "network"}' >tmp.trust_policy/trust_policy.json
+echo '{"ospkg_signature_threshold": 1, "ospkg_fetch_method": "network"}' >tmp_trust_policy/trust_policy.json
 
 echo "A dummmy OS package to sign with sigsum @$(date +%s)" > tmp.data
 go run ../stmgr.go ospkg create -initramfs tmp.data -kernel tmp.data -out tmp.pkg.json
 
-go run sigsum.org/sigsum-go/cmd/sigsum-submit -k tmp.sign.key -p tmp.trust_policy/ospkg_trust_policy tmp.pkg.zip
+go run sigsum.org/sigsum-go/cmd/sigsum-submit -k tmp.sign.key -p tmp_trust_policy/ospkg_trust_policy tmp.pkg.zip
 
 go run ../stmgr.go ospkg sigsum -proof tmp.pkg.zip.proof -cert tmp.sign.cert -ospkg tmp.pkg.json
 
@@ -41,4 +42,4 @@ go run ../stmgr.go ospkg sigsum -proof tmp.pkg.zip.proof -cert tmp.sign.cert -os
 [[ $(jq '.signatures | length' < tmp.pkg.json) = 1 ]] || die "Unexpected number of signatures"
 [[ $(jq -r '.signatures[0]|@base64d' < tmp.pkg.json) = $(cat tmp.pkg.zip.proof) ]] || die "Unexpected proof"
 
-go run ../stmgr.go ospkg verify -trustPolicy tmp.trust_policy -ospkg tmp.pkg.json
+go run ../stmgr.go ospkg verify -trustPolicy tmp_trust_policy -ospkg tmp.pkg.json
