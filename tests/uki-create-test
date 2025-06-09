@@ -49,4 +49,9 @@ go run ../stmgr.go uki create -format uki -initramfs tmp.data -kernel tmp.data -
 [[ -f tmp.pkg.uki ]] || die "Expected tmp.pkg.uki"
 file -i tmp.pkg.uki | grep "application/vnd.microsoft.portable-executable" >/dev/null || die "Unexpected file type"
 sbverify --cert $sbsigncert ./tmp.pkg.uki
-rm -f tmp.pkg.uki $sbsigncert $sbsignkey
+
+# format = uki, signed for Secure boot; then ISO formatted
+go run ../stmgr.go uki to-iso -in tmp.pkg.uki
+[[ -f tmp.pkg.iso ]] || die "Expected tmp.pkg.iso"
+file -i tmp.pkg.iso | grep "application/x-iso9660-image" >/dev/null || die "Unexpected file type"
+rm -f tmp.pkg.iso tmp.pkg.uki $sbsigncert $sbsignkey

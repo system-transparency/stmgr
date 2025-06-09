@@ -171,6 +171,23 @@ func Create(args []string) error {
 	return nil
 }
 
+func ToISO(args []string) error {
+	cmd := flag.NewFlagSet("iso", flag.ExitOnError)
+	inFilename := cmd.String("in", "", "filename of an input UKI to format as an ISO")
+	outFilename := cmd.String("out", "", "where to store output ISO (default: <INPUT-NAME>.iso)")
+	if err := cmd.Parse(args); err != nil {
+		return err
+	}
+	if *inFilename == "" {
+		return fmt.Errorf("missing required option: -in")
+	}
+	if *outFilename == "" {
+		*outFilename = strings.TrimSuffix(*inFilename, ".uki")
+		*outFilename += ".iso"
+	}
+	return toISO(*inFilename, *outFilename)
+}
+
 func toISO(ukiFilename, isoFilename string) error {
 	tmpfilename, err := createTempFilename()
 	if err != nil {

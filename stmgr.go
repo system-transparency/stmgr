@@ -151,10 +151,16 @@ func ukiArg(args []string) error {
 	switch args[subcommandCallPosition] {
 	case "create":
 		return uki.Create(args[flagsCallPosition:])
+	case "to-iso":
+		return uki.ToISO(args[flagsCallPosition:])
 	default:
 		log.Print(`SUBCOMMANDS:
 	create:
 		create an unified kernel image with an optional host configuration.
+
+	to-iso:
+		Format an already created UKI as a bootale ISO image.
+
 Use 'stmgr uki <SUBCOMMAND> -help' for more info.
 `)
 	}
