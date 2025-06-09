@@ -45,7 +45,7 @@ COMMANDS:
 		system-transparency.
 
 	uki:
-		Create an Unified Kernel Image (UKI) for booting stboot and provisioning tools.
+		Create a Unified Kernel Image (UKI) for booting stboot and provisioning tools.
 		Output formats:
 			* ISO
 
@@ -156,7 +156,7 @@ func ukiArg(args []string) error {
 	default:
 		log.Print(`SUBCOMMANDS:
 	create:
-		create an unified kernel image with an optional host configuration.
+		Create a unified kernel image with an optional host configuration.
 
 	to-iso:
 		Format an already created UKI as a bootale ISO image.
