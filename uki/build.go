@@ -164,7 +164,6 @@ func Create(args []string) error {
 		}
 	}
 
-	// TODO: More output formats
 	if outputIso {
 		return toISO(ukiFilename, isoFilename)
 	}
@@ -173,22 +172,18 @@ func Create(args []string) error {
 }
 
 func toISO(ukiFilename, isoFilename string) error {
-	// We care about the name, not the file. Create the file, delete it and use it's name
 	tmpfilename, err := createTempFilename()
 	if err != nil {
 		return fmt.Errorf("failed to make temporary filename: %w", err)
 	}
-
 	defer os.Remove(tmpfilename)
 
 	if err := mkvfat(tmpfilename, ukiFilename); err != nil {
 		return fmt.Errorf("failed to make vfat partition: %w", err)
 	}
-
 	if err := mkiso(isoFilename, tmpfilename); err != nil {
 		return fmt.Errorf("failed to make iso: %w", err)
 	}
-
 	return nil
 }
 
