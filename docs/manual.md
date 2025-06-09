@@ -120,10 +120,10 @@ stmgr uki create -cmdline STRING [-format iso|uki] -initramfs FILENAME -kernel F
 The default output format is `iso`, and means that the UKI is wrapped in
 a bootable CDROM image. To get just the UKI, pass `-format uki`.
 
-The UKI, a PE executable, can optionally be signed for Secure Boot.  Use
+The UKI (a PE executable) can optionally be signed for Secure Boot.  Use
 the flags `-signkey` and `-signcert` to set the file names to a private
 key and its corresponding certificate, both in PEM format.  Because
-SecureBoot does not support Ed25519, RSA keys are allowed here.
+Secure Boot does not support Ed25519, RSA keys are required here.
 
 If you Secure Boot sign the created UKI without stmgr, or if you prefer to
 create a UKI and format it as an ISO in separate steps, then use the `to-iso`
