@@ -125,6 +125,16 @@ the flags `-signkey` and `-signcert` to set the file names to a private
 key and its corresponding certificate, both in PEM format.  Because
 SecureBoot does not support Ed25519, RSA keys are allowed here.
 
+If you Secure Boot sign the created UKI without stmgr, or if you prefer to
+create a UKI and format it as an ISO in separate steps, then use the `to-iso`
+subcommand:
+
+```
+stmgr uki to-iso -in FILENAME [-out FILENAME]
+```
+
+The output filename defaults to the input filename with a `.iso` suffix.
+
 ## The stmgr trustpolicy and host config commands
 
 These commands can be used to validate syntax and contents of [host
