@@ -544,7 +544,7 @@ pack.ag/tftp v1.0.1-0.20181129014014-07909dfbde3c/go.mod h1:N1Pyo5YG+K90XHoR2vfL
 rsc.io/binaryregexp v0.2.0/go.mod h1:qTv7/COck+e2FymRvadv62gMdZztPaShugOCi3I+8D8=
 rsc.io/quote/v3 v3.1.0/go.mod h1:yEA65RcK8LyAZtP9Kv3t0HmxON59tX3rD+tICJqUlj0=
 rsc.io/sampler v1.3.0/go.mod h1:T1hPZKmBbMNahiBKFy5HrXp6adAjACjK9JXDnKaTXpA=
-sigsum.org/sigsum-go v0.10.1 h1:IHAZCi3XDIL8hzRAgsl+L1T3j7hwK5SgXBiXL8zjHy4=
-sigsum.org/sigsum-go v0.10.1/go.mod h1:pGa/r4QsNYom+RqRMkdhcG5E00ty1nlTmALEizdRWPk=
+sigsum.org/sigsum-go v0.11.2 h1:7HhDPC8gVJzl3wB3gAg3j6gTpO2t0UPHC0ogwhKuNRc=
+sigsum.org/sigsum-go v0.11.2/go.mod h1:pGa/r4QsNYom+RqRMkdhcG5E00ty1nlTmALEizdRWPk=
 system-transparency.org/stboot v0.6.1 h1:aGAJzZsuDDUTtUuukO/3/DR1+kTpWbsj4Los18ZJ2gI=
 system-transparency.org/stboot v0.6.1/go.mod h1:Zo9B88KuSJcSzNF78RSNab8BM8qop7pjD0vPwTI5OhY=
