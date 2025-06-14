@@ -2,7 +2,7 @@ module system-transparency.org/stmgr
 
 // We don't want to depend on golang version later than is available
 // in debian's stable or backports repos.
-go 1.22
+go 1.23.0
 
 require (
 	github.com/diskfs/go-diskfs v1.3.0
