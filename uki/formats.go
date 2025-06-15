@@ -42,7 +42,7 @@ func mkvfat(out, binary string) error {
 		partitionEnd            = partitionSectors - partitionStart + 1
 	)
 
-	disk, err := diskfs.Create(out, diskSize, diskfs.Raw, diskfs.SectorSize512)
+	disk, err := diskfs.Create(out, diskSize, diskfs.SectorSize512)
 	if err != nil {
 		return fmt.Errorf("failed to create disk file: %w", err)
 	}
@@ -84,7 +84,7 @@ func mkiso(out, vfat string) error {
 
 	size := fi.Size()
 	size += 5 * 1024 * 1024 // disk padding
-	iso, err := diskfs.Create(out, size, diskfs.Raw, diskfs.SectorSize512)
+	iso, err := diskfs.Create(out, size, diskfs.SectorSize512)
 
 	if err != nil {
 		return err
