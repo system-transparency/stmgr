@@ -50,6 +50,21 @@ corresponding signature are added to the descriptor file. The `-key`
 option specifies the corresponding signing key, possibly with access via
 ssh-agent, as described above.
 
+To instead use a [Sigsum][] signature, first submit the OS package zip
+file to a Sigsum log using the `sigsum-submit` tool. On success, this
+produces a proof of logging, e.g., `ospkg.zip.proof`. This proof can
+be attached to the OS package using
+
+```
+stmgr ospkg sigsum -cert FILENAME -proof FILENAME -ospkg FILENAME
+```
+
+Both the archive `.zip` and the descriptor `.json` files are needed; the
+`-ospkg` flag takes the name of either file. The certificate and
+Sigsum proof are added to the descriptor file. The certificate's
+subject public key must correspond to the leaf signature and keyhash
+in the Sigsum proof.
+
 To verify the signatures of an OS package use:
 
 ```
@@ -62,10 +77,11 @@ certificate(s) are used to verify the signatures found in the
 descriptor file.
 
 The `-trustPolicy` flag is used to pass a [Trust policy][] directory,
-where `trust_policy.json` and `ospkg_signing_root.pem` will be read.
-If the number of valid signatures is smaller than the
-`ospkg_signature_threshold` set in the JSON file, then verification
-fails and the program exits with a non-zero status code.
+where `trust_policy.json`, `ospkg_signing_root.pem`, and (optional)
+`ospkg_trust_policy` will be read. If the number of valid signatures
+is smaller than the `ospkg_signature_threshold` set in the JSON file,
+then verification fails and the program exits with a non-zero status
+code.
 
 Alternatively, the `-rootCerts` flag can be used to only pass a file
 containing signing root certificate(s). In this case *all* signatures
@@ -76,6 +92,7 @@ succeed.
 
 [OS package]: https://git.glasklar.is/system-transparency/project/docs/-/blob/v0.4.1/content/docs/reference/os_package.md
 [Trust policy]: https://git.glasklar.is/system-transparency/project/docs/-/blob/v0.4.1/content/docs/reference/trust_policy.md
+[Sigsum]: https://www.sigsum.org
 
 ## The stmgr keygen command
 
