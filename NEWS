@@ -1,3 +1,35 @@
+NEWS for stmgr v0.6.X
+
+    This release adds several new subcommands, most notably related to
+    supporting OS packages that are transparently signed with Sigsum.
+
+    New features:
+
+    * Verify OS package signatures using the new subcommand "ospkg verify".
+    * Attach Sigsum proofs to an OS package descriptor using the new
+      subcommand "ospkg sigsum".
+    * Add subcommand `uki to-iso` such that UKIs and ISOs can be created in
+      separate steps (cf. creating in the same step using "uki -format iso").
+
+    Miscellaneous:
+
+    * Improved error messages on invalid command-line input.
+
+    Incompatible changes:
+
+    * This version requires go version 1.23 or later when building.
+
+    This release has been tested to work with:
+
+    * All stprov tests which use stmgr, pre-release v0.5.3.
+      https://git.glasklar.is/system-transparency/core/stprov/-/blob/v0.5.3/docs/testing-stprov.md
+    * All stboot tests which use stmgr, pre-release v0.6.4.
+      https://git.glasklar.is/system-transparency/core/stboot/-/blob/v0.6.4/docs/testing-stboot.md
+
+    This release implements the specifications at:
+
+    * https://git.glasklar.is/system-transparency/project/docs/-/tree/v0.5.2/content/docs/reference
+
 NEWS for stmgr v0.5.2
 
     New features and improvements:
