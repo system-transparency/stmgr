@@ -90,8 +90,8 @@ fails and the program exits with a non-zero status code. This means
 that if there are no signatures present, verification will always
 succeed.
 
-[OS package]: https://git.glasklar.is/system-transparency/project/docs/-/blob/v0.4.1/content/docs/reference/os_package.md
-[Trust policy]: https://git.glasklar.is/system-transparency/project/docs/-/blob/v0.4.1/content/docs/reference/trust_policy.md
+[OS package]: https://git.glasklar.is/system-transparency/project/docs/-/blob/v0.5.2/content/docs/reference/os_package.md
+[Trust policy]: https://git.glasklar.is/system-transparency/project/docs/-/blob/v0.5.2/content/docs/reference/trust_policy.md
 [Sigsum]: https://www.sigsum.org
 
 ## The stmgr keygen command
@@ -164,5 +164,5 @@ stmgr hostconfig check JSON-DATA
 stmgr trustpolicy check JSON-DATA
 ```
 
-[trust policy]: https://git.glasklar.is/system-transparency/project/docs/-/blob/v0.4.1/content/docs/reference/trust_policy.md
-[host config]: https://git.glasklar.is/system-transparency/project/docs/-/blob/v0.4.1/content/docs/reference/host_configuration.md
+[trust policy]: https://git.glasklar.is/system-transparency/project/docs/-/blob/v0.5.2/content/docs/reference/trust_policy.md
+[host config]: https://git.glasklar.is/system-transparency/project/docs/-/blob/v0.5.2/content/docs/reference/host_configuration.md
