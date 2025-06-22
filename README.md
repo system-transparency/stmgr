@@ -3,14 +3,14 @@
 ST manager can be used to create and sign [OS Packages][] and more to
 ease the usage of [System Transparency][].
 
-[OS Packages]: https://git.glasklar.is/system-transparency/project/docs/-/blob/v0.4.1/content/docs/reference/os_package.md
+[OS Packages]: https://git.glasklar.is/system-transparency/project/docs/-/blob/v0.5.2/content/docs/reference/os_package.md
 [System Transparency]: https://www.system-transparency.org
 
 ---
 
 ## Requirements
 
-Go version 1.19 or higher.
+Go version 1.23 or higher.
 
 ---
 
