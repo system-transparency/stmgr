@@ -55,14 +55,15 @@ Authoritative ST release signing keys are published at
 https://www.system-transparency.org/keys, and the tag signature can be
 verified using the command
 
-git -c gpg.format=ssh -c gpg.ssh.allowedSignersFile=allowed-ST-release-signers \
-  tag --verify v0.X.X
+  git -c gpg.format=ssh \
+      -c gpg.ssh.allowedSignersFile=allowed-ST-release-signers \
+      tag --verify v0.X.X
 
 The expectations and intended use of the stmgr program is documented
 in the repository's RELEASES file.  This RELEASES file also contains
 more information concerning the overall release process, see:
 
-  https://git.glasklar.is/system-transparency/core/stmgr/-/blob/main/RELEASES.md
+  https://git.glasklar.is/system-transparency/core/stmgr/-/blob/v0.X.X/RELEASES.md
 
 Learn about what's new in a release from the repository's NEWS file.  An
 excerpt from the latest NEWS-file entry is listed below for convenience.
@@ -72,6 +73,7 @@ discuss list or open an issue on GitLab in the stmgr repository:
 
   https://lists.system-transparency.org/mailman3/postorius/lists/st-discuss.lists.system-transparency.org/
   https://git.glasklar.is/system-transparency/core/stmgr/-/issues
+  system-transparency-core-stmgr-issues@incoming.glasklar.is
 
 Cheers,
 The ST team
