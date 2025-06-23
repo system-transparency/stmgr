@@ -5,31 +5,31 @@ stages:
 # Succeeds if no changes are suggested by gofmt -d .
 gofmt:
   stage: test
-  image: git.glasklar.is:5050/glasklar/infra/containers/golang:1.23
+  image: golang:1.23
   script: if gofmt -d . | grep . ; then false ; else true ; fi
 
 staticcheck v0.5.1:
   stage: test
-  image: git.glasklar.is:5050/glasklar/infra/containers/golang:1.23
+  image: golang:1.23
   script:
     - go install honnef.co/go/tools/cmd/staticcheck@v0.5.1
     - staticcheck ./...
 
 compile go 1.23:
   stage: build
-  image: git.glasklar.is:5050/glasklar/infra/containers/golang:1.23
+  image: golang:1.23
   script:
     - go build -v ./...
 
 unittests:
   stage: test
-  image: git.glasklar.is:5050/glasklar/infra/containers/golang:1.23
+  image: golang:1.23
   script:
     - go test -race -v ./...
 
 coverage:
   stage: test
-  image: git.glasklar.is:5050/glasklar/infra/containers/golang:1.23
+  image: golang:1.23
   script:
     - go test ./... -coverprofile=coverage.txt -covermode count
     - go install github.com/boumenot/gocover-cobertura@latest
@@ -42,7 +42,7 @@ coverage:
 
 integration test:
   stage: test
-  image: git.glasklar.is:5050/glasklar/infra/containers/golang:1.23
+  image: golang:1.23
   before_script:
     - apt-get update
     - apt-get install -qqy openssl openssh-client jq unzip file sbsigntool
