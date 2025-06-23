@@ -27,3 +27,4 @@ stmgr is invoked with a command and a corresponding subcommand, for
 example `stmgr ospkg create`. In this example, `ospkg` is the command
 and `create` is the subcommand. See [manual](./docs/manual.md) for more
 details.
+
