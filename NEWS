@@ -1,4 +1,4 @@
-NEWS for stmgr v0.6.X
+NEWS for stmgr v0.6.6
 
     This release adds several new subcommands, most notably related to
     supporting OS packages that are transparently signed with Sigsum.
