@@ -45,7 +45,7 @@ integration test:
   image: golang:1.23
   before_script:
     - apt-get update
-    - apt-get install -qqy openssl openssh-client jq unzip file sbsigntool
+    - apt-get install -qqy openssl openssh-client jq unzip file sbsigntool make
   script:
     - make check
 
