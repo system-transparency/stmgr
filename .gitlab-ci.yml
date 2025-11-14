@@ -51,13 +51,12 @@ integration test:
 
 stboot integration:
   stage: test
-  image: debian:bookworm-backports
+  image: debian:trixie
   allow_failure: true
   before_script:
     - apt-get update
-    - apt-get install -qqy -t bookworm-backports golang-1.23
-    - apt-get install -qqy qemu-system-x86 wget parted mtools cpio dosfstools git unzip
-    - export PATH=/usr/lib/go-1.23/bin:$PATH
+    - apt-get install -qqy golang-1.24 qemu-system-x86 wget parted mtools cpio dosfstools git unzip
+    - export PATH=/usr/lib/go-1.24/bin:$PATH
   script:
     - git clone https://git.glasklar.is/system-transparency/core/stboot.git
     - cd stboot/integration && go work init && go work use . ../.. && ./qemu-boot-from-disk.sh
