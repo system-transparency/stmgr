@@ -8,11 +8,11 @@ gofmt:
   image: golang:1.23
   script: if gofmt -d . | grep . ; then false ; else true ; fi
 
-staticcheck v0.5.1:
+staticcheck v0.6.1:
   stage: test
   image: golang:1.23
   script:
-    - go install honnef.co/go/tools/cmd/staticcheck@v0.5.1
+    - go install honnef.co/go/tools/cmd/staticcheck@v0.6.1
     - staticcheck ./...
 
 compile go 1.23:
