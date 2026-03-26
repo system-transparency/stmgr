@@ -1,3 +1,9 @@
+NEWS for stmgr v0.7.x
+
+    Incompatible changes:
+
+    * This version requires go version 1.24 or later when building.
+
 NEWS for stmgr v0.6.6
 
     This release adds several new subcommands, most notably related to
