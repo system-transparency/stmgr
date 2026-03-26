@@ -6,7 +6,7 @@ go 1.24.0
 
 require (
 	github.com/diskfs/go-diskfs v1.3.0
-	github.com/foxboron/go-uefi v0.0.0-20250207204325-69fb7dba244f
+	github.com/foxboron/go-uefi v0.0.0-20251010190908-d29549a44f29
 	sigsum.org/sigsum-go v0.11.2
 	system-transparency.org/stboot v0.6.4
 )
