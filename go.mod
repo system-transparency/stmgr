@@ -5,7 +5,7 @@ module system-transparency.org/stmgr
 go 1.24.0
 
 require (
-	github.com/diskfs/go-diskfs v1.7.0
+	github.com/diskfs/go-diskfs v1.5.0
 	github.com/foxboron/go-uefi v0.0.0-20251010190908-d29549a44f29
 	sigsum.org/sigsum-go v0.11.2
 	system-transparency.org/stboot v0.6.4
@@ -13,7 +13,6 @@ require (
 
 require (
 	filippo.io/age v1.2.1 // indirect
-	github.com/anchore/go-lzo v0.1.0 // indirect
 	github.com/dchest/safefile v0.0.0-20151022103144-855e8d98f185 // indirect
 	github.com/djherbis/times v1.6.0 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
