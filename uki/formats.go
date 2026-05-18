@@ -50,6 +50,7 @@ func mkvfat(out, binary string) error {
 	table := &gpt.Table{
 		Partitions: []*gpt.Partition{
 			{
+				Index: 1,
 				Start: uint64(partitionStart),
 				End:   uint64(partitionEnd),
 				Type:  gpt.EFISystemPartition,
