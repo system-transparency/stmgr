@@ -31,7 +31,7 @@ EOF
 
 echo '{"ospkg_signature_threshold": 1, "ospkg_fetch_method": "network"}' >tmp_trust_policy/trust_policy.json
 
-echo "A dummmy OS package to sign with sigsum @$(date +%s)" > tmp.data
+echo "A dummy OS package to sign with sigsum @$(date +%s)" > tmp.data
 go run ../stmgr.go ospkg create -initramfs tmp.data -kernel tmp.data -out tmp.pkg.json
 
 go run sigsum.org/sigsum-go/cmd/sigsum-submit -k tmp.sign.key -p tmp_trust_policy/ospkg_trust_policy tmp.pkg.zip

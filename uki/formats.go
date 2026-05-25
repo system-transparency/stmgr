@@ -60,7 +60,7 @@ func mkvfat(out, binary string) error {
 
 	err = disk.Partition(table)
 	if err != nil {
-		return fmt.Errorf("failed to create partitiont table: %w", err)
+		return fmt.Errorf("failed to create partition table: %w", err)
 	}
 
 	spec := diskpkg.FilesystemSpec{Partition: 0, FSType: filesystem.TypeFat32}

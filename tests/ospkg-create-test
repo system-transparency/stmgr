@@ -11,7 +11,7 @@ function die () {
     exit 1
 }
 
-echo "A dummmy OS package" > tmp.data
+echo "A dummy OS package" > tmp.data
 
 for url in "example.zip" "https://example.org/pkg.zip" ; do
     rm -f tmp.pkg.json

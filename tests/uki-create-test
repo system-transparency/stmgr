@@ -11,7 +11,7 @@ function die () {
     exit 1
 }
 
-echo "A dummmy kernel & initramfs" > tmp.data
+echo "A dummy kernel & initramfs" > tmp.data
 
 # format = iso
 go run ../stmgr.go uki create -format iso -initramfs tmp.data -kernel tmp.data -out tmp.pkg.iso

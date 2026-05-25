@@ -14,7 +14,7 @@ function die () {
 go run ../stmgr.go keygen certificate -isCA -certOut tmp.root.cert -keyOut tmp.root.key
 ssh-keygen -q -N '' -t ed25519 -f tmp.sign.key
 
-echo "A dummmy OS package to sign without and with ssh agent" > tmp.data
+echo "A dummy OS package to sign without and with ssh agent" > tmp.data
 go run ../stmgr.go ospkg create -initramfs tmp.data -kernel tmp.data -out tmp.pkg.json
 go run ../stmgr.go ospkg sign -key tmp.root.key -cert tmp.root.cert -ospkg tmp.pkg.json
 go run ../stmgr.go keygen certificate -rootKey tmp.root.key -rootCert tmp.root.cert \
