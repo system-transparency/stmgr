@@ -1,3 +1,7 @@
+variables:
+  # Registry web: https://git.glasklar.is/glasklar/infra/containers/container_registry
+  STBOOT_OCI_IMAGE_NAME: git.glasklar.is:5050/glasklar/infra/containers/stboot
+
 stages:
   - build
   - test
@@ -51,12 +55,8 @@ integration test:
 
 stboot integration:
   stage: test
-  image: debian:trixie
+  image: $STBOOT_OCI_IMAGE_NAME:integration
   allow_failure: true
-  # Debian trixie has go 1.24, rely on go itself installing 1.25 that we use
-  before_script:
-    - apt-get update
-    - apt-get install -qqy golang qemu-system-x86 wget parted e2fsprogs mtools cpio dosfstools git unzip
   script:
     - git clone https://git.glasklar.is/system-transparency/core/stboot.git
     - cd stboot/integration && go work init && go work use . ../.. && ./qemu-boot-from-disk.sh
